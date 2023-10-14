@@ -18,8 +18,8 @@ func ErrLaneWithoutSink(s string) error {
 	return errors.New(fmt.Sprintf("ErrLaneWithoutSink: %s", s))
 }
 
-type Transformer interface {
-	Transform(ctx context.Context, val any) any
+type Map interface {
+	Map(ctx context.Context, val any) any
 }
 type Sink interface {
 	Sink(ctx context.Context, val any)
@@ -110,7 +110,7 @@ func newPipelinesTreeMapWith(
 		return nil, err
 	}
 
-	err = flat(ctx, LaneType, cfg.Lane, lanes)
+	err = flat(ctx, MapType, cfg.Map, lanes)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func newPipelinesTreeMapWith(
 		return nil, err
 	}
 
-	if len(cfg.Sink)+len(cfg.Lane)+len(cfg.Input) != len(lanes.Items) {
+	if len(cfg.Sink)+len(cfg.Map)+len(cfg.Input) != len(lanes.Items) {
 		return nil, ErrLaneNameMustBeUnique
 	}
 	lanes.connect()
@@ -161,29 +161,29 @@ func (t *TreeLanes) run(dataSource DataSource) error {
 	if err := t.validateOutputs(inputs); err != nil {
 		return err
 	}
-	transforms := t.filterByType(LaneType)
+	transforms := t.filterByType(MapType)
 	if err := t.validateOutputs(transforms); err != nil {
 		return err
 	}
 	sinks := t.filterByType(SinkType)
 	for i := range transforms {
 		item := transforms[i]
-		tr := dataSource.Transforms[item.Cfg.SourceName]
-		item.subscriber.Transform(tr.Transform)
-		go item.subscriber.run()
+		tr := dataSource.Maps[item.Cfg.SourceName]
+		item.subscriber.SetMap(tr.Map)
+		item.subscriber.run()
 	}
 	for i := range sinks {
 		item := sinks[i]
 		si := dataSource.Sinks[item.Cfg.SourceName]
-		item.subscriber.Sink(si.Sink)
-		go item.subscriber.run()
+		item.subscriber.SetSink(si.Sink)
+		item.subscriber.run()
 	}
 	for i := range inputs {
 		item := inputs[i]
 		generator := dataSource.Generators[item.Cfg.SourceName]
-		item.Gen(generator.Generate)
-		go item.subscriber.run()
-		go item.subscriber.Generate()
+		item.SetGenerator(generator.Generate)
+		item.subscriber.run()
+		item.subscriber.Receive()
 	}
 	return nil
 }

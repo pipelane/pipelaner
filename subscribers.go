@@ -6,31 +6,31 @@ import (
 	"sync"
 )
 
-type transform func(ctx context.Context, val any) any
-type sink func(ctx context.Context, val any)
-type gen func(ctx context.Context) any
+type MethodMap func(ctx context.Context, val any) any
+type MethodSink func(ctx context.Context, val any)
+type MethodGenerator func(ctx context.Context) any
 
 type subscriber struct {
-	sync.RWMutex
+	*sync.RWMutex
 	ctx        context.Context
 	bufferSize int64
 	input      chan any
 	outputs    []chan any
-	transform  transform
-	sink       sink
-	generate   gen
+	transform  MethodMap
+	sink       MethodSink
+	receive    MethodGenerator
 }
 
-func (s *subscriber) Transform(transform transform) {
+func (s *subscriber) SetMap(transform MethodMap) {
 	s.transform = transform
 }
 
-func (s *subscriber) Sink(sink sink) {
+func (s *subscriber) SetSink(sink MethodSink) {
 	s.sink = sink
 }
 
-func (s *subscriber) Gen(g gen) {
-	s.generate = g
+func (s *subscriber) SetGenerator(g MethodGenerator) {
+	s.receive = g
 }
 
 func newSubscriber(
@@ -38,7 +38,7 @@ func newSubscriber(
 	bufferSize int64,
 ) *subscriber {
 	s := &subscriber{
-		RWMutex:    sync.RWMutex{},
+		RWMutex:    &sync.RWMutex{},
 		ctx:        ctx,
 		bufferSize: bufferSize,
 		input:      make(chan any, bufferSize),
@@ -53,52 +53,62 @@ func (s *subscriber) setInputChannel(ch chan any) {
 	s.input = ch
 }
 
-func (s *subscriber) Generate() {
-	for {
-		select {
-		case <-s.ctx.Done():
-			break
-		default:
-			val := s.generate(s.ctx)
-			s.input <- val
+func (s *subscriber) Receive() {
+	go func() {
+		for {
+			select {
+			case <-s.ctx.Done():
+				break
+			default:
+				val := s.receive(s.ctx)
+				s.input <- val
+			}
 		}
-	}
+	}()
 }
 
 func (s *subscriber) run() {
-	for {
-		select {
-		case msg, ok := <-s.input:
-			if !ok {
-				return
-			}
-			s.RWMutex.Lock()
-			sort.SliceIsSorted(s.outputs, func(i, j int) bool {
-				return len(s.outputs[i]) < len(s.outputs[j])
-			})
-			s.RWMutex.Unlock()
-			go func(m any) {
+	go func() {
+		for {
+			select {
+			case msg, ok := <-s.input:
+				if !ok {
+					return
+				}
+				s.rebalanced()
+				//go func(m any) {
 				if s.transform != nil {
-					m = s.transform(s.ctx, m)
+					msg = s.transform(s.ctx, msg)
 				}
 				s.RWMutex.RLock()
 				for _, c := range s.outputs {
-					c <- m
+					c <- msg
 				}
 				s.RWMutex.RUnlock()
 				if s.sink != nil {
-					s.sink(s.ctx, m)
+					s.sink(s.ctx, msg)
 				}
-			}(msg)
-		case <-s.ctx.Done():
-			s.RWMutex.RLock()
-			for _, c := range s.outputs {
-				close(c)
+				//}(msg)
+			case <-s.ctx.Done():
+				s.RWMutex.RLock()
+				for _, c := range s.outputs {
+					close(c)
+				}
+				s.RWMutex.RUnlock()
+				return
 			}
-			s.RWMutex.RUnlock()
-			return
 		}
-	}
+	}()
+}
+
+func (s *subscriber) rebalanced() {
+	s.RWMutex.Lock()
+	sort.SliceIsSorted(s.outputs, func(i, j int) bool {
+		diff1 := cap(s.outputs[i]) - len(s.outputs[i])
+		diff2 := cap(s.outputs[j]) - len(s.outputs[j])
+		return diff1 > diff2
+	})
+	s.RWMutex.Unlock()
 }
 
 func (s *subscriber) createOutput(bufferSize int64) chan any {

@@ -6,13 +6,13 @@ type LaneTypes string
 
 const (
 	InputType LaneTypes = "input"
-	LaneType  LaneTypes = "lane"
+	MapType   LaneTypes = "map"
 	SinkType  LaneTypes = "sink"
 )
 
 type config struct {
 	Input map[string]any `pipeline:"input"`
-	Lane  map[string]any `pipeline:"lane"`
+	Map   map[string]any `pipeline:"map"`
 	Sink  map[string]any `pipeline:"sink"`
 }
 

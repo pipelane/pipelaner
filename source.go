@@ -1,11 +1,11 @@
 package pipelane
 
 type Generators map[string]Generator
-type Transformers map[string]Transformer
+type Maps map[string]Map
 type Sinks map[string]Sink
 
 type DataSource struct {
 	Generators Generators
-	Transforms Transformers
+	Maps       Maps
 	Sinks      Sinks
 }

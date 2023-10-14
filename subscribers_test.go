@@ -3,18 +3,18 @@ package pipelane
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/sync/errgroup"
 )
 
 func TestSubscriber_Subscribe(t *testing.T) {
 	type fields struct {
 	}
 	type args struct {
-		newBufferSize    int64
-		subscribersCount int
+		newBufferSize int64
+		maxValue      int
+		generator     MethodGenerator
+		maps          MethodMap
 	}
 	tests := []struct {
 		name   string
@@ -23,60 +23,66 @@ func TestSubscriber_Subscribe(t *testing.T) {
 		want   []int
 	}{
 		{
-			name:   "test createOutput 1",
+			name:   "test createOutput and map nil",
 			fields: fields{},
 			args: args{
-				newBufferSize:    3,
-				subscribersCount: 1,
+				newBufferSize: 3,
+				maxValue:      3,
+				generator: func() MethodGenerator {
+					i := 0
+					return func(ctx context.Context) any {
+						i++
+						return i
+					}
+				}(),
+				maps: nil,
 			},
 			want: []int{
-				0, 1, 2,
+				1, 2, 3,
 			},
 		},
 		{
-			name:   "test createOutput 2",
+			name:   "test createOutput and map",
 			fields: fields{},
 			args: args{
-				newBufferSize:    3,
-				subscribersCount: 2,
+				newBufferSize: 3,
+				maxValue:      4,
+				generator: func() MethodGenerator {
+					i := 0
+					return func(ctx context.Context) any {
+						i++
+						return i
+					}
+				}(),
+				maps: func(ctx context.Context, val any) any {
+					v := val.(int)
+					v++
+					return v
+				},
 			},
 			want: []int{
-				0, 1, 2, 0, 1, 2,
+				2, 3, 4,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c, cancel := context.WithCancel(context.Background())
-			s := newSubscriber(c, tt.args.newBufferSize, nil)
-			ch := make(chan any, tt.args.newBufferSize)
-			s.setInputChannel(ch)
-			gr := errgroup.Group{}
+			s := newSubscriber(c, tt.args.newBufferSize)
+			s.SetGenerator(tt.args.generator)
 			var res []int
-			for i := 0; i < tt.args.subscribersCount; i++ {
-				outPut := s.Subscribe(tt.args.newBufferSize)
-				gr.Go(func() error {
-					for v := range outPut {
-						res = append(res, v.(int))
-					}
-					return nil
-				})
-			}
-			gr.Go(func() error {
-				for i := 0; i < int(tt.args.newBufferSize); i++ {
-					ch <- i
+			s.SetMap(tt.args.maps)
+			s.SetSink(func(ctx context.Context, val any) {
+				if val.(int) > tt.args.maxValue {
+					cancel()
+				} else {
+					res = append(res, val.(int))
 				}
-				return nil
 			})
-			gr.Go(func() error {
-				time.Sleep(time.Second * 1)
-				cancel()
-				close(ch)
-				return nil
-			})
-			err := gr.Wait()
+			s.run()
+			s.Receive()
+			<-c.Done()
 			assert.Equal(t, res, tt.want)
-			assert.Nil(t, err)
 		})
 	}
 }

@@ -15,7 +15,7 @@ func main() {
 		Generators: pipelane.Generators{
 			"int": &generator.IntGenerator{},
 		},
-		Transforms: pipelane.Transformers{
+		Maps: pipelane.Maps{
 			"inc":  &transform.IncProcessor{},
 			"five": &transform.FiveProcessor{},
 		},
@@ -23,8 +23,7 @@ func main() {
 			"console": sink.NewConsole(pipelane.NewLogger()),
 		},
 	}
-	ch := make(chan bool, 1)
-	_, err := pipelane.NewTreeFrom(
+	a, err := pipelane.NewAgent(
 		context.Background(),
 		dataSource,
 		"pipeline.toml",
@@ -32,5 +31,5 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	<-ch
+	a.Serve()
 }

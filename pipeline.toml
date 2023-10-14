@@ -3,17 +3,17 @@
 buffer = 1
 source_name = "int"
 
-[lane.transform_input1]
+[map.transform_input1]
 buffer = 21
 input = "input1"
 source_name = "inc"
 
-[lane.transform_transform_input1]
+[map.transform_transform_input1]
 buffer = 22
 input = "transform_input1"
 source_name = "inc"
 
-[lane.five_input2]
+[map.five_input2]
 buffer = 22
 input = "transform_input1"
 source_name = "five"
