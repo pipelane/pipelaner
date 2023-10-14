@@ -12,13 +12,14 @@ type MethodGenerator func(ctx context.Context) any
 
 type subscriber struct {
 	*sync.RWMutex
-	ctx        context.Context
-	bufferSize int64
-	input      chan any
-	outputs    []chan any
-	transform  MethodMap
-	sink       MethodSink
-	receive    MethodGenerator
+	ctx          context.Context
+	bufferSize   int64
+	threadsCount *int64
+	input        chan any
+	outputs      []chan any
+	transform    MethodMap
+	sink         MethodSink
+	receive      MethodGenerator
 }
 
 func (s *subscriber) SetMap(transform MethodMap) {
@@ -36,12 +37,14 @@ func (s *subscriber) SetGenerator(g MethodGenerator) {
 func newSubscriber(
 	ctx context.Context,
 	bufferSize int64,
+	threadsCount *int64,
 ) *subscriber {
 	s := &subscriber{
-		RWMutex:    &sync.RWMutex{},
-		ctx:        ctx,
-		bufferSize: bufferSize,
-		input:      make(chan any, bufferSize),
+		RWMutex:      &sync.RWMutex{},
+		ctx:          ctx,
+		bufferSize:   bufferSize,
+		threadsCount: threadsCount,
+		input:        make(chan any, bufferSize),
 	}
 	return s
 }
@@ -68,6 +71,20 @@ func (s *subscriber) Receive() {
 }
 
 func (s *subscriber) run() {
+	var sema chan struct{}
+	if s.threadsCount != nil {
+		sema = make(chan struct{}, *s.threadsCount)
+	}
+	semaphoreLockLock := func() {
+		if sema != nil {
+			sema <- struct{}{}
+		}
+	}
+	semaphoreUnlock := func() {
+		if sema != nil {
+			<-sema
+		}
+	}
 	go func() {
 		for {
 			select {
@@ -76,19 +93,21 @@ func (s *subscriber) run() {
 					return
 				}
 				s.rebalanced()
-				//go func(m any) {
-				if s.transform != nil {
-					msg = s.transform(s.ctx, msg)
-				}
-				s.RWMutex.RLock()
-				for _, c := range s.outputs {
-					c <- msg
-				}
-				s.RWMutex.RUnlock()
-				if s.sink != nil {
-					s.sink(s.ctx, msg)
-				}
-				//}(msg)
+				semaphoreLockLock()
+				go func(m any) {
+					if s.transform != nil {
+						m = s.transform(s.ctx, m)
+					}
+					s.RWMutex.RLock()
+					for _, c := range s.outputs {
+						c <- m
+					}
+					s.RWMutex.RUnlock()
+					if s.sink != nil {
+						s.sink(s.ctx, m)
+					}
+					semaphoreUnlock()
+				}(msg)
 			case <-s.ctx.Done():
 				s.RWMutex.RLock()
 				for _, c := range s.outputs {

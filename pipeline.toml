@@ -7,6 +7,7 @@ source_name = "int"
 buffer = 21
 input = "input1"
 source_name = "inc"
+#threads_count = 10
 
 [map.transform_transform_input1]
 buffer = 22

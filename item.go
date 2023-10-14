@@ -33,7 +33,7 @@ func NewLaneItem(
 	config *BaseConfig,
 ) *LaneItem {
 	return &LaneItem{
-		subscriber: newSubscriber(ctx, config.BufferSize),
+		subscriber: newSubscriber(ctx, config.BufferSize, config.ThreadsCount),
 		Cfg:        config,
 	}
 }

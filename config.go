@@ -34,13 +34,14 @@ func newConfig(c map[string]any) (*config, error) {
 }
 
 type BaseConfig struct {
-	BufferSize int64          `pipelane:"buffer"`
-	SourceName string         `pipelane:"source_name"`
-	Input      *string        `pipelane:"input"`
-	Name       string         `pipelane:"-"`
-	LaneType   LaneTypes      `pipelane:"-"`
-	Extended   any            `pipelane:"-"`
-	_extended  map[string]any `pipelane:"-"`
+	BufferSize   int64          `pipelane:"buffer"`
+	ThreadsCount *int64         `pipelane:"threads_count"`
+	SourceName   string         `pipelane:"source_name"`
+	Input        *string        `pipelane:"input"`
+	Name         string         `pipelane:"-"`
+	LaneType     LaneTypes      `pipelane:"-"`
+	Extended     any            `pipelane:"-"`
+	_extended    map[string]any `pipelane:"-"`
 }
 
 func NewBaseConfigWithTypeAndExtended(
