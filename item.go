@@ -3,7 +3,7 @@ package pipelane
 import "context"
 
 type LaneItem struct {
-	*subscriber
+	runLoop         *runLoop
 	Cfg             *BaseLaneConfig
 	inputPipeline   *LaneItem
 	outputPipelines []*LaneItem
@@ -19,8 +19,8 @@ func (p *LaneItem) addOutputs(output *LaneItem) {
 }
 
 func (p *LaneItem) Subscribe(output *LaneItem) {
-	outputCh := p.createOutput(output.Cfg.BufferSize)
-	output.setInputChannel(outputCh)
+	outputCh := p.runLoop.createOutput(output.Cfg.BufferSize)
+	output.runLoop.setInputChannel(outputCh)
 	p.addOutputs(output)
 }
 
@@ -29,7 +29,7 @@ func NewLaneItem(
 	config *BaseLaneConfig,
 ) *LaneItem {
 	return &LaneItem{
-		subscriber: newSubscriber(ctx, config.BufferSize, config.Threads),
-		Cfg:        config,
+		runLoop: newRunLoop(ctx, config.BufferSize, config.Threads),
+		Cfg:     config,
 	}
 }

@@ -10,7 +10,7 @@ type MethodMap func(ctx context.Context, val any) any
 type MethodSink func(ctx context.Context, val any)
 type MethodGenerator func(ctx context.Context) any
 
-type subscriber struct {
+type runLoop struct {
 	*sync.RWMutex
 	ctx          context.Context
 	bufferSize   int64
@@ -22,24 +22,24 @@ type subscriber struct {
 	receive      MethodGenerator
 }
 
-func (s *subscriber) SetMap(transform MethodMap) {
+func (s *runLoop) SetMap(transform MethodMap) {
 	s.transform = transform
 }
 
-func (s *subscriber) SetSink(sink MethodSink) {
+func (s *runLoop) SetSink(sink MethodSink) {
 	s.sink = sink
 }
 
-func (s *subscriber) SetGenerator(g MethodGenerator) {
+func (s *runLoop) SetGenerator(g MethodGenerator) {
 	s.receive = g
 }
 
-func newSubscriber(
+func newRunLoop(
 	ctx context.Context,
 	bufferSize int64,
 	threadsCount *int64,
-) *subscriber {
-	s := &subscriber{
+) *runLoop {
+	s := &runLoop{
 		RWMutex:      &sync.RWMutex{},
 		ctx:          ctx,
 		bufferSize:   bufferSize,
@@ -49,14 +49,14 @@ func newSubscriber(
 	return s
 }
 
-func (s *subscriber) setInputChannel(ch chan any) {
+func (s *runLoop) setInputChannel(ch chan any) {
 	if s.input != nil {
 		close(s.input)
 	}
 	s.input = ch
 }
 
-func (s *subscriber) Receive() {
+func (s *runLoop) Receive() {
 	go func() {
 		for {
 			select {
@@ -70,7 +70,7 @@ func (s *subscriber) Receive() {
 	}()
 }
 
-func (s *subscriber) run() {
+func (s *runLoop) run() {
 	var sema chan struct{}
 	if s.threadsCount != nil {
 		sema = make(chan struct{}, *s.threadsCount)
@@ -120,7 +120,7 @@ func (s *subscriber) run() {
 	}()
 }
 
-func (s *subscriber) rebalanced() {
+func (s *runLoop) rebalanced() {
 	s.RWMutex.Lock()
 	sort.SliceIsSorted(s.outputs, func(i, j int) bool {
 		diff1 := cap(s.outputs[i]) - len(s.outputs[i])
@@ -130,7 +130,7 @@ func (s *subscriber) rebalanced() {
 	s.RWMutex.Unlock()
 }
 
-func (s *subscriber) createOutput(bufferSize int64) chan any {
+func (s *runLoop) createOutput(bufferSize int64) chan any {
 	ch := make(chan any, bufferSize)
 	s.RWMutex.Lock()
 	defer s.RWMutex.Unlock()

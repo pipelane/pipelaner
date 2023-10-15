@@ -69,7 +69,7 @@ func TestSubscriber_Subscribe(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			c, cancel := context.WithCancel(context.Background())
 			threads := int64(1)
-			s := newSubscriber(c, tt.args.newBufferSize, &threads)
+			s := newRunLoop(c, tt.args.newBufferSize, &threads)
 			s.SetGenerator(tt.args.generator)
 			var res []int
 			s.SetMap(tt.args.maps)
