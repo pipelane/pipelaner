@@ -75,7 +75,7 @@ func (s *runLoop) run() {
 	if s.threadsCount != nil {
 		sema = make(chan struct{}, *s.threadsCount)
 	}
-	semaphoreLockLock := func() {
+	semaphoreLock := func() {
 		if sema != nil {
 			sema <- struct{}{}
 		}
@@ -85,7 +85,14 @@ func (s *runLoop) run() {
 			<-sema
 		}
 	}
+	closeSema := func() {
+		if sema != nil {
+			close(sema)
+		}
+	}
 	go func() {
+		defer closeSema()
+		defer close(s.input)
 		for {
 			select {
 			case msg, ok := <-s.input:
@@ -93,7 +100,7 @@ func (s *runLoop) run() {
 					return
 				}
 				s.rebalanced()
-				semaphoreLockLock()
+				semaphoreLock()
 				go func(m any) {
 					if s.transform != nil {
 						m = s.transform(s.ctx, m)

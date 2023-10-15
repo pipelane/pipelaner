@@ -164,21 +164,21 @@ func (t *TreeLanes) run(dataSource DataSource) error {
 	for i := range transforms {
 		item := transforms[i]
 		tr := dataSource.Maps[item.Cfg.SourceName]
-		item.subscriber.SetMap(tr.Map)
-		item.subscriber.run()
+		item.runLoop.SetMap(tr.Map)
+		item.runLoop.run()
 	}
 	for i := range sinks {
 		item := sinks[i]
 		si := dataSource.Sinks[item.Cfg.SourceName]
-		item.subscriber.SetSink(si.Sink)
-		item.subscriber.run()
+		item.runLoop.SetSink(si.Sink)
+		item.runLoop.run()
 	}
 	for i := range inputs {
 		item := inputs[i]
 		generator := dataSource.Generators[item.Cfg.SourceName]
-		item.SetGenerator(generator.Generate)
-		item.subscriber.run()
-		item.subscriber.Receive()
+		item.runLoop.SetGenerator(generator.Generate)
+		item.runLoop.run()
+		item.runLoop.Receive()
 	}
 	return nil
 }
