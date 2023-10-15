@@ -13,7 +13,7 @@ var (
 )
 
 func ErrLaneWithoutSink(s string) error {
-	return errors.New(fmt.Sprintf("ErrLaneWithoutSink: %s", s))
+	return fmt.Errorf("ErrLaneWithoutSink: %s", s)
 }
 
 type Map interface {

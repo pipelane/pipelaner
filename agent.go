@@ -27,11 +27,5 @@ func NewAgent(
 }
 
 func (a *Agent) Serve() {
-	for {
-		select {
-		case <-a.ctx.Done():
-			break
-		default:
-		}
-	}
+	<-a.ctx.Done()
 }

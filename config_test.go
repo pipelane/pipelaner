@@ -142,11 +142,15 @@ source_name = "sink_int"
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tom, err := decodeTomlString(tt.args.tomlString)
-			if err != nil {
+			if tt.wantError && err != nil {
 				assert.Error(t, err)
 				return
 			}
 			got, err := newConfig(tom)
+			if tt.wantError && err != nil {
+				assert.Error(t, err)
+				return
+			}
 			assert.Equalf(t, tt.want, got, "newConfig(%v)", tt.args.tomlString)
 		})
 	}

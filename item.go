@@ -13,10 +13,6 @@ func (p *LaneItem) setInputPipelines(i *LaneItem) {
 	p.inputPipeline = i
 }
 
-func (p *LaneItem) outputs() []*LaneItem {
-	return p.outputPipelines
-}
-
 func (p *LaneItem) addOutputs(output *LaneItem) {
 	p.outputPipelines = append(p.outputPipelines, output)
 	output.setInputPipelines(p)
