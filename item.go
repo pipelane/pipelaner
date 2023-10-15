@@ -4,7 +4,7 @@ import "context"
 
 type LaneItem struct {
 	*subscriber
-	Cfg             *BaseConfig
+	Cfg             *BaseLaneConfig
 	inputPipeline   *LaneItem
 	outputPipelines []*LaneItem
 }
@@ -30,10 +30,10 @@ func (p *LaneItem) Subscribe(output *LaneItem) {
 
 func NewLaneItem(
 	ctx context.Context,
-	config *BaseConfig,
+	config *BaseLaneConfig,
 ) *LaneItem {
 	return &LaneItem{
-		subscriber: newSubscriber(ctx, config.BufferSize, config.ThreadsCount),
+		subscriber: newSubscriber(ctx, config.BufferSize, config.Threads),
 		Cfg:        config,
 	}
 }

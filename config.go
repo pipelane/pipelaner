@@ -1,6 +1,15 @@
 package pipelane
 
-import "github.com/mitchellh/mapstructure"
+import (
+	"errors"
+
+	"github.com/BurntSushi/toml"
+	"github.com/mitchellh/mapstructure"
+)
+
+var (
+	ErrNameNotBeEmptyString = errors.New("ErrNameNotBeEmptyString")
+)
 
 type LaneTypes string
 
@@ -14,6 +23,21 @@ type config struct {
 	Input map[string]any `pipeline:"input"`
 	Map   map[string]any `pipeline:"map"`
 	Sink  map[string]any `pipeline:"sink"`
+}
+
+type Internal struct {
+	Name      string         `pipelane:"-"`
+	LaneType  LaneTypes      `pipelane:"-"`
+	Extended  any            `pipelane:"-"`
+	_extended map[string]any `pipelane:"-"`
+}
+
+type BaseLaneConfig struct {
+	BufferSize int64   `pipelane:"buffer"`
+	Threads    *int64  `pipelane:"threads"`
+	SourceName string  `pipelane:"source_name"`
+	Input      *string `pipelane:"input"`
+	Internal
 }
 
 func newConfig(c map[string]any) (*config, error) {
@@ -33,25 +57,27 @@ func newConfig(c map[string]any) (*config, error) {
 	return cfg, nil
 }
 
-type BaseConfig struct {
-	BufferSize   int64          `pipelane:"buffer"`
-	ThreadsCount *int64         `pipelane:"threads_count"`
-	SourceName   string         `pipelane:"source_name"`
-	Input        *string        `pipelane:"input"`
-	Name         string         `pipelane:"-"`
-	LaneType     LaneTypes      `pipelane:"-"`
-	Extended     any            `pipelane:"-"`
-	_extended    map[string]any `pipelane:"-"`
-}
-
 func NewBaseConfigWithTypeAndExtended(
-	ItemType LaneTypes,
+	itemType LaneTypes,
+	name string,
 	extended map[string]any,
-) (*BaseConfig, error) {
-	c := BaseConfig{LaneType: ItemType, _extended: extended}
+) (*BaseLaneConfig, error) {
+	if name == "" {
+		return nil, ErrNameNotBeEmptyString
+	}
+	c := BaseLaneConfig{
+		Internal: Internal{
+			LaneType:  itemType,
+			Name:      name,
+			_extended: extended,
+		},
+	}
 	err := decode(extended, &c)
 	if err != nil {
 		return nil, err
+	}
+	if itemType == InputType {
+		c.Input = nil
 	}
 	if c.BufferSize == 0 {
 		c.BufferSize = 1
@@ -59,8 +85,26 @@ func NewBaseConfigWithTypeAndExtended(
 	return &c, nil
 }
 
-func NewBaseConfig(val map[string]any) (*BaseConfig, error) {
-	var cfg BaseConfig
+func readToml(file string) (map[string]any, error) {
+	var c map[string]any
+	_, err := toml.DecodeFile(file, &c)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
+func decodeTomlString(str string) (map[string]any, error) {
+	var c map[string]any
+	_, err := toml.Decode(str, &c)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
+func NewBaseConfig(val map[string]any) (*BaseLaneConfig, error) {
+	var cfg BaseLaneConfig
 	err := decode(val, &cfg)
 	if err != nil {
 		return nil, err
@@ -68,7 +112,7 @@ func NewBaseConfig(val map[string]any) (*BaseConfig, error) {
 	return &cfg, nil
 }
 
-func (c *BaseConfig) ParseExtended(v any) error {
+func (c *BaseLaneConfig) ParseExtended(v any) error {
 	err := decode(c._extended, v)
 	if err != nil {
 		return err

@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
-	"github.com/BurntSushi/toml"
 )
 
 var (
@@ -79,8 +77,7 @@ func NewTreeFrom(
 	dataSource DataSource,
 	file string,
 ) (*TreeLanes, error) {
-	var c map[string]any
-	_, err := toml.DecodeFile(file, &c)
+	c, err := readToml(file)
 	if err != nil {
 		return nil, err
 	}
@@ -141,12 +138,10 @@ func flat(
 		if !ok {
 			return ErrInvalidConfig
 		}
-		cfg, err := NewBaseConfigWithTypeAndExtended(types, val)
+		cfg, err := NewBaseConfigWithTypeAndExtended(types, k, val)
 		if err != nil {
 			return err
 		}
-
-		cfg.Name = k
 		p := NewLaneItem(
 			ctx,
 			cfg,

@@ -3,30 +3,30 @@
 buffer = 1
 source_name = "int"
 
-[map.transform_input1]
+[map.map1]
 buffer = 21
 input = "input1"
 source_name = "inc"
-#threads_count = 10
+threads = 2
 
-[map.transform_transform_input1]
+[map.map1_map2]
 buffer = 22
-input = "transform_input1"
+input = "map1"
 source_name = "inc"
 
-[map.five_input2]
+[map.map1_map3]
 buffer = 22
-input = "transform_input1"
+input = "map1"
 source_name = "five"
 
-[sink.sink_transform_transform_input1]
+[sink.map1_map2_sink]
 buffer = 31
-input = "transform_transform_input1"
+input = "map1_map2"
 source_name = "console"
 
-[sink.sink_five_input1]
+[sink.map1_map3_sink]
 buffer = 31
-input = "five_input2"
+input = "map1_map3"
 source_name = "console"
 
 ######## Test2
