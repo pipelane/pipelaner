@@ -1,17 +1,29 @@
 package pipelane
 
-import "context"
+import (
+	"context"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
 
 type Agent struct {
-	tree *TreeLanes
-	ctx  context.Context
+	tree   *TreeLanes
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 func NewAgent(
-	ctx context.Context,
 	dataSource DataSource,
 	file string,
 ) (*Agent, error) {
+
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
 	t, err := NewTreeFrom(
 		ctx,
 		dataSource,
@@ -21,11 +33,17 @@ func NewAgent(
 		return nil, err
 	}
 	return &Agent{
-		tree: t,
-		ctx:  ctx,
+		tree:   t,
+		ctx:    ctx,
+		cancel: stop,
 	}, err
 }
 
 func (a *Agent) Serve() {
 	<-a.ctx.Done()
+	time.Sleep(time.Second * 10)
+}
+
+func (a *Agent) Stop() {
+	a.cancel()
 }

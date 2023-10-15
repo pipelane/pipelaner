@@ -1,7 +1,7 @@
 package main
 
 import (
-	"context"
+	"time"
 
 	"pipelaner/source/generator"
 	"pipelaner/source/sink"
@@ -24,12 +24,15 @@ func main() {
 		},
 	}
 	a, err := pipelane.NewAgent(
-		context.Background(),
 		dataSource,
 		"pipeline.toml",
 	)
 	if err != nil {
 		panic(err)
 	}
+	go func() {
+		time.Sleep(time.Second * 15)
+		a.Stop()
+	}()
 	a.Serve()
 }

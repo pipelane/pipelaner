@@ -12,14 +12,15 @@ type MethodGenerator func(ctx context.Context) any
 
 type runLoop struct {
 	*sync.RWMutex
-	ctx          context.Context
-	bufferSize   int64
-	threadsCount *int64
-	input        chan any
-	outputs      []chan any
-	transform    MethodMap
-	sink         MethodSink
-	receive      MethodGenerator
+	ctx           context.Context
+	bufferSize    int64
+	threadsCount  *int64
+	input         chan any
+	overrideInput bool
+	outputs       []chan any
+	transform     MethodMap
+	sink          MethodSink
+	generator     MethodGenerator
 }
 
 func (s *runLoop) SetMap(transform MethodMap) {
@@ -31,7 +32,7 @@ func (s *runLoop) SetSink(sink MethodSink) {
 }
 
 func (s *runLoop) SetGenerator(g MethodGenerator) {
-	s.receive = g
+	s.generator = g
 }
 
 func newRunLoop(
@@ -53,6 +54,7 @@ func (s *runLoop) setInputChannel(ch chan any) {
 	if s.input != nil {
 		close(s.input)
 	}
+	s.overrideInput = true
 	s.input = ch
 }
 
@@ -63,7 +65,7 @@ func (s *runLoop) Receive() {
 			case <-s.ctx.Done():
 				break
 			default:
-				val := s.receive(s.ctx)
+				val := s.generator(s.ctx)
 				s.input <- val
 			}
 		}
@@ -75,7 +77,7 @@ func (s *runLoop) run() {
 	if s.threadsCount != nil {
 		sema = make(chan struct{}, *s.threadsCount)
 	}
-	semaphoreLock := func() {
+	semaphoreLockLock := func() {
 		if sema != nil {
 			sema <- struct{}{}
 		}
@@ -92,7 +94,7 @@ func (s *runLoop) run() {
 	}
 	go func() {
 		defer closeSema()
-		defer close(s.input)
+		defer s.stop()
 		for {
 			select {
 			case msg, ok := <-s.input:
@@ -100,7 +102,7 @@ func (s *runLoop) run() {
 					return
 				}
 				s.rebalanced()
-				semaphoreLock()
+				semaphoreLockLock()
 				go func(m any) {
 					if s.transform != nil {
 						m = s.transform(s.ctx, m)
@@ -116,11 +118,6 @@ func (s *runLoop) run() {
 					semaphoreUnlock()
 				}(msg)
 			case <-s.ctx.Done():
-				s.RWMutex.RLock()
-				for _, c := range s.outputs {
-					close(c)
-				}
-				s.RWMutex.RUnlock()
 				return
 			}
 		}
@@ -143,4 +140,16 @@ func (s *runLoop) createOutput(bufferSize int64) chan any {
 	defer s.RWMutex.Unlock()
 	s.outputs = append(s.outputs, ch)
 	return ch
+}
+
+func (s *runLoop) stop() {
+	s.RWMutex.Lock()
+	defer s.RWMutex.Unlock()
+	if !s.overrideInput {
+		close(s.input)
+	}
+	for i := range s.outputs {
+		close(s.outputs[i])
+	}
+	s.outputs = nil
 }
