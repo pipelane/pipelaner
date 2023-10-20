@@ -1,33 +1,40 @@
 ####### Test1
 [input.input1]
-buffer = 1
-source_name = "int"
+buffer = 100
+source_name = "cmd"
+exec = ["/usr/bin/log", "stream --style ndjson"]
 
-[map.map1]
-buffer = 21
+[sink.input1_sink]
+buffer = 31
 input = "input1"
-source_name = "inc"
-threads = 2
-
-[map.map1_map2]
-buffer = 22
-input = "map1"
-source_name = "inc"
-
-[map.map1_map3]
-buffer = 22
-input = "map1"
-source_name = "five"
-
-[sink.map1_map2_sink]
-buffer = 31
-input = "map1_map2"
 source_name = "console"
 
-[sink.map1_map3_sink]
-buffer = 31
-input = "map1_map3"
-source_name = "console"
+#
+#[map.map1]
+#buffer = 21
+#input = "input1"
+#source_name = "inc"
+#threads = 2
+#
+#[map.map1_map2]
+#buffer = 22
+#input = "map1"
+#source_name = "inc"
+#
+#[map.map1_map3]
+#buffer = 22
+#input = "map1"
+#source_name = "five"
+#
+#[sink.map1_map2_sink]
+#buffer = 31
+#input = "map1_map2"
+#source_name = "console"
+
+#[sink.map1_map3_sink]
+#buffer = 31
+#input = "input1"
+#source_name = "console"
 
 ######## Test2
 #[input.input2]

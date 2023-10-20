@@ -30,9 +30,17 @@ func TestSubscriber_Subscribe(t *testing.T) {
 				maxValue:      3,
 				generator: func() MethodGenerator {
 					i := 0
-					return func(ctx context.Context) any {
-						i++
-						return i
+					return func(ctx context.Context, input chan<- any) {
+						for {
+							select {
+							case <-ctx.Done():
+								break
+							default:
+								i++
+								input <- i
+							}
+
+						}
 					}
 				}(),
 				maps: nil,
@@ -49,9 +57,16 @@ func TestSubscriber_Subscribe(t *testing.T) {
 				maxValue:      4,
 				generator: func() MethodGenerator {
 					i := 0
-					return func(ctx context.Context) any {
-						i++
-						return i
+					return func(ctx context.Context, input chan<- any) {
+						for {
+							select {
+							case <-ctx.Done():
+								break
+							default:
+								i++
+								input <- i
+							}
+						}
 					}
 				}(),
 				maps: func(ctx context.Context, val any) any {

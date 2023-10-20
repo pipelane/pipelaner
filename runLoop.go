@@ -8,7 +8,7 @@ import (
 
 type MethodMap func(ctx context.Context, val any) any
 type MethodSink func(ctx context.Context, val any)
-type MethodGenerator func(ctx context.Context) any
+type MethodGenerator func(ctx context.Context, input chan<- any)
 
 type runLoop struct {
 	*sync.RWMutex
@@ -59,17 +59,7 @@ func (s *runLoop) setInputChannel(ch chan any) {
 }
 
 func (s *runLoop) Receive() {
-	go func() {
-		for {
-			select {
-			case <-s.ctx.Done():
-				break
-			default:
-				val := s.generator(s.ctx)
-				s.input <- val
-			}
-		}
-	}()
+	go s.generator(s.ctx, s.input)
 }
 
 func (s *runLoop) run() {

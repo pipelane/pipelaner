@@ -14,6 +14,7 @@ func main() {
 	dataSource := pipelane.DataSource{
 		Generators: pipelane.Generators{
 			"int": &generator.IntGenerator{},
+			"cmd": &generator.Command{},
 		},
 		Maps: pipelane.Maps{
 			"inc":  &transform.IncProcessor{},

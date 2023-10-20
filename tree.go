@@ -16,14 +16,21 @@ func ErrLaneWithoutSink(s string) error {
 	return fmt.Errorf("ErrLaneWithoutSink: %s", s)
 }
 
+type Init interface {
+	Init(cfg *BaseLaneConfig) error
+}
+
 type Map interface {
+	Init
 	Map(ctx context.Context, val any) any
 }
 type Sink interface {
+	Init
 	Sink(ctx context.Context, val any)
 }
 type Generator interface {
-	Generate(ctx context.Context) any
+	Init
+	Generate(ctx context.Context, input chan<- any)
 }
 
 type TreeLanes struct {
@@ -164,18 +171,30 @@ func (t *TreeLanes) run(dataSource DataSource) error {
 	for i := range transforms {
 		item := transforms[i]
 		tr := dataSource.Maps[item.Cfg.SourceName]
+		err := tr.Init(item.Cfg)
+		if err != nil {
+			return err
+		}
 		item.runLoop.SetMap(tr.Map)
 		item.runLoop.run()
 	}
 	for i := range sinks {
 		item := sinks[i]
 		si := dataSource.Sinks[item.Cfg.SourceName]
+		err := si.Init(item.Cfg)
+		if err != nil {
+			return err
+		}
 		item.runLoop.SetSink(si.Sink)
 		item.runLoop.run()
 	}
 	for i := range inputs {
 		item := inputs[i]
 		generator := dataSource.Generators[item.Cfg.SourceName]
+		err := generator.Init(item.Cfg)
+		if err != nil {
+			return err
+		}
 		item.runLoop.SetGenerator(generator.Generate)
 		item.runLoop.run()
 		item.runLoop.Receive()

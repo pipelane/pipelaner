@@ -591,3 +591,60 @@ host = "0.0.0.0"
 		})
 	}
 }
+
+func TestBaseLaneConfig_ParseExtendedArrays(t *testing.T) {
+	type args struct {
+		tomlString string
+		itemType   LaneTypes
+		name       string
+	}
+	type testStruct struct {
+		Hosts []string `pipelane:"hosts"`
+	}
+	tests := []struct {
+		name string
+		args args
+		want any
+	}{
+		{
+			name: "test array extended host and port",
+			args: args{
+				tomlString: `
+[input.input1]
+buffer = 1
+source_name = "int"
+hosts = ["0.0.0.0", "1.1.1.1"]
+`,
+				itemType: InputType,
+				name:     "input1",
+			},
+			want: testStruct{
+				Hosts: []string{"0.0.0.0", "1.1.1.1"},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			tom, err := decodeTomlString(tt.args.tomlString)
+			if err != nil {
+				assert.Error(t, err)
+				return
+			}
+			data := tom[string(tt.args.itemType)].(map[string]any)
+			extended := data[tt.args.name].(map[string]any)
+			cfg, err := NewBaseConfigWithTypeAndExtended(tt.args.itemType, tt.args.name, extended)
+			if err != nil {
+				assert.NotNil(t, err)
+				return
+			}
+			var got testStruct
+			err = cfg.ParseExtended(&got)
+			if err != nil {
+				assert.NotNil(t, err)
+				return
+			}
+			assert.Equalf(t, got, tt.want, fmt.Sprintf("ParseExtended(%v)", tt.args.tomlString))
+		})
+	}
+}
