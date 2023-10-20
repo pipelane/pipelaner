@@ -1,4 +1,4 @@
-module pipelaner
+module github.com/pipelane/pipelaner
 
 go 1.21
 
@@ -7,7 +7,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/zerolog v1.31.0
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/sync v0.3.0
 )
 
 require (

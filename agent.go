@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 type Agent struct {
@@ -41,7 +40,6 @@ func NewAgent(
 
 func (a *Agent) Serve() {
 	<-a.ctx.Done()
-	time.Sleep(time.Second * 10)
 }
 
 func (a *Agent) Stop() {

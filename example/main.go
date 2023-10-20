@@ -3,11 +3,11 @@ package main
 import (
 	"time"
 
-	"pipelaner/source/generator"
-	"pipelaner/source/sink"
-	"pipelaner/source/transform"
+	"github.com/pipelane/pipelaner/source/generator"
+	"github.com/pipelane/pipelaner/source/sink"
+	"github.com/pipelane/pipelaner/source/transform"
 
-	"pipelaner"
+	"github.com/pipelane/pipelaner"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 			"console": sink.NewConsole(pipelane.NewLogger()),
 		},
 	}
-	a, err := pipelane.NewAgent(
+	agent, err := pipelane.NewAgent(
 		dataSource,
 		"pipeline.toml",
 	)
@@ -32,7 +32,7 @@ func main() {
 	}
 	go func() {
 		time.Sleep(time.Second * 15)
-		a.Stop()
+		agent.Stop()
 	}()
-	a.Serve()
+	agent.Serve()
 }
