@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 Alexey Khokhlov
+ */
+
 package generator
 
 import (
@@ -9,22 +13,22 @@ import (
 
 	"github.com/rs/zerolog"
 
-	pipelane "github.com/pipelane/pipelaner"
+	"github.com/pipelane/pipelaner"
 )
 
-type CommandCfg struct {
+type ExecCfg struct {
 	Exec []string `pipelane:"exec"`
 }
 
-type Command struct {
-	cfg    *pipelane.BaseLaneConfig
+type Exec struct {
+	cfg    *pipelaner.BaseLaneConfig
 	logger zerolog.Logger
 }
 
-func (c *Command) Init(cfg *pipelane.BaseLaneConfig) error {
+func (c *Exec) Init(cfg *pipelaner.BaseLaneConfig) error {
 	c.cfg = cfg
-	c.logger = pipelane.NewLogger()
-	v := &CommandCfg{}
+	c.logger = pipelaner.NewLogger()
+	v := &ExecCfg{}
 	err := cfg.ParseExtended(v)
 	if err != nil {
 		return err
@@ -32,9 +36,9 @@ func (c *Command) Init(cfg *pipelane.BaseLaneConfig) error {
 	return nil
 }
 
-func (c *Command) Generate(ctx context.Context, input chan<- any) {
+func (c *Exec) Generate(ctx context.Context, input chan<- any) {
 	var args []string
-	cfg := c.cfg.Extended.(*CommandCfg)
+	cfg := c.cfg.Extended.(*ExecCfg)
 	if len(cfg.Exec) > 1 {
 		args = strings.Split(cfg.Exec[1], " ")
 	}
@@ -56,12 +60,12 @@ func (c *Command) Generate(ctx context.Context, input chan<- any) {
 	go c.readPipe(ctx, stdPipe, input)
 	go c.readPipe(ctx, stdErr, input)
 
-	if err := cmd.Wait(); err != nil {
+	if err = cmd.Wait(); err != nil {
 		c.logger.Error().Err(err).Msg("Exec: command wait error")
 	}
 }
 
-func (c *Command) readPipe(ctx context.Context, pipe io.Reader, input chan<- any) {
+func (c *Exec) readPipe(ctx context.Context, pipe io.Reader, input chan<- any) {
 	scanner := bufio.NewScanner(pipe)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {

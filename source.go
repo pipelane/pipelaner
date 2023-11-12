@@ -1,4 +1,8 @@
-package pipelane
+/*
+ * Copyright (c) 2023 Alexey Khokhlov
+ */
+
+package pipelaner
 
 type Generators map[string]Generator
 type Maps map[string]Map

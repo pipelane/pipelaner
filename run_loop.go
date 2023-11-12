@@ -1,4 +1,8 @@
-package pipelane
+/*
+ * Copyright (c) 2023 Alexey Khokhlov
+ */
+
+package pipelaner
 
 import (
 	"context"
@@ -10,29 +14,43 @@ type MethodMap func(ctx context.Context, val any) any
 type MethodSink func(ctx context.Context, val any)
 type MethodGenerator func(ctx context.Context, input chan<- any)
 
+type loopCfg struct {
+	bufferSize   int64
+	threadsCount *int64
+}
+
+type methods struct {
+	transform MethodMap
+	sink      MethodSink
+	generator MethodGenerator
+}
+
 type runLoop struct {
-	*sync.RWMutex
+	mx            sync.RWMutex
 	ctx           context.Context
-	bufferSize    int64
-	threadsCount  *int64
+	cfg           *loopCfg
 	input         chan any
 	overrideInput bool
 	outputs       []chan any
-	transform     MethodMap
-	sink          MethodSink
-	generator     MethodGenerator
+	methods       methods
 }
 
 func (s *runLoop) SetMap(transform MethodMap) {
-	s.transform = transform
+	s.methods = methods{
+		transform: transform,
+	}
 }
 
 func (s *runLoop) SetSink(sink MethodSink) {
-	s.sink = sink
+	s.methods = methods{
+		sink: sink,
+	}
 }
 
 func (s *runLoop) SetGenerator(g MethodGenerator) {
-	s.generator = g
+	s.methods = methods{
+		generator: g,
+	}
 }
 
 func newRunLoop(
@@ -41,11 +59,13 @@ func newRunLoop(
 	threadsCount *int64,
 ) *runLoop {
 	s := &runLoop{
-		RWMutex:      &sync.RWMutex{},
-		ctx:          ctx,
-		bufferSize:   bufferSize,
-		threadsCount: threadsCount,
-		input:        make(chan any, bufferSize),
+		mx:  sync.RWMutex{},
+		ctx: ctx,
+		cfg: &loopCfg{
+			bufferSize:   bufferSize,
+			threadsCount: threadsCount,
+		},
+		input: make(chan any, bufferSize),
 	}
 	return s
 }
@@ -59,15 +79,15 @@ func (s *runLoop) setInputChannel(ch chan any) {
 }
 
 func (s *runLoop) Receive() {
-	go s.generator(s.ctx, s.input)
+	go s.methods.generator(s.ctx, s.input)
 }
 
 func (s *runLoop) run() {
 	var sema chan struct{}
-	if s.threadsCount != nil {
-		sema = make(chan struct{}, *s.threadsCount)
+	if s.cfg.threadsCount != nil {
+		sema = make(chan struct{}, *s.cfg.threadsCount)
 	}
-	semaphoreLockLock := func() {
+	semaphoreLock := func() {
 		if sema != nil {
 			sema <- struct{}{}
 		}
@@ -92,20 +112,26 @@ func (s *runLoop) run() {
 					return
 				}
 				s.rebalanced()
-				semaphoreLockLock()
+				semaphoreLock()
 				go func(m any) {
-					if s.transform != nil {
-						m = s.transform(s.ctx, m)
+					defer semaphoreUnlock()
+					if s.methods.transform != nil {
+						m = s.methods.transform(s.ctx, m)
 					}
-					s.RWMutex.RLock()
-					for _, c := range s.outputs {
-						c <- m
+					if _, isErr := m.(error); isErr {
+						return
 					}
-					s.RWMutex.RUnlock()
-					if s.sink != nil {
-						s.sink(s.ctx, m)
+					if m != nil {
+						s.mx.RLock()
+						for _, c := range s.outputs {
+							c <- m
+						}
+						s.mx.RUnlock()
 					}
-					semaphoreUnlock()
+					if s.methods.sink != nil {
+						s.methods.sink(s.ctx, m)
+					}
+
 				}(msg)
 			case <-s.ctx.Done():
 				return
@@ -115,26 +141,26 @@ func (s *runLoop) run() {
 }
 
 func (s *runLoop) rebalanced() {
-	s.RWMutex.Lock()
+	s.mx.Lock()
 	sort.SliceIsSorted(s.outputs, func(i, j int) bool {
 		diff1 := cap(s.outputs[i]) - len(s.outputs[i])
 		diff2 := cap(s.outputs[j]) - len(s.outputs[j])
 		return diff1 > diff2
 	})
-	s.RWMutex.Unlock()
+	s.mx.Unlock()
 }
 
 func (s *runLoop) createOutput(bufferSize int64) chan any {
 	ch := make(chan any, bufferSize)
-	s.RWMutex.Lock()
-	defer s.RWMutex.Unlock()
+	s.mx.Lock()
+	defer s.mx.Unlock()
 	s.outputs = append(s.outputs, ch)
 	return ch
 }
 
 func (s *runLoop) stop() {
-	s.RWMutex.Lock()
-	defer s.RWMutex.Unlock()
+	s.mx.Lock()
+	defer s.mx.Unlock()
 	if !s.overrideInput {
 		close(s.input)
 	}

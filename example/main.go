@@ -1,30 +1,39 @@
+/*
+ * Copyright (c) 2023 Alexey Khokhlov
+ */
+
 package main
 
 import (
 	"time"
 
-	"github.com/pipelane/pipelaner/source/generator"
-	"github.com/pipelane/pipelaner/source/sink"
-	"github.com/pipelane/pipelaner/source/transform"
+	"pipelaner/source/generator"
+	"pipelaner/source/sink"
+	"pipelaner/source/transform"
 
 	"github.com/pipelane/pipelaner"
 )
 
 func main() {
-	dataSource := pipelane.DataSource{
-		Generators: pipelane.Generators{
-			"int": &generator.IntGenerator{},
-			"cmd": &generator.Command{},
+	dataSource := pipelaner.DataSource{
+		Generators: pipelaner.Generators{
+			"exec": &generator.Exec{},
+			//For Test
+			"int":  &generator.IntGenerator{},
+			"rand": &generator.MapGenerator{},
 		},
-		Maps: pipelane.Maps{
+		Maps: pipelaner.Maps{
+			"filter": &transform.Filter{},
+
+			//For Test
 			"inc":  &transform.IncProcessor{},
 			"five": &transform.FiveProcessor{},
 		},
-		Sinks: pipelane.Sinks{
-			"console": sink.NewConsole(pipelane.NewLogger()),
+		Sinks: pipelaner.Sinks{
+			"console": sink.NewConsole(pipelaner.NewLogger()),
 		},
 	}
-	agent, err := pipelane.NewAgent(
+	agent, err := pipelaner.NewAgent(
 		dataSource,
 		"pipeline.toml",
 	)

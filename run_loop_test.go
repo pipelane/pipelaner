@@ -1,4 +1,8 @@
-package pipelane
+/*
+ * Copyright (c) 2023 Alexey Khokhlov
+ */
+
+package pipelaner
 
 import (
 	"context"
@@ -85,16 +89,18 @@ func TestSubscriber_Subscribe(t *testing.T) {
 			c, cancel := context.WithCancel(context.Background())
 			threads := int64(1)
 			s := newRunLoop(c, tt.args.newBufferSize, &threads)
-			s.SetGenerator(tt.args.generator)
 			var res []int
-			s.SetMap(tt.args.maps)
-			s.SetSink(func(ctx context.Context, val any) {
-				if val.(int) > tt.args.maxValue {
-					cancel()
-				} else {
-					res = append(res, val.(int))
-				}
-			})
+			s.methods = methods{
+				transform: tt.args.maps,
+				sink: func(ctx context.Context, val any) {
+					if val.(int) > tt.args.maxValue {
+						cancel()
+					} else {
+						res = append(res, val.(int))
+					}
+				},
+				generator: tt.args.generator,
+			}
 			s.run()
 			s.Receive()
 			<-c.Done()

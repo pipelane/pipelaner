@@ -1,13 +1,32 @@
 ####### Test1
 [input.input1]
 buffer = 100
-source_name = "cmd"
-exec = ["/usr/bin/log", "stream --style ndjson"]
+source_name = "rand"
+
+[map.filter]
+buffer = 100
+input = "input1"
+source_name = "filter"
+code = '''
+    Data.user.id < 2
+'''
 
 [sink.input1_sink]
 buffer = 31
-input = "input1"
+input = "filter"
 source_name = "console"
+
+
+####### Test1
+#[input.input1]
+#buffer = 100
+#source_name = "cmd"
+#exec = ["/usr/bin/log", "stream --style ndjson"]
+#
+#[sink.input1_sink]
+#buffer = 31
+#input = "input1"
+#source_name = "console"
 
 #
 #[map.map1]
