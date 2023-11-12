@@ -16,6 +16,8 @@ github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyua
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/pipelane/pipelaner v0.0.0-20231112115953-7d5cb03f4d88 h1:zKaFcd14L9ap/2KNDnRKMq1/HUAJQa31yEPjhNcqM3M=
 github.com/pipelane/pipelaner v0.0.0-20231112115953-7d5cb03f4d88/go.mod h1:7jFa4FygtV99K4azyxBQIkFnbYlEVP2oADRr3wQ+yPQ=
+github.com/pipelane/pipelaner v0.0.0-20231112171354-b3b6fcb6cb91 h1:cUlTaUu+kqa0ShIwBkap0LzBuq41q49QIYJ9cmM6lvA=
+github.com/pipelane/pipelaner v0.0.0-20231112171354-b3b6fcb6cb91/go.mod h1:0008hot5noII0kjgSy5oiKmTys4qRNzurK4Mx28rDlg=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=

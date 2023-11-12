@@ -2,7 +2,7 @@ module pipelaner/example
 
 go 1.21.2
 
-require github.com/pipelane/pipelaner v0.0.0-20231112115953-7d5cb03f4d88
+require github.com/pipelane/pipelaner v0.0.0-20231112171354-b3b6fcb6cb91
 
 require (
 	github.com/BurntSushi/toml v1.3.2 // indirect

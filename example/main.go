@@ -7,11 +7,10 @@ package main
 import (
 	"time"
 
-	"pipelaner/source/generator"
-	"pipelaner/source/sink"
-	"pipelaner/source/transform"
-
 	"github.com/pipelane/pipelaner"
+	"github.com/pipelane/pipelaner/source/generator"
+	"github.com/pipelane/pipelaner/source/sink"
+	"github.com/pipelane/pipelaner/source/transform"
 )
 
 func main() {
