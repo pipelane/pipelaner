@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PipelanerClient interface {
-	Sink(ctx context.Context, opts ...grpc.CallOption) (Pipelaner_SinkClient, error)
+	Sink(ctx context.Context, in *Message, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type pipelanerClient struct {
@@ -34,53 +34,28 @@ func NewPipelanerClient(cc grpc.ClientConnInterface) PipelanerClient {
 	return &pipelanerClient{cc}
 }
 
-func (c *pipelanerClient) Sink(ctx context.Context, opts ...grpc.CallOption) (Pipelaner_SinkClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Pipelaner_ServiceDesc.Streams[0], "/pipelaner.service.Pipelaner/Sink", opts...)
+func (c *pipelanerClient) Sink(ctx context.Context, in *Message, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/pipelaner.service.Pipelaner/Sink", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &pipelanerSinkClient{stream}
-	return x, nil
-}
-
-type Pipelaner_SinkClient interface {
-	Send(*Message) error
-	CloseAndRecv() (*emptypb.Empty, error)
-	grpc.ClientStream
-}
-
-type pipelanerSinkClient struct {
-	grpc.ClientStream
-}
-
-func (x *pipelanerSinkClient) Send(m *Message) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *pipelanerSinkClient) CloseAndRecv() (*emptypb.Empty, error) {
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	m := new(emptypb.Empty)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 // PipelanerServer is the server API for Pipelaner service.
 // All implementations should embed UnimplementedPipelanerServer
 // for forward compatibility
 type PipelanerServer interface {
-	Sink(Pipelaner_SinkServer) error
+	Sink(context.Context, *Message) (*emptypb.Empty, error)
 }
 
 // UnimplementedPipelanerServer should be embedded to have forward compatible implementations.
 type UnimplementedPipelanerServer struct {
 }
 
-func (UnimplementedPipelanerServer) Sink(Pipelaner_SinkServer) error {
-	return status.Errorf(codes.Unimplemented, "method Sink not implemented")
+func (UnimplementedPipelanerServer) Sink(context.Context, *Message) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sink not implemented")
 }
 
 // UnsafePipelanerServer may be embedded to opt out of forward compatibility for this service.
@@ -94,30 +69,22 @@ func RegisterPipelanerServer(s grpc.ServiceRegistrar, srv PipelanerServer) {
 	s.RegisterService(&Pipelaner_ServiceDesc, srv)
 }
 
-func _Pipelaner_Sink_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(PipelanerServer).Sink(&pipelanerSinkServer{stream})
-}
-
-type Pipelaner_SinkServer interface {
-	SendAndClose(*emptypb.Empty) error
-	Recv() (*Message, error)
-	grpc.ServerStream
-}
-
-type pipelanerSinkServer struct {
-	grpc.ServerStream
-}
-
-func (x *pipelanerSinkServer) SendAndClose(m *emptypb.Empty) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *pipelanerSinkServer) Recv() (*Message, error) {
-	m := new(Message)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _Pipelaner_Sink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Message)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
+	if interceptor == nil {
+		return srv.(PipelanerServer).Sink(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pipelaner.service.Pipelaner/Sink",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PipelanerServer).Sink(ctx, req.(*Message))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 // Pipelaner_ServiceDesc is the grpc.ServiceDesc for Pipelaner service.
@@ -126,13 +93,12 @@ func (x *pipelanerSinkServer) Recv() (*Message, error) {
 var Pipelaner_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pipelaner.service.Pipelaner",
 	HandlerType: (*PipelanerServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams: []grpc.StreamDesc{
+	Methods: []grpc.MethodDesc{
 		{
-			StreamName:    "Sink",
-			Handler:       _Pipelaner_Sink_Handler,
-			ClientStreams: true,
+			MethodName: "Sink",
+			Handler:    _Pipelaner_Sink_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "service.proto",
 }

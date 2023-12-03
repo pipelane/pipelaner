@@ -5,33 +5,25 @@
 package server
 
 import (
-	"io"
+	"context"
 	"sync"
 
 	"github.com/rs/zerolog"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	"github.com/pipelane/pipelaner/server/service"
+	"github.com/pipelane/pipelaner/internal/service"
 )
 
 type PipelanerServer struct {
 	service.UnimplementedPipelanerServer
-	mu     sync.Mutex // protects routeNotes
+	mu     sync.Mutex
 	logger zerolog.Logger
 	buffer chan *service.Message
 }
 
-func (s *PipelanerServer) Sink(stream service.Pipelaner_SinkServer) error {
-	for {
-		message, err := stream.Recv()
-		if err == io.EOF {
-			return stream.SendAndClose(&emptypb.Empty{})
-		}
-		if err != nil {
-			return err
-		}
-		s.buffer <- message
-	}
+func (s *PipelanerServer) Sink(ctx context.Context, message *service.Message) (*emptypb.Empty, error) {
+	s.buffer <- message
+	return &emptypb.Empty{}, nil
 }
 
 func NewServer(logger zerolog.Logger, bufferSize int64) *PipelanerServer {

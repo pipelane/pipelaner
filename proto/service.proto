@@ -6,12 +6,12 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/pipelane/pipelaner/source/server/service";
+option go_package = "github.com/pipelane/pipelaner/internal/service";
 
 package pipelaner.service;
 
 service Pipelaner {
-  rpc Sink (stream Message) returns (google.protobuf.Empty) {}
+  rpc Sink (Message) returns (google.protobuf.Empty) {}
 }
 
 message Message {

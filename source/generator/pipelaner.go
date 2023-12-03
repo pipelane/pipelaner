@@ -14,11 +14,11 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	"github.com/pipelane/pipelaner"
-	"github.com/pipelane/pipelaner/server"
-	"github.com/pipelane/pipelaner/server/service"
+	"github.com/pipelane/pipelaner/internal/service"
+	"github.com/pipelane/pipelaner/source/generator/server"
 )
 
-type PipelanerCfg struct {
+type GrpcCfg struct {
 	Host     *string `pipelane:"host"`
 	Port     int     `pipelane:"port"`
 	Tls      bool    `pipelane:"tls"`
@@ -35,7 +35,7 @@ type Pipelaner struct {
 func (p *Pipelaner) Init(cfg *pipelaner.BaseLaneConfig) error {
 	p.cfg = cfg
 	p.logger = pipelaner.NewLogger()
-	v := &PipelanerCfg{}
+	v := &GrpcCfg{}
 	err := cfg.ParseExtended(v)
 	if err != nil {
 		return err
@@ -46,7 +46,7 @@ func (p *Pipelaner) Init(cfg *pipelaner.BaseLaneConfig) error {
 	}
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", host, v.Port))
 	if err != nil {
-		p.logger.Fatal().Err(err).Msg(fmt.Sprintf("Failed to listen %s:%d", host, v.Port))
+		p.logger.Fatal().Err(err).Msgf("Failed to listen %s:%d", host, v.Port)
 	}
 	var opts []grpc.ServerOption
 	if v.Tls {

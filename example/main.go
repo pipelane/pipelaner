@@ -16,20 +16,21 @@ import (
 func main() {
 	dataSource := pipelaner.DataSource{
 		Generators: pipelaner.Generators{
-			"exec": &generator.Exec{},
+			"exec":      &generator.Exec{},
+			"pipelaner": &generator.Pipelaner{},
 			//For Test
 			"int":  &generator.IntGenerator{},
 			"rand": &generator.MapGenerator{},
 		},
 		Maps: pipelaner.Maps{
 			"filter": &transform.Filter{},
-
 			//For Test
 			"inc":  &transform.IncProcessor{},
 			"five": &transform.FiveProcessor{},
 		},
 		Sinks: pipelaner.Sinks{
-			"console": sink.NewConsole(pipelaner.NewLogger()),
+			"console":   sink.NewConsole(pipelaner.NewLogger()),
+			"pipelaner": &sink.Pipelaner{},
 		},
 	}
 	agent, err := pipelaner.NewAgent(

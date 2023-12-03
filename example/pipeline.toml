@@ -1,20 +1,56 @@
-####### Test1
-[input.input1]
+# grpc_server
+[input.grpc_server]
+buffer = 100
+source_name = "pipelaner"
+port = 9090
+
+[map.filter_grpc_server]
+buffer = 100
+input = "grpc_server"
+source_name = "filter"
+code = '''
+    Data.user.id > 9
+'''
+
+[sink.console_filter_grpc_server]
+buffer = 31
+input = "filter_grpc_server"
+source_name = "console"
+
+###### grpc_client
+[input.random_generator]
 buffer = 100
 source_name = "rand"
 
-[map.filter]
+[map.filter_random_input]
 buffer = 100
-input = "input1"
+input = "random_generator"
 source_name = "filter"
 code = '''
-    Data.user.id < 2
+    Data.user.id > 5
 '''
 
-[sink.input1_sink]
+[sink.grpc_client]
 buffer = 31
-input = "filter"
-source_name = "console"
+input = "filter_random_input"
+source_name = "pipelaner"
+port = 9090
+
+
+
+
+######## Test Protobuf scaling
+#[input.pipelaner]
+#buffer = 100
+#source_name = "pipelaner"
+#host = "localhost"
+#port = 50501
+#
+#
+#[sink.pipelaner_sink]
+#buffer = 31
+#input = "pipelaner"
+#source_name = "console"
 
 
 ####### Test1

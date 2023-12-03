@@ -14,5 +14,5 @@ test:
 proto:
 	@rm -rf service/proto/*
 	@docker run -v $(PWD):/defs namely/protoc-all:1.51_2 -i proto -d proto -o go -l go && \
-    mv go/github.com/pipelane/pipelaner/source/server/service/* server/service/  && \
+    mv go/github.com/pipelane/pipelaner/internal/service/* internal/service/  && \
     rm -rf go
