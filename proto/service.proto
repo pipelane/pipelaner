@@ -18,5 +18,6 @@ message Message {
   oneof data {
     string string_value = 1;
     bytes bytes_value = 2;
+    bytes json_value = 3;
   }
 }

@@ -6,6 +6,7 @@ package generator
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net"
 
@@ -75,7 +76,19 @@ func (p *Pipelaner) Generate(ctx context.Context, input chan<- any) {
 		case <-ctx.Done():
 			break
 		default:
-			input <- m
+			if m.GetBytesValue() != nil {
+				input <- m.GetBytesValue()
+			} else if m.GetStringValue() != "" {
+				input <- m.GetStringValue()
+			} else if m.GetJsonValue() != nil {
+				var v map[string]any
+				err := json.Unmarshal(m.GetJsonValue(), &v)
+				if err != nil {
+					p.logger.Error().Err(err).Msg("Error invalid unmarshal json data")
+					continue
+				}
+				input <- v
+			}
 		}
 	}
 }

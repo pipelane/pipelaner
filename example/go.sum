@@ -26,6 +26,8 @@ github.com/pipelane/pipelaner v0.0.0-20231203170220-c5b0eb9f3562 h1:YKC3PsLQY06J
 github.com/pipelane/pipelaner v0.0.0-20231203170220-c5b0eb9f3562/go.mod h1:0008hot5noII0kjgSy5oiKmTys4qRNzurK4Mx28rDlg=
 github.com/pipelane/pipelaner v0.0.0-20231203170553-e87199674750 h1:Y5Hs/V8cdrAgyjdp0/RB+5IyDwNDUDa1aVyyFppH5nQ=
 github.com/pipelane/pipelaner v0.0.0-20231203170553-e87199674750/go.mod h1:0008hot5noII0kjgSy5oiKmTys4qRNzurK4Mx28rDlg=
+github.com/pipelane/pipelaner v0.0.0-20231203172029-34ca45708251 h1:eH5+O8O3YqkafGKLRsAgnEFiQA4VWd64k+dSSVKZpXk=
+github.com/pipelane/pipelaner v0.0.0-20231203172029-34ca45708251/go.mod h1:0008hot5noII0kjgSy5oiKmTys4qRNzurK4Mx28rDlg=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=

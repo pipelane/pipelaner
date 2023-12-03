@@ -4,17 +4,17 @@ buffer = 100
 source_name = "pipelaner"
 port = 9090
 
-[map.filter_grpc_server]
-buffer = 100
-input = "grpc_server"
-source_name = "filter"
-code = '''
-    Data.user.id > 9
-'''
+#[map.filter_grpc_server]
+#buffer = 100
+#input = "grpc_server"
+#source_name = "filter"
+#code = '''
+#    Data.user.id > 9
+#'''
 
 [sink.console_filter_grpc_server]
 buffer = 31
-input = "filter_grpc_server"
+input = "grpc_server"
 source_name = "console"
 
 ###### grpc_client

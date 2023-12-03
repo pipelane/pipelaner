@@ -7,7 +7,6 @@ package sink
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/rs/zerolog"
@@ -17,10 +16,6 @@ import (
 
 	"github.com/pipelane/pipelaner"
 	"github.com/pipelane/pipelaner/internal/service"
-)
-
-var (
-	ErrInvalidDataFormat = errors.New("ErrInvalidDataFormat")
 )
 
 type GrpcCfg struct {
@@ -91,8 +86,8 @@ func (p *Pipelaner) Sink(ctx context.Context, val any) {
 			return
 		}
 		m = &service.Message{
-			Data: &service.Message_BytesValue{
-				BytesValue: b,
+			Data: &service.Message_JsonValue{
+				JsonValue: b,
 			},
 		}
 	}
