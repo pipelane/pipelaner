@@ -12,7 +12,7 @@ import (
 
 	"github.com/antonmedv/expr"
 
-	pipelane "github.com/pipelane/pipelaner"
+	"pipelaner"
 )
 
 type EnvMap struct {
@@ -24,14 +24,18 @@ type ExprConfig struct {
 }
 
 type Filter struct {
-	cfg     *pipelane.BaseLaneConfig
+	cfg     *pipelaner.BaseLaneConfig
 	logger  zerolog.Logger
 	program *vm.Program
 }
 
-func (e *Filter) Init(cfg *pipelane.BaseLaneConfig) error {
+func (e *Filter) New() pipelaner.Map {
+	return &Filter{}
+}
+
+func (e *Filter) Init(cfg *pipelaner.BaseLaneConfig) error {
 	e.cfg = cfg
-	e.logger = pipelane.NewLogger()
+	e.logger = pipelaner.NewLogger()
 	v := &ExprConfig{}
 	err := cfg.ParseExtended(v)
 	if err != nil {

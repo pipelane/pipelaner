@@ -7,10 +7,12 @@ package main
 import (
 	"time"
 
-	"github.com/pipelane/pipelaner"
-	"github.com/pipelane/pipelaner/source/generator"
-	"github.com/pipelane/pipelaner/source/sink"
-	"github.com/pipelane/pipelaner/source/transform"
+	"pipelaner"
+	"pipelaner/example/tests"
+
+	"pipelaner/source/generator"
+	"pipelaner/source/sink"
+	"pipelaner/source/transform"
 )
 
 func main() {
@@ -19,14 +21,17 @@ func main() {
 			"exec":      &generator.Exec{},
 			"pipelaner": &generator.Pipelaner{},
 			//For Test
-			"int":  &generator.IntGenerator{},
-			"rand": &generator.MapGenerator{},
+			"int":  &tests.IntGenerator{},
+			"int2": &tests.IntTwoGenerator{},
+			"rand": &tests.MapGenerator{},
 		},
 		Maps: pipelaner.Maps{
 			"filter": &transform.Filter{},
 			//For Test
-			"inc":  &transform.IncProcessor{},
-			"five": &transform.FiveProcessor{},
+			"int_tr":   &tests.IntTransform{},
+			"int_tr_e": &tests.IntTransformEmpty{},
+			//"inc":  &transform.IncProcessor{},
+			//"five": &transform.FiveProcessor{},
 		},
 		Sinks: pipelaner.Sinks{
 			"console":   sink.NewConsole(pipelaner.NewLogger()),
@@ -41,7 +46,7 @@ func main() {
 		panic(err)
 	}
 	go func() {
-		time.Sleep(time.Second * 15)
+		time.Sleep(time.Second * 120)
 		agent.Stop()
 	}()
 	agent.Serve()

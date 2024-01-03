@@ -37,10 +37,10 @@ type Internal struct {
 }
 
 type BaseLaneConfig struct {
-	BufferSize int64   `pipelane:"buffer"`
-	Threads    *int64  `pipelane:"threads"`
-	SourceName string  `pipelane:"source_name"`
-	Input      *string `pipelane:"input"`
+	BufferSize int64    `pipelane:"buffer"`
+	Threads    *int64   `pipelane:"threads"`
+	SourceName string   `pipelane:"source_name"`
+	Inputs     []string `pipelane:"inputs"`
 	Internal
 }
 
@@ -81,7 +81,7 @@ func NewBaseConfigWithTypeAndExtended(
 		return nil, err
 	}
 	if itemType == InputType {
-		c.Input = nil
+		c.Inputs = nil
 	}
 	if c.BufferSize == 0 {
 		c.BufferSize = 1

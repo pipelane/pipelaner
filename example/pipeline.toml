@@ -1,42 +1,66 @@
-# grpc_server
-[input.grpc_server]
-buffer = 100
-source_name = "pipelaner"
-port = 9090
-
+## grpc_server
+#[input.grpc_server]
+#buffer = 100
+#source_name = "pipelaner"
+#port = 9090
+#
 #[map.filter_grpc_server]
 #buffer = 100
 #input = "grpc_server"
 #source_name = "filter"
 #code = '''
-#    Data.user.id > 9
+#    Data.user.id > 8
 #'''
+#
+#[sink.console_filter_grpc_server]
+#buffer = 31
+#input = "filter_grpc_server"
+#source_name = "console"
+#
+####### grpc_client
+#[input.random_generator]
+#buffer = 100
+#source_name = "rand"
+#
+#[map.filter_random_input]
+#buffer = 100
+#input = "random_generator"
+#source_name = "filter"
+#code = '''
+#    Data.user.id > 5
+#'''
+#
+#[sink.grpc_client]
+#buffer = 31
+#input = "filter_random_input"
+#source_name = "pipelaner"
+#port = 9090
 
-[sink.console_filter_grpc_server]
+
+### Test multi inputs
+
+[input.test_input]
+buffer = 100
+threads = 1
+source_name = "int"
+
+[map.test_int_transform]
+inputs = ["test_input"]
+buffer = 100
+threads = 1
+source_name = "int_tr_e"
+
+[map.test_int_transform_empty]
+inputs = ["test_input"]
+buffer = 100
+threads = 1
+source_name = "int_tr_e"
+
+[sink.input1_sink]
 buffer = 31
-input = "grpc_server"
+threads = 1
+inputs = ["test_int_transform", "test_int_transform_empty"]
 source_name = "console"
-
-###### grpc_client
-[input.random_generator]
-buffer = 100
-source_name = "rand"
-
-[map.filter_random_input]
-buffer = 100
-input = "random_generator"
-source_name = "filter"
-code = '''
-    Data.user.id > 5
-'''
-
-[sink.grpc_client]
-buffer = 31
-input = "filter_random_input"
-source_name = "pipelaner"
-port = 9090
-
-
 
 
 ######## Test Protobuf scaling

@@ -14,8 +14,8 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/pipelane/pipelaner"
-	"github.com/pipelane/pipelaner/internal/service"
+	"pipelaner"
+	"pipelaner/internal/service"
 )
 
 type GrpcCfg struct {

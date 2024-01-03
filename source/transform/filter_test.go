@@ -12,15 +12,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	pipelane "github.com/pipelane/pipelaner"
+	"pipelaner"
 )
 
 func newCfg(
-	itemType pipelane.LaneTypes,
+	itemType pipelaner.LaneTypes,
 	name string,
 	extended map[string]any,
-) *pipelane.BaseLaneConfig {
-	c, _ := pipelane.NewBaseConfigWithTypeAndExtended(
+) *pipelaner.BaseLaneConfig {
+	c, _ := pipelaner.NewBaseConfigWithTypeAndExtended(
 		itemType,
 		name,
 		extended,
@@ -31,7 +31,7 @@ func newCfg(
 func TestExprLanguage_Map(t *testing.T) {
 	type args struct {
 		val any
-		cfg *pipelane.BaseLaneConfig
+		cfg *pipelaner.BaseLaneConfig
 	}
 	tests := []struct {
 		name string
@@ -41,7 +41,7 @@ func TestExprLanguage_Map(t *testing.T) {
 		{
 			name: "test filtering maps return nil",
 			args: args{
-				cfg: newCfg(pipelane.MapType,
+				cfg: newCfg(pipelaner.MapType,
 					"test_maps",
 					map[string]any{
 						"code": "Data.count > 5",
@@ -56,7 +56,7 @@ func TestExprLanguage_Map(t *testing.T) {
 		{
 			name: "test filtering maps return 10",
 			args: args{
-				cfg: newCfg(pipelane.MapType,
+				cfg: newCfg(pipelaner.MapType,
 					"test_maps",
 					map[string]any{
 						"code": "Data.count > 5",

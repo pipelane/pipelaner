@@ -10,7 +10,7 @@ import (
 
 	"github.com/rs/zerolog"
 
-	pipelane "github.com/pipelane/pipelaner"
+	"pipelaner"
 )
 
 type Console struct {
@@ -20,7 +20,7 @@ type Console struct {
 func NewConsole(logger zerolog.Logger) *Console {
 	return &Console{logger: logger}
 }
-func (c *Console) Init(cfg *pipelane.BaseLaneConfig) error {
+func (c *Console) Init(cfg *pipelaner.BaseLaneConfig) error {
 	return nil
 }
 

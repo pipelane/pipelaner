@@ -86,10 +86,10 @@ func TestSubscriber_Subscribe(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c, cancel := context.WithCancel(context.Background())
 			threads := int64(1)
-			s := newRunLoop(c, tt.args.newBufferSize, &threads)
+			s := newRunLoop(tt.args.newBufferSize, &threads)
 			var res []int
+			c, cancel := context.WithCancel(context.Background())
 			s.methods = methods{
 				transform: tt.args.maps,
 				sink: func(ctx context.Context, val any) {
@@ -101,8 +101,8 @@ func TestSubscriber_Subscribe(t *testing.T) {
 				},
 				generator: tt.args.generator,
 			}
-			s.run()
-			s.Receive()
+			s.run(c)
+			s.Receive(c)
 			<-c.Done()
 			assert.Equal(t, res, tt.want)
 		})

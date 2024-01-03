@@ -188,7 +188,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				BufferSize: 1,
 				Threads:    nil,
 				SourceName: "int",
-				Input:      nil,
+				Inputs:     nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
@@ -217,7 +217,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				BufferSize: 1,
 				Threads:    nil,
 				SourceName: "int",
-				Input:      nil,
+				Inputs:     nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
@@ -247,7 +247,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				BufferSize: 1,
 				Threads:    nil,
 				SourceName: "int",
-				Input:      nil,
+				Inputs:     nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
@@ -267,7 +267,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				itemType: SinkType,
 				name:     "sink1",
 				extended: map[string]any{
-					"input":       "input_name",
+					"inputs":      []string{"input_name"},
 					"source_name": "int",
 					"host":        "0.0.0.0",
 					"port":        "8080",
@@ -277,7 +277,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				BufferSize: 1,
 				Threads:    nil,
 				SourceName: "int",
-				Input:      stringPtr("input_name"),
+				Inputs:     []string{"input_name"},
 				Internal: Internal{
 					Name:     "sink1",
 					LaneType: SinkType,
@@ -286,7 +286,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 						"source_name": "int",
 						"host":        "0.0.0.0",
 						"port":        "8080",
-						"input":       "input_name",
+						"inputs":      []string{"input_name"},
 					},
 				},
 			},
@@ -297,7 +297,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				itemType: MapType,
 				name:     "map1",
 				extended: map[string]any{
-					"input":       "input_name",
+					"inputs":      []string{"input_name"},
 					"source_name": "int",
 					"host":        "0.0.0.0",
 					"port":        "8080",
@@ -307,7 +307,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				BufferSize: 1,
 				Threads:    nil,
 				SourceName: "int",
-				Input:      stringPtr("input_name"),
+				Inputs:     []string{"input_name"},
 				Internal: Internal{
 					Name:     "map1",
 					LaneType: MapType,
@@ -316,7 +316,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 						"source_name": "int",
 						"host":        "0.0.0.0",
 						"port":        "8080",
-						"input":       "input_name",
+						"inputs":      []string{"input_name"},
 					},
 				},
 			},
@@ -362,7 +362,7 @@ port = "8080"
 				BufferSize: 1,
 				Threads:    nil,
 				SourceName: "int",
-				Input:      nil,
+				Inputs:     nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
@@ -392,7 +392,7 @@ port = "8080"
 				BufferSize: 1,
 				Threads:    nil,
 				SourceName: "int",
-				Input:      nil,
+				Inputs:     nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
@@ -422,7 +422,7 @@ port = "8080"
 				BufferSize: 1,
 				Threads:    nil,
 				SourceName: "int",
-				Input:      nil,
+				Inputs:     nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
@@ -444,7 +444,7 @@ port = "8080"
 source_name = "int"
 host = "0.0.0.0"
 port = "8080"
-input = "input_name"
+inputs = ["input_name"]
 `,
 				itemType: SinkType,
 				name:     "sink1",
@@ -453,7 +453,7 @@ input = "input_name"
 				BufferSize: 1,
 				Threads:    nil,
 				SourceName: "int",
-				Input:      stringPtr("input_name"),
+				Inputs:     []string{"input_name"},
 				Internal: Internal{
 					Name:     "sink1",
 					LaneType: SinkType,
@@ -462,7 +462,7 @@ input = "input_name"
 						"source_name": "int",
 						"host":        "0.0.0.0",
 						"port":        "8080",
-						"input":       "input_name",
+						"inputs":      []any{"input_name"},
 					},
 				},
 			},
@@ -475,7 +475,7 @@ input = "input_name"
 source_name = "int"
 host = "0.0.0.0"
 port = "8080"
-input = "input_name"
+inputs = ["input_name"]
 `,
 				itemType: MapType,
 				name:     "map1",
@@ -484,7 +484,7 @@ input = "input_name"
 				BufferSize: 1,
 				Threads:    nil,
 				SourceName: "int",
-				Input:      stringPtr("input_name"),
+				Inputs:     []string{"input_name"},
 				Internal: Internal{
 					Name:     "map1",
 					LaneType: MapType,
@@ -493,7 +493,7 @@ input = "input_name"
 						"source_name": "int",
 						"host":        "0.0.0.0",
 						"port":        "8080",
-						"input":       "input_name",
+						"inputs":      []any{"input_name"},
 					},
 				},
 			},

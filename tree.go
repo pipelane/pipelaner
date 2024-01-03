@@ -26,6 +26,7 @@ type Init interface {
 
 type Map interface {
 	Init
+	New() Map
 	Map(ctx context.Context, val any) any
 }
 type Sink interface {
@@ -60,15 +61,18 @@ func (t *TreeLanes) filterByType(lt LaneTypes) []*LaneItem {
 func (t *TreeLanes) mapWithInputs() map[string][]*LaneItem {
 	inputs := map[string][]*LaneItem{}
 	for _, val := range t.Items {
-		if val.Cfg.Input == nil {
+		if len(val.Cfg.Inputs) == 0 {
 			continue
 		}
-		var arr []*LaneItem
-		if i, ok := inputs[*val.Cfg.Input]; ok {
-			arr = i
+		for i := range val.Cfg.Inputs {
+			input := val.Cfg.Inputs[i]
+			var arr []*LaneItem
+			if v, ok := inputs[input]; ok {
+				arr = v
+			}
+			arr = append(arr, val)
+			inputs[input] = arr
 		}
-		arr = append(arr, val)
-		inputs[*val.Cfg.Input] = arr
 	}
 	return inputs
 }
@@ -113,17 +117,17 @@ func newPipelinesTreeMapWith(
 		return nil, ErrInputsNotFound
 	}
 
-	err = flat(ctx, InputType, cfg.Input, lanes)
+	err = flat(InputType, cfg.Input, lanes)
 	if err != nil {
 		return nil, err
 	}
 
-	err = flat(ctx, MapType, cfg.Map, lanes)
+	err = flat(MapType, cfg.Map, lanes)
 	if err != nil {
 		return nil, err
 	}
 
-	err = flat(ctx, SinkType, cfg.Sink, lanes)
+	err = flat(SinkType, cfg.Sink, lanes)
 	if err != nil {
 		return nil, err
 	}
@@ -132,14 +136,13 @@ func newPipelinesTreeMapWith(
 		return nil, ErrLaneNameMustBeUnique
 	}
 	lanes.connect()
-	if err = lanes.run(dataSource); err != nil {
+	if err = lanes.run(ctx, dataSource); err != nil {
 		return nil, err
 	}
 	return lanes, nil
 }
 
 func flat(
-	ctx context.Context,
 	types LaneTypes,
 	input map[string]any,
 	output *TreeLanes,
@@ -154,7 +157,6 @@ func flat(
 			return err
 		}
 		p := NewLaneItem(
-			ctx,
 			cfg,
 		)
 		output.append(p)
@@ -162,7 +164,7 @@ func flat(
 	return nil
 }
 
-func (t *TreeLanes) run(dataSource DataSource) error {
+func (t *TreeLanes) run(ctx context.Context, dataSource DataSource) error {
 	inputs := t.filterByType(InputType)
 	if err := t.validateOutputs(inputs); err != nil {
 		return err
@@ -175,12 +177,13 @@ func (t *TreeLanes) run(dataSource DataSource) error {
 	for i := range transforms {
 		item := transforms[i]
 		tr := dataSource.Maps[item.Cfg.SourceName]
-		err := tr.Init(item.Cfg)
+		t := tr.New()
+		err := t.Init(item.Cfg)
 		if err != nil {
 			return err
 		}
-		item.runLoop.SetMap(tr.Map)
-		item.runLoop.run()
+		item.runLoop.SetMap(t.Map)
+		item.runLoop.run(ctx)
 	}
 	for i := range sinks {
 		item := sinks[i]
@@ -190,7 +193,7 @@ func (t *TreeLanes) run(dataSource DataSource) error {
 			return err
 		}
 		item.runLoop.SetSink(si.Sink)
-		item.runLoop.run()
+		item.runLoop.run(ctx)
 	}
 	for i := range inputs {
 		item := inputs[i]
@@ -200,8 +203,8 @@ func (t *TreeLanes) run(dataSource DataSource) error {
 			return err
 		}
 		item.runLoop.SetGenerator(generator.Generate)
-		item.runLoop.run()
-		item.runLoop.Receive()
+		item.runLoop.run(ctx)
+		item.runLoop.Receive(ctx)
 	}
 	return nil
 }

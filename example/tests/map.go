@@ -2,20 +2,20 @@
  * Copyright (c) 2023 Alexey Khokhlov
  */
 
-package generator
+package tests
 
 import (
 	"context"
 	"crypto/rand"
 	"math/big"
 
-	pipelane "github.com/pipelane/pipelaner"
+	"pipelaner"
 )
 
 type MapGenerator struct {
 }
 
-func (i *MapGenerator) Init(cfg *pipelane.BaseLaneConfig) error {
+func (i *MapGenerator) Init(cfg *pipelaner.BaseLaneConfig) error {
 	return nil
 }
 

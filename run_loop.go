@@ -6,7 +6,6 @@ package pipelaner
 
 import (
 	"context"
-	"sort"
 	"sync"
 )
 
@@ -27,9 +26,8 @@ type methods struct {
 
 type runLoop struct {
 	mx            sync.RWMutex
-	ctx           context.Context
 	cfg           *loopCfg
-	input         chan any
+	inputs        []chan any
 	overrideInput bool
 	outputs       []chan any
 	methods       methods
@@ -54,35 +52,27 @@ func (s *runLoop) SetGenerator(g MethodGenerator) {
 }
 
 func newRunLoop(
-	ctx context.Context,
 	bufferSize int64,
 	threadsCount *int64,
 ) *runLoop {
 	s := &runLoop{
-		mx:  sync.RWMutex{},
-		ctx: ctx,
+		mx: sync.RWMutex{},
 		cfg: &loopCfg{
 			bufferSize:   bufferSize,
 			threadsCount: threadsCount,
 		},
-		input: make(chan any, bufferSize),
+		inputs: []chan any{make(chan any, bufferSize)},
 	}
 	return s
 }
 
-func (s *runLoop) setInputChannel(ch chan any) {
-	if s.input != nil {
-		close(s.input)
+func (s *runLoop) Receive(ctx context.Context) {
+	for i := range s.inputs {
+		go s.methods.generator(ctx, s.inputs[i])
 	}
-	s.overrideInput = true
-	s.input = ch
 }
 
-func (s *runLoop) Receive() {
-	go s.methods.generator(s.ctx, s.input)
-}
-
-func (s *runLoop) run() {
+func (s *runLoop) run(ctx context.Context) {
 	var sema chan struct{}
 	if s.cfg.threadsCount != nil {
 		sema = make(chan struct{}, *s.cfg.threadsCount)
@@ -102,21 +92,21 @@ func (s *runLoop) run() {
 			close(sema)
 		}
 	}
+	input := mergeInputs(ctx, s.inputs...)
 	go func() {
 		defer closeSema()
 		defer s.stop()
 		for {
 			select {
-			case msg, ok := <-s.input:
+			case msg, ok := <-input:
 				if !ok {
 					return
 				}
-				s.rebalanced()
 				semaphoreLock()
 				go func(m any) {
 					defer semaphoreUnlock()
 					if s.methods.transform != nil {
-						m = s.methods.transform(s.ctx, m)
+						m = s.methods.transform(ctx, m)
 					}
 					if _, isErr := m.(error); isErr {
 						return
@@ -129,25 +119,15 @@ func (s *runLoop) run() {
 						s.mx.RUnlock()
 					}
 					if s.methods.sink != nil {
-						s.methods.sink(s.ctx, m)
+						s.methods.sink(ctx, m)
 					}
 
 				}(msg)
-			case <-s.ctx.Done():
+			case <-ctx.Done():
 				return
 			}
 		}
 	}()
-}
-
-func (s *runLoop) rebalanced() {
-	s.mx.Lock()
-	sort.SliceIsSorted(s.outputs, func(i, j int) bool {
-		diff1 := cap(s.outputs[i]) - len(s.outputs[i])
-		diff2 := cap(s.outputs[j]) - len(s.outputs[j])
-		return diff1 > diff2
-	})
-	s.mx.Unlock()
 }
 
 func (s *runLoop) createOutput(bufferSize int64) chan any {
@@ -158,11 +138,26 @@ func (s *runLoop) createOutput(bufferSize int64) chan any {
 	return ch
 }
 
+func (s *runLoop) setInputChannel(ch chan any) {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+	if !s.overrideInput {
+		for i := range s.inputs {
+			close(s.inputs[i])
+		}
+		s.inputs = []chan any{}
+	}
+	s.overrideInput = true
+	s.inputs = append(s.inputs, ch)
+}
+
 func (s *runLoop) stop() {
 	s.mx.Lock()
 	defer s.mx.Unlock()
 	if !s.overrideInput {
-		close(s.input)
+		for i := range s.inputs {
+			close(s.inputs[i])
+		}
 	}
 	for i := range s.outputs {
 		close(s.outputs[i])

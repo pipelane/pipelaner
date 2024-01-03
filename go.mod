@@ -1,4 +1,4 @@
-module github.com/pipelane/pipelaner
+module pipelaner
 
 go 1.21
 
@@ -17,6 +17,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/pipelane/pipelaner v0.0.0-20231015134140-096930570e4c // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect

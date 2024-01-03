@@ -4,22 +4,20 @@
 
 package pipelaner
 
-import "context"
-
 type LaneItem struct {
 	runLoop         *runLoop
 	Cfg             *BaseLaneConfig
-	inputPipeline   *LaneItem
+	inputPipeline   []*LaneItem
 	outputPipelines []*LaneItem
 }
 
-func (p *LaneItem) setInputPipelines(i *LaneItem) {
-	p.inputPipeline = i
+func (p *LaneItem) addInputPipelines(i *LaneItem) {
+	p.inputPipeline = append(p.inputPipeline, i)
 }
 
 func (p *LaneItem) addOutputs(output *LaneItem) {
 	p.outputPipelines = append(p.outputPipelines, output)
-	output.setInputPipelines(p)
+	output.addInputPipelines(p)
 }
 
 func (p *LaneItem) Subscribe(output *LaneItem) {
@@ -29,11 +27,10 @@ func (p *LaneItem) Subscribe(output *LaneItem) {
 }
 
 func NewLaneItem(
-	ctx context.Context,
 	config *BaseLaneConfig,
 ) *LaneItem {
 	return &LaneItem{
-		runLoop: newRunLoop(ctx, config.BufferSize, config.Threads),
+		runLoop: newRunLoop(config.BufferSize, config.Threads),
 		Cfg:     config,
 	}
 }
