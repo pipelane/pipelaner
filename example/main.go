@@ -26,7 +26,9 @@ func main() {
 			"rand": &tests.MapGenerator{},
 		},
 		Maps: pipelaner.Maps{
-			"filter": &transform.Filter{},
+			"filter":     &transform.Filter{},
+			"debounce":   &transform.Debounce{},
+			"throttling": &transform.Throttling{},
 			//For Test
 			"int_tr":   &tests.IntTransform{},
 			"int_tr_e": &tests.IntTransformEmpty{},

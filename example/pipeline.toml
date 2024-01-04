@@ -38,28 +38,47 @@
 
 
 ### Test multi inputs
+#
+#[input.test_input]
+#buffer = 100
+#threads = 1
+#source_name = "int"
+#
+#[map.test_int_transform]
+#inputs = ["test_input"]
+#buffer = 100
+#threads = 1
+#source_name = "int_tr_e"
+#
+#[map.test_int_transform_empty]
+#inputs = ["test_input"]
+#buffer = 100
+#threads = 1
+#source_name = "int_tr_e"
+#
+#[sink.input1_sink]
+#buffer = 31
+#threads = 1
+#inputs = ["test_int_transform", "test_int_transform_empty"]
+#source_name = "console"
+
+
+######## Test debounce
+
 
 [input.test_input]
 buffer = 100
-threads = 1
 source_name = "int"
 
 [map.test_int_transform]
 inputs = ["test_input"]
 buffer = 100
-threads = 1
-source_name = "int_tr_e"
-
-[map.test_int_transform_empty]
-inputs = ["test_input"]
-buffer = 100
-threads = 1
-source_name = "int_tr_e"
+interval = "300ms"
+source_name = "throttling"
 
 [sink.input1_sink]
 buffer = 31
-threads = 1
-inputs = ["test_int_transform", "test_int_transform_empty"]
+inputs = ["test_int_transform"]
 source_name = "console"
 
 

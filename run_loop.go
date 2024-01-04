@@ -102,6 +102,9 @@ func (s *runLoop) run(ctx context.Context) {
 				if !ok {
 					return
 				}
+				if msg == nil {
+					continue
+				}
 				semaphoreLock()
 				go func(m any) {
 					defer semaphoreUnlock()
@@ -111,12 +114,11 @@ func (s *runLoop) run(ctx context.Context) {
 					if _, isErr := m.(error); isErr {
 						return
 					}
-					if m != nil {
-						s.mx.RLock()
-						for _, c := range s.outputs {
-							c <- m
-						}
-						s.mx.RUnlock()
+					if m == nil {
+						return
+					}
+					for _, c := range s.outputs {
+						c <- m
 					}
 					if s.methods.sink != nil {
 						s.methods.sink(ctx, m)
