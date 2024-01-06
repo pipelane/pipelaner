@@ -20,7 +20,7 @@ func main() {
 		Generators: pipelaner.Generators{
 			"exec":      &generator.Exec{},
 			"pipelaner": &generator.Pipelaner{},
-			//For Test
+			// For Test
 			"int":  &tests.IntGenerator{},
 			"int2": &tests.IntTwoGenerator{},
 			"rand": &tests.MapGenerator{},
@@ -29,11 +29,9 @@ func main() {
 			"filter":     &transform.Filter{},
 			"debounce":   &transform.Debounce{},
 			"throttling": &transform.Throttling{},
-			//For Test
+			// For Test
 			"int_tr":   &tests.IntTransform{},
 			"int_tr_e": &tests.IntTransformEmpty{},
-			//"inc":  &transform.IncProcessor{},
-			//"five": &transform.FiveProcessor{},
 		},
 		Sinks: pipelaner.Sinks{
 			"console":   sink.NewConsole(pipelaner.NewLogger()),

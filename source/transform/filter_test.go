@@ -41,8 +41,8 @@ func TestExprLanguage_Map(t *testing.T) {
 		{
 			name: "test filtering maps return nil",
 			args: args{
-				cfg: newCfg(pipelaner.MapType,
-					"test_maps",
+				cfg: newCfg(pipelaner.SinkType,
+					"test_maps_sinks",
 					map[string]any{
 						"code": "Data.count > 5",
 					},

@@ -76,11 +76,12 @@ func (p *Pipelaner) Generate(ctx context.Context, input chan<- any) {
 		case <-ctx.Done():
 			break
 		default:
-			if m.GetBytesValue() != nil {
+			switch {
+			case m.GetBytesValue() != nil:
 				input <- m.GetBytesValue()
-			} else if m.GetStringValue() != "" {
+			case m.GetStringValue() != "":
 				input <- m.GetStringValue()
-			} else if m.GetJsonValue() != nil {
+			case m.GetJsonValue() != nil:
 				var v map[string]any
 				err := json.Unmarshal(m.GetJsonValue(), &v)
 				if err != nil {

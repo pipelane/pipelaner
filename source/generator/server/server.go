@@ -6,7 +6,6 @@ package server
 
 import (
 	"context"
-	"sync"
 
 	"github.com/rs/zerolog"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -16,7 +15,6 @@ import (
 
 type PipelanerServer struct {
 	service.UnimplementedPipelanerServer
-	mu     sync.Mutex
 	logger zerolog.Logger
 	buffer chan *service.Message
 }

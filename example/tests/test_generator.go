@@ -26,9 +26,9 @@ func (i *IntGenerator) Generate(ctx context.Context, input chan<- any) {
 		case <-ctx.Done():
 			break
 		default:
-			//if i.inc%3 == 0 {
+			// if i.inc%3 == 0 {
 			//	time.Sleep(time.Second * 5)
-			//}
+			// }
 			input <- i.inc
 		}
 	}
