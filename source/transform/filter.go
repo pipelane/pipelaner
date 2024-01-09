@@ -6,6 +6,9 @@ package transform
 
 import (
 	"context"
+	"errors"
+
+	"github.com/goccy/go-json"
 
 	"github.com/antonmedv/expr/vm"
 	"github.com/rs/zerolog"
@@ -13,6 +16,10 @@ import (
 	"github.com/antonmedv/expr"
 
 	"pipelaner"
+)
+
+var (
+	ErrInvalidDataType = errors.New("Error invalid sendded data type")
 )
 
 type EnvMap struct {
@@ -41,6 +48,7 @@ func (e *Filter) Init(cfg *pipelaner.BaseLaneConfig) error {
 	if err != nil {
 		return err
 	}
+
 	program, err := expr.Compile(v.Code, expr.Env(EnvMap{}))
 	if err != nil {
 		return err
@@ -50,7 +58,25 @@ func (e *Filter) Init(cfg *pipelaner.BaseLaneConfig) error {
 }
 
 func (e *Filter) Map(ctx context.Context, val any) any {
-	output, err := expr.Run(e.program, EnvMap{Data: val.(map[string]any)})
+	var v map[string]any
+	switch value := val.(type) {
+	case map[string]any:
+		v = value
+	case string:
+		b := []byte(value)
+		err := json.Unmarshal(b, &v)
+		if err != nil {
+			return err
+		}
+	case []byte:
+		err := json.Unmarshal(value, &v)
+		if err != nil {
+			return err
+		}
+	default:
+		return ErrInvalidDataType
+	}
+	output, err := expr.Run(e.program, EnvMap{Data: v})
 	if err != nil {
 		e.logger.Err(err).Msg("Expr: output error")
 		return err

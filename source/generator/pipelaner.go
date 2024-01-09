@@ -6,9 +6,10 @@ package generator
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net"
+
+	"github.com/goccy/go-json"
 
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"

@@ -68,7 +68,11 @@ func newRunLoop(
 
 func (s *runLoop) Receive(ctx context.Context) {
 	for i := range s.inputs {
-		go s.methods.generator(ctx, s.inputs[i])
+		c := s.inputs[i]
+		go func(ch chan any) {
+			s.methods.generator(ctx, ch)
+			close(ch)
+		}(c)
 	}
 }
 
@@ -156,11 +160,6 @@ func (s *runLoop) setInputChannel(ch chan any) {
 func (s *runLoop) stop() {
 	s.mx.Lock()
 	defer s.mx.Unlock()
-	if !s.overrideInput {
-		for i := range s.inputs {
-			close(s.inputs[i])
-		}
-	}
 	for i := range s.outputs {
 		close(s.outputs[i])
 	}
