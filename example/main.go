@@ -9,7 +9,6 @@ import (
 
 	"pipelaner"
 	"pipelaner/example/tests"
-
 	"pipelaner/source/generator"
 	"pipelaner/source/sink"
 	"pipelaner/source/transform"
@@ -29,6 +28,8 @@ func main() {
 			"filter":     &transform.Filter{},
 			"debounce":   &transform.Debounce{},
 			"throttling": &transform.Throttling{},
+			"batch":      &transform.Batch{},
+			"chunks":     &transform.Chunk{},
 			// For Test
 			"int_tr":   &tests.IntTransform{},
 			"int_tr_e": &tests.IntTransformEmpty{},
@@ -40,7 +41,7 @@ func main() {
 	}
 	agent, err := pipelaner.NewAgent(
 		dataSource,
-		"pipeline.toml",
+		"example/pipeline.toml",
 	)
 	if err != nil {
 		panic(err)

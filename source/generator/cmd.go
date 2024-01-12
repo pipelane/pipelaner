@@ -25,18 +25,18 @@ type Exec struct {
 	logger zerolog.Logger
 }
 
-func (c *Exec) Init(cfg *pipelaner.BaseLaneConfig) error {
-	c.cfg = cfg
+func (c *Exec) Init(ctx *pipelaner.Context) error {
+	c.cfg = ctx.LaneItem().Config()
 	c.logger = pipelaner.NewLogger()
 	v := &ExecCfg{}
-	err := cfg.ParseExtended(v)
+	err := c.cfg.ParseExtended(v)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c *Exec) Generate(ctx context.Context, input chan<- any) {
+func (c *Exec) Generate(ctx *pipelaner.Context, input chan<- any) {
 	var args []string
 	cfg := c.cfg.Extended.(*ExecCfg)
 	if len(cfg.Exec) > 1 {
@@ -57,8 +57,8 @@ func (c *Exec) Generate(ctx context.Context, input chan<- any) {
 		c.logger.Error().Err(err).Msg("Exec: create errPipe error")
 		return
 	}
-	go c.readPipe(ctx, stdPipe, input)
-	go c.readPipe(ctx, stdErr, input)
+	go c.readPipe(ctx.Context(), stdPipe, input)
+	go c.readPipe(ctx.Context(), stdErr, input)
 
 	if err = cmd.Wait(); err != nil {
 		c.logger.Error().Err(err).Msg("Exec: command wait error")

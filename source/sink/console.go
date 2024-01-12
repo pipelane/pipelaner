@@ -5,7 +5,6 @@
 package sink
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/rs/zerolog"
@@ -20,10 +19,10 @@ type Console struct {
 func NewConsole(logger zerolog.Logger) *Console {
 	return &Console{logger: logger}
 }
-func (c *Console) Init(cfg *pipelaner.BaseLaneConfig) error {
+func (c *Console) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
-func (c *Console) Sink(ctx context.Context, val any) {
+func (c *Console) Sink(ctx *pipelaner.Context, val any) {
 	c.logger.Info().Msg(fmt.Sprintf("%v", val))
 }

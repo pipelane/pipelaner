@@ -72,9 +72,10 @@ source_name = "int"
 
 [map.test_int_transform]
 inputs = ["test_input"]
-buffer = 100
-interval = "300ms"
-source_name = "throttling"
+buffer = 10
+max_idle_time = "300s"
+source_name = "chunks"
+max_chunk_size = 1000000
 
 [sink.input1_sink]
 buffer = 31

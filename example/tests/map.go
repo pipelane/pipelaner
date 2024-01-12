@@ -5,7 +5,6 @@
 package tests
 
 import (
-	"context"
 	"crypto/rand"
 	"math/big"
 
@@ -15,14 +14,14 @@ import (
 type MapGenerator struct {
 }
 
-func (i *MapGenerator) Init(cfg *pipelaner.BaseLaneConfig) error {
+func (i *MapGenerator) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
-func (i *MapGenerator) Generate(ctx context.Context, input chan<- any) {
+func (i *MapGenerator) Generate(ctx *pipelaner.Context, input chan<- any) {
 	for {
 		select {
-		case <-ctx.Done():
+		case <-ctx.Context().Done():
 			break
 		default:
 			input <- map[string]any{

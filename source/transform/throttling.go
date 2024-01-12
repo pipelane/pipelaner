@@ -5,7 +5,6 @@
 package transform
 
 import (
-	"context"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -25,10 +24,10 @@ type Throttling struct {
 	timer  *time.Timer
 }
 
-func (d *Throttling) Init(cfg *pipelaner.BaseLaneConfig) error {
-	d.cfg = cfg
+func (d *Throttling) Init(ctx *pipelaner.Context) error {
+	d.cfg = ctx.LaneItem().Config()
 	v := &ThrottlingCfg{}
-	err := cfg.ParseExtended(v)
+	err := d.cfg.ParseExtended(v)
 	if err != nil {
 		return err
 	}
@@ -41,29 +40,25 @@ func (d *Throttling) Init(cfg *pipelaner.BaseLaneConfig) error {
 }
 
 func (d *Throttling) New() pipelaner.Map {
-	return &Throttling{
-		cfg:   d.cfg,
-		timer: d.timer,
-		mx:    sync.Mutex{},
-	}
+	return &Throttling{}
 }
 
-func (d *Throttling) Map(ctx context.Context, val any) any {
+func (d *Throttling) Map(ctx *pipelaner.Context, val any) any {
 	d.storeValue(val)
 	lock := d.locked.Load()
 	if lock {
 		return nil
 	}
 	d.locked.Store(true)
+	d.reset()
 	select {
-	case <-ctx.Done():
+	case <-ctx.Context().Done():
 		d.timer.Stop()
 		return nil
 	case <-d.timer.C:
 		v := d.val.Load()
 		d.locked.Store(false)
 		d.val = atomic.Value{}
-		d.reset()
 		return v
 	}
 }

@@ -31,7 +31,7 @@ func newCfg(
 func TestExprLanguage_Map(t *testing.T) {
 	type args struct {
 		val any
-		cfg *pipelaner.BaseLaneConfig
+		ctx *pipelaner.Context
 	}
 	tests := []struct {
 		name string
@@ -41,11 +41,13 @@ func TestExprLanguage_Map(t *testing.T) {
 		{
 			name: "test filtering maps return nil",
 			args: args{
-				cfg: newCfg(pipelaner.SinkType,
-					"test_maps_sinks",
-					map[string]any{
-						"code": "Data.count > 5",
-					},
+				ctx: pipelaner.NewContext(context.Background(),
+					pipelaner.NewLaneItem(newCfg(pipelaner.SinkType,
+						"test_maps_sinks",
+						map[string]any{
+							"code": "Data.count > 5",
+						}),
+					),
 				),
 				val: map[string]any{
 					"count": 1,
@@ -56,11 +58,13 @@ func TestExprLanguage_Map(t *testing.T) {
 		{
 			name: "test filtering maps return 10",
 			args: args{
-				cfg: newCfg(pipelaner.MapType,
-					"test_maps",
-					map[string]any{
-						"code": "Data.count > 5",
-					},
+				ctx: pipelaner.NewContext(context.Background(),
+					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
+						"test_maps_sinks",
+						map[string]any{
+							"code": "Data.count > 5",
+						}),
+					),
 				),
 				val: map[string]any{
 					"count": 10,
@@ -76,9 +80,9 @@ func TestExprLanguage_Map(t *testing.T) {
 			e := &Filter{
 				logger: zerolog.Nop(),
 			}
-			err := e.Init(tt.args.cfg)
+			err := e.Init(tt.args.ctx)
 			require.Nil(t, err)
-			got := e.Map(context.Background(), tt.args.val)
+			got := e.Map(tt.args.ctx, tt.args.val)
 			assert.Equal(t, got, tt.want)
 		})
 	}
@@ -87,7 +91,7 @@ func TestExprLanguage_Map(t *testing.T) {
 func TestExprLanguage_String(t *testing.T) {
 	type args struct {
 		val any
-		cfg *pipelaner.BaseLaneConfig
+		ctx *pipelaner.Context
 	}
 	tests := []struct {
 		name string
@@ -97,11 +101,13 @@ func TestExprLanguage_String(t *testing.T) {
 		{
 			name: "test filtering string return nil",
 			args: args{
-				cfg: newCfg(pipelaner.SinkType,
-					"test_maps_sinks",
-					map[string]any{
-						"code": "Data.count > 5.0",
-					},
+				ctx: pipelaner.NewContext(context.Background(),
+					pipelaner.NewLaneItem(newCfg(pipelaner.SinkType,
+						"test_maps_sinks",
+						map[string]any{
+							"code": "Data.count > 5",
+						}),
+					),
 				),
 				val: "{\"count\":1}",
 			},
@@ -110,11 +116,13 @@ func TestExprLanguage_String(t *testing.T) {
 		{
 			name: "test filtering string return 10",
 			args: args{
-				cfg: newCfg(pipelaner.MapType,
-					"test_maps",
-					map[string]any{
-						"code": "Data.count > 5.0",
-					},
+				ctx: pipelaner.NewContext(context.Background(),
+					pipelaner.NewLaneItem(newCfg(pipelaner.SinkType,
+						"test_maps_sinks",
+						map[string]any{
+							"code": "Data.count > 5",
+						}),
+					),
 				),
 				val: "{\"count\":10}",
 			},
@@ -126,9 +134,9 @@ func TestExprLanguage_String(t *testing.T) {
 			e := &Filter{
 				logger: zerolog.Nop(),
 			}
-			err := e.Init(tt.args.cfg)
+			err := e.Init(tt.args.ctx)
 			require.Nil(t, err)
-			got := e.Map(context.Background(), tt.args.val)
+			got := e.Map(tt.args.ctx, tt.args.val)
 			assert.Equal(t, got, tt.want)
 		})
 	}
@@ -137,7 +145,7 @@ func TestExprLanguage_String(t *testing.T) {
 func TestExprLanguage_Bytes(t *testing.T) {
 	type args struct {
 		val any
-		cfg *pipelaner.BaseLaneConfig
+		ctx *pipelaner.Context
 	}
 	tests := []struct {
 		name string
@@ -147,11 +155,13 @@ func TestExprLanguage_Bytes(t *testing.T) {
 		{
 			name: "test filtering string return nil",
 			args: args{
-				cfg: newCfg(pipelaner.SinkType,
-					"test_maps_sinks",
-					map[string]any{
-						"code": "Data.count > 5.0",
-					},
+				ctx: pipelaner.NewContext(context.Background(),
+					pipelaner.NewLaneItem(newCfg(pipelaner.SinkType,
+						"test_maps_sinks",
+						map[string]any{
+							"code": "Data.count > 5",
+						}),
+					),
 				),
 				val: []byte("{\"count\":1}"),
 			},
@@ -160,11 +170,13 @@ func TestExprLanguage_Bytes(t *testing.T) {
 		{
 			name: "test filtering string return 10",
 			args: args{
-				cfg: newCfg(pipelaner.MapType,
-					"test_maps",
-					map[string]any{
-						"code": "Data.count > 5.0",
-					},
+				ctx: pipelaner.NewContext(context.Background(),
+					pipelaner.NewLaneItem(newCfg(pipelaner.SinkType,
+						"test_maps_sinks",
+						map[string]any{
+							"code": "Data.count > 5",
+						}),
+					),
 				),
 				val: []byte("{\"count\":10}"),
 			},
@@ -176,9 +188,9 @@ func TestExprLanguage_Bytes(t *testing.T) {
 			e := &Filter{
 				logger: zerolog.Nop(),
 			}
-			err := e.Init(tt.args.cfg)
+			err := e.Init(tt.args.ctx)
 			require.Nil(t, err)
-			got := e.Map(context.Background(), tt.args.val)
+			got := e.Map(tt.args.ctx, tt.args.val)
 			assert.Equal(t, got, tt.want)
 		})
 	}

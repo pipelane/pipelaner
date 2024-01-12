@@ -5,7 +5,6 @@
 package tests
 
 import (
-	"context"
 	"time"
 
 	"pipelaner"
@@ -15,15 +14,15 @@ type IntGenerator struct {
 	inc uint64
 }
 
-func (i *IntGenerator) Init(cfg *pipelaner.BaseLaneConfig) error {
+func (i *IntGenerator) Init(ctx *pipelaner.Context) error {
 	i.inc = 1
 	return nil
 }
-func (i *IntGenerator) Generate(ctx context.Context, input chan<- any) {
+func (i *IntGenerator) Generate(ctx *pipelaner.Context, input chan<- any) {
 	for {
 		i.inc += 1
 		select {
-		case <-ctx.Done():
+		case <-ctx.Context().Done():
 			break
 		default:
 			// if i.inc%3 == 0 {
@@ -37,14 +36,14 @@ func (i *IntGenerator) Generate(ctx context.Context, input chan<- any) {
 type IntTwoGenerator struct {
 }
 
-func (i *IntTwoGenerator) Init(cfg *pipelaner.BaseLaneConfig) error {
+func (i *IntTwoGenerator) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
-func (i *IntTwoGenerator) Generate(ctx context.Context, input chan<- any) {
+func (i *IntTwoGenerator) Generate(ctx *pipelaner.Context, input chan<- any) {
 	for {
 		select {
-		case <-ctx.Done():
+		case <-ctx.Context().Done():
 			break
 		default:
 			input <- 2
@@ -59,12 +58,12 @@ func (i *IntTransform) New() pipelaner.Map {
 	return &IntTransform{}
 }
 
-func (i *IntTransform) Map(ctx context.Context, val any) any {
+func (i *IntTransform) Map(ctx *pipelaner.Context, val any) any {
 	time.Sleep(time.Second)
 	return val.(uint64) + 2
 }
 
-func (i *IntTransform) Init(cfg *pipelaner.BaseLaneConfig) error {
+func (i *IntTransform) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
@@ -75,11 +74,11 @@ func (i *IntTransformEmpty) New() pipelaner.Map {
 	return &IntTransformEmpty{}
 }
 
-func (i *IntTransformEmpty) Map(ctx context.Context, val any) any {
+func (i *IntTransformEmpty) Map(ctx *pipelaner.Context, val any) any {
 	time.Sleep(time.Second)
 	return val
 }
 
-func (i *IntTransformEmpty) Init(cfg *pipelaner.BaseLaneConfig) error {
+func (i *IntTransformEmpty) Init(ctx *pipelaner.Context) error {
 	return nil
 }

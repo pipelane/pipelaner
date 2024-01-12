@@ -5,7 +5,6 @@
 package transform
 
 import (
-	"context"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -25,10 +24,10 @@ type Debounce struct {
 	timer  *time.Timer
 }
 
-func (d *Debounce) Init(cfg *pipelaner.BaseLaneConfig) error {
-	d.cfg = cfg
+func (d *Debounce) Init(ctx *pipelaner.Context) error {
+	d.cfg = ctx.LaneItem().Config()
 	v := &DebounceCfg{}
-	err := cfg.ParseExtended(v)
+	err := d.cfg.ParseExtended(v)
 	if err != nil {
 		return err
 	}
@@ -41,14 +40,10 @@ func (d *Debounce) Init(cfg *pipelaner.BaseLaneConfig) error {
 }
 
 func (d *Debounce) New() pipelaner.Map {
-	return &Debounce{
-		cfg:   d.cfg,
-		timer: d.timer,
-		mx:    sync.Mutex{},
-	}
+	return &Debounce{}
 }
 
-func (d *Debounce) Map(ctx context.Context, val any) any {
+func (d *Debounce) Map(ctx *pipelaner.Context, val any) any {
 	d.storeValue(val)
 	lock := d.locked.Load()
 	if lock {
@@ -56,13 +51,12 @@ func (d *Debounce) Map(ctx context.Context, val any) any {
 	}
 	d.locked.Store(true)
 	select {
-	case <-ctx.Done():
+	case <-ctx.Context().Done():
 		return nil
 	case <-d.timer.C:
 		v := d.val.Load()
 		d.locked.Store(false)
 		d.val = atomic.Value{}
-		d.reset()
 		return v
 	}
 }

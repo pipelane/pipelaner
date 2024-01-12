@@ -5,13 +5,12 @@
 package pipelaner
 
 import (
-	"context"
 	"sync"
 )
 
-type MethodMap func(ctx context.Context, val any) any
-type MethodSink func(ctx context.Context, val any)
-type MethodGenerator func(ctx context.Context, input chan<- any)
+type MethodMap func(ctx *Context, val any) any
+type MethodSink func(ctx *Context, val any)
+type MethodGenerator func(ctx *Context, input chan<- any)
 
 type loopCfg struct {
 	bufferSize   int64
@@ -66,7 +65,7 @@ func newRunLoop(
 	return s
 }
 
-func (s *runLoop) Receive(ctx context.Context) {
+func (s *runLoop) Receive(ctx *Context) {
 	for i := range s.inputs {
 		c := s.inputs[i]
 		go func(ch chan any) {
@@ -76,7 +75,7 @@ func (s *runLoop) Receive(ctx context.Context) {
 	}
 }
 
-func (s *runLoop) run(ctx context.Context) {
+func (s *runLoop) run(ctx *Context) {
 	var sema chan struct{}
 	if s.cfg.threadsCount != nil {
 		sema = make(chan struct{}, *s.cfg.threadsCount)
@@ -96,7 +95,7 @@ func (s *runLoop) run(ctx context.Context) {
 			close(sema)
 		}
 	}
-	input := mergeInputs(ctx, s.inputs...)
+	input := mergeInputs(ctx.Context(), s.inputs...)
 	go func() {
 		defer closeSema()
 		defer s.stop()
@@ -129,7 +128,7 @@ func (s *runLoop) run(ctx context.Context) {
 					}
 
 				}(msg)
-			case <-ctx.Done():
+			case <-ctx.Context().Done():
 				return
 			}
 		}

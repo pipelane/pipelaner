@@ -5,7 +5,6 @@
 package sink
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/goccy/go-json"
@@ -33,11 +32,11 @@ type Pipelaner struct {
 	client service.PipelanerClient
 }
 
-func (p *Pipelaner) Init(cfg *pipelaner.BaseLaneConfig) error {
-	p.cfg = cfg
+func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
+	p.cfg = ctx.LaneItem().Config()
 	p.logger = pipelaner.NewLogger()
 	v := &GrpcCfg{}
-	err := cfg.ParseExtended(v)
+	err := p.cfg.ParseExtended(v)
 	if err != nil {
 		return err
 	}
@@ -65,7 +64,7 @@ func (p *Pipelaner) Init(cfg *pipelaner.BaseLaneConfig) error {
 	return nil
 }
 
-func (p *Pipelaner) Sink(ctx context.Context, val any) {
+func (p *Pipelaner) Sink(ctx *pipelaner.Context, val any) {
 	var m *service.Message
 	switch v := val.(type) {
 	case string:
@@ -92,7 +91,7 @@ func (p *Pipelaner) Sink(ctx context.Context, val any) {
 			},
 		}
 	}
-	_, err := p.client.Sink(ctx, m)
+	_, err := p.client.Sink(ctx.Context(), m)
 	if err != nil {
 		p.logger.Error().Err(err).Msg("Grpc sing failed")
 	}

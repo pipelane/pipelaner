@@ -5,7 +5,6 @@
 package generator
 
 import (
-	"context"
 	"fmt"
 	"net"
 
@@ -34,11 +33,11 @@ type Pipelaner struct {
 	srv    *server.PipelanerServer
 }
 
-func (p *Pipelaner) Init(cfg *pipelaner.BaseLaneConfig) error {
-	p.cfg = cfg
+func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
+	p.cfg = ctx.LaneItem().Config()
 	p.logger = pipelaner.NewLogger()
 	v := &GrpcCfg{}
-	err := cfg.ParseExtended(v)
+	err := p.cfg.ParseExtended(v)
 	if err != nil {
 		return err
 	}
@@ -71,10 +70,10 @@ func (p *Pipelaner) Init(cfg *pipelaner.BaseLaneConfig) error {
 	return nil
 }
 
-func (p *Pipelaner) Generate(ctx context.Context, input chan<- any) {
+func (p *Pipelaner) Generate(ctx *pipelaner.Context, input chan<- any) {
 	for m := range p.srv.Recv() {
 		select {
-		case <-ctx.Done():
+		case <-ctx.Context().Done():
 			break
 		default:
 			switch {

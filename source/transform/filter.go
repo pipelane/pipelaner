@@ -5,7 +5,6 @@
 package transform
 
 import (
-	"context"
 	"errors"
 
 	"github.com/goccy/go-json"
@@ -40,11 +39,11 @@ func (e *Filter) New() pipelaner.Map {
 	return &Filter{}
 }
 
-func (e *Filter) Init(cfg *pipelaner.BaseLaneConfig) error {
-	e.cfg = cfg
+func (e *Filter) Init(ctx *pipelaner.Context) error {
+	e.cfg = ctx.LaneItem().Config()
 	e.logger = pipelaner.NewLogger()
 	v := &ExprConfig{}
-	err := cfg.ParseExtended(v)
+	err := e.cfg.ParseExtended(v)
 	if err != nil {
 		return err
 	}
@@ -57,7 +56,7 @@ func (e *Filter) Init(cfg *pipelaner.BaseLaneConfig) error {
 	return nil
 }
 
-func (e *Filter) Map(ctx context.Context, val any) any {
+func (e *Filter) Map(ctx *pipelaner.Context, val any) any {
 	var v map[string]any
 	switch value := val.(type) {
 	case map[string]any:

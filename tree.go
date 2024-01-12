@@ -21,21 +21,21 @@ func ErrLaneWithoutSink(s string) error {
 }
 
 type Init interface {
-	Init(cfg *BaseLaneConfig) error
+	Init(ctx *Context) error
 }
 
 type Map interface {
 	Init
 	New() Map
-	Map(ctx context.Context, val any) any
+	Map(ctx *Context, val any) any
 }
 type Sink interface {
 	Init
-	Sink(ctx context.Context, val any)
+	Sink(ctx *Context, val any)
 }
 type Generator interface {
 	Init
-	Generate(ctx context.Context, input chan<- any)
+	Generate(ctx *Context, input chan<- any)
 }
 
 type TreeLanes struct {
@@ -54,18 +54,18 @@ func (t *TreeLanes) filter(f func(i *LaneItem) bool) []*LaneItem {
 
 func (t *TreeLanes) filterByType(lt LaneTypes) []*LaneItem {
 	return t.filter(func(i *LaneItem) bool {
-		return i.Cfg.LaneType == lt
+		return i.cfg.LaneType == lt
 	})
 }
 
 func (t *TreeLanes) mapWithInputs() map[string][]*LaneItem {
 	inputs := map[string][]*LaneItem{}
 	for _, val := range t.Items {
-		if len(val.Cfg.Inputs) == 0 {
+		if len(val.cfg.Inputs) == 0 {
 			continue
 		}
-		for i := range val.Cfg.Inputs {
-			input := val.Cfg.Inputs[i]
+		for i := range val.cfg.Inputs {
+			input := val.cfg.Inputs[i]
 			var arr []*LaneItem
 			if v, ok := inputs[input]; ok {
 				arr = v
@@ -78,7 +78,7 @@ func (t *TreeLanes) mapWithInputs() map[string][]*LaneItem {
 }
 
 func (t *TreeLanes) append(val *LaneItem) {
-	t.Items[val.Cfg.Name] = val
+	t.Items[val.cfg.Name] = val
 }
 
 func newPipelinesTree() *TreeLanes {
@@ -176,35 +176,53 @@ func (t *TreeLanes) run(ctx context.Context, dataSource DataSource) error {
 	sinks := t.filterByType(SinkType)
 	for i := range transforms {
 		item := transforms[i]
-		tr := dataSource.Maps[item.Cfg.SourceName]
+		c := &Context{
+			ctx:      ctx,
+			lateItem: item,
+		}
+		tr := dataSource.Maps[c.LaneItem().Config().SourceName]
 		t := tr.New()
-		err := t.Init(item.Cfg)
+		err := t.Init(c)
 		if err != nil {
 			return err
 		}
 		item.runLoop.SetMap(t.Map)
-		item.runLoop.run(ctx)
+		item.runLoop.run(c)
 	}
 	for i := range sinks {
 		item := sinks[i]
-		si := dataSource.Sinks[item.Cfg.SourceName]
-		err := si.Init(item.Cfg)
+		c := &Context{
+			ctx:      ctx,
+			lateItem: item,
+		}
+		si := dataSource.Sinks[c.LaneItem().Config().SourceName]
+		err := si.Init(c)
 		if err != nil {
 			return err
 		}
 		item.runLoop.SetSink(si.Sink)
-		item.runLoop.run(ctx)
+		item.runLoop.run(c)
 	}
 	for i := range inputs {
 		item := inputs[i]
-		generator := dataSource.Generators[item.Cfg.SourceName]
-		err := generator.Init(item.Cfg)
+		c := &Context{
+			ctx:      ctx,
+			lateItem: item,
+		}
+		generator := dataSource.Generators[c.LaneItem().Config().SourceName]
+		err := generator.Init(c)
 		if err != nil {
 			return err
 		}
 		item.runLoop.SetGenerator(generator.Generate)
-		item.runLoop.run(ctx)
-		item.runLoop.Receive(ctx)
+		item.runLoop.run(&Context{
+			ctx:      ctx,
+			lateItem: item,
+		})
+		item.runLoop.Receive(&Context{
+			ctx:      ctx,
+			lateItem: item,
+		})
 	}
 	return nil
 }
@@ -213,7 +231,7 @@ func (t *TreeLanes) connect() {
 	allWithInputs := t.mapWithInputs()
 	for i := range t.Items {
 		input := t.Items[i]
-		output, ok := allWithInputs[input.Cfg.Name]
+		output, ok := allWithInputs[input.cfg.Name]
 		if !ok {
 			continue
 		}
@@ -228,7 +246,7 @@ func (t *TreeLanes) validateOutputs(lanes []*LaneItem) error {
 	for i := range lanes {
 		l := lanes[i]
 		if len(l.outputPipelines) == 0 {
-			return ErrLaneWithoutSink(l.Cfg.Name)
+			return ErrLaneWithoutSink(l.cfg.Name)
 		}
 	}
 	return nil
