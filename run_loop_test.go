@@ -48,7 +48,8 @@ func TestSubscriber_Run_Receive(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			inc := 0
-			s := newRunLoop(100, &tt.args.threadsCount)
+			tCount := tt.args.threadsCount
+			s := newRunLoop(100, &tCount)
 			var res []int
 			c, cancel := context.WithCancel(context.Background())
 			wg := sync.WaitGroup{}
@@ -127,9 +128,10 @@ func TestSubscriber_Subscribe(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			inc := 0
-			input := newRunLoop(tt.args.bufferSize, &tt.args.threadsCount)
-			transform := newRunLoop(tt.args.bufferSize, &tt.args.threadsCount)
-			sink := newRunLoop(tt.args.bufferSize, &tt.args.threadsCount)
+			tCount := tt.args.threadsCount
+			input := newRunLoop(tt.args.bufferSize, &tCount)
+			transform := newRunLoop(tt.args.bufferSize, &tCount)
+			sink := newRunLoop(tt.args.bufferSize, &tCount)
 
 			var res []int
 			c, cancel := context.WithCancel(context.Background())

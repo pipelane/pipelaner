@@ -117,10 +117,9 @@ func (c *ChunkCfg) Interval() (time.Duration, error) {
 }
 
 type Chunk struct {
-	cfg          *pipelaner.BaseLaneConfig
-	buffer       *Chunks[any]
-	inputChannel chan any
-	locked       atomic.Bool
+	cfg    *pipelaner.BaseLaneConfig
+	buffer *Chunks[any]
+	locked atomic.Bool
 }
 
 func (c *Chunk) Init(ctx *pipelaner.Context) error {

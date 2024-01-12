@@ -6,7 +6,6 @@ package transform
 
 import (
 	"sync"
-	"sync/atomic"
 
 	"pipelaner"
 )
@@ -19,7 +18,6 @@ type Batch struct {
 	cfg *pipelaner.BaseLaneConfig
 	mx  sync.Mutex
 	ch  chan any
-	len atomic.Int64
 }
 
 func (b *Batch) Init(ctx *pipelaner.Context) error {
