@@ -135,7 +135,7 @@ func newPipelinesTreeMapWith(
 	if len(cfg.Sink)+len(cfg.Map)+len(cfg.Input) != len(lanes.Items) {
 		return nil, ErrLaneNameMustBeUnique
 	}
-	lanes.connect()
+	lanes.connect(ctx)
 	if err = lanes.run(ctx, dataSource); err != nil {
 		return nil, err
 	}
@@ -178,7 +178,7 @@ func (t *TreeLanes) run(ctx context.Context, dataSource DataSource) error {
 		item := transforms[i]
 		c := &Context{
 			ctx:      ctx,
-			lateItem: item,
+			laneItem: item,
 		}
 		tr := dataSource.Maps[c.LaneItem().Config().SourceName]
 		t := tr.New()
@@ -186,49 +186,48 @@ func (t *TreeLanes) run(ctx context.Context, dataSource DataSource) error {
 		if err != nil {
 			return err
 		}
-		item.runLoop.SetMap(t.Map)
-		item.runLoop.run(c)
+		item.runLoop.setMap(t.Map)
+		item.runLoop.run()
 	}
 	for i := range sinks {
 		item := sinks[i]
 		c := &Context{
 			ctx:      ctx,
-			lateItem: item,
+			laneItem: item,
 		}
 		si := dataSource.Sinks[c.LaneItem().Config().SourceName]
 		err := si.Init(c)
 		if err != nil {
 			return err
 		}
-		item.runLoop.SetSink(si.Sink)
-		item.runLoop.run(c)
+		item.runLoop.setSink(si.Sink)
+		item.runLoop.run()
 	}
 	for i := range inputs {
 		item := inputs[i]
 		c := &Context{
 			ctx:      ctx,
-			lateItem: item,
+			laneItem: item,
 		}
 		generator := dataSource.Generators[c.LaneItem().Config().SourceName]
 		err := generator.Init(c)
 		if err != nil {
 			return err
 		}
-		item.runLoop.SetGenerator(generator.Generate)
-		item.runLoop.run(&Context{
-			ctx:      ctx,
-			lateItem: item,
-		})
-		item.runLoop.Receive(&Context{
-			ctx:      ctx,
-			lateItem: item,
-		})
+		item.runLoop.setGenerator(generator.Generate)
+		item.runLoop.run()
+		item.runLoop.receive()
 	}
 	return nil
 }
 
-func (t *TreeLanes) connect() {
+func (t *TreeLanes) connect(ctx context.Context) {
 	allWithInputs := t.mapWithInputs()
+	inputs := t.filterByType(InputType)
+	for i := range inputs {
+		input := inputs[i]
+		input.runLoop.setContext(NewContext(ctx, input))
+	}
 	for i := range t.Items {
 		input := t.Items[i]
 		output, ok := allWithInputs[input.cfg.Name]

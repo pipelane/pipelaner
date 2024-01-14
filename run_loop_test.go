@@ -82,8 +82,9 @@ func TestSubscriber_Run_Receive(t *testing.T) {
 			ctx := &Context{
 				ctx: c,
 			}
-			s.Receive(ctx)
-			s.run(ctx)
+			s.setContext(ctx)
+			s.receive()
+			s.run()
 			wg.Wait()
 			sort.Ints(res)
 			assert.Equal(t, res, tt.want)
@@ -161,9 +162,9 @@ func TestSubscriber_Subscribe(t *testing.T) {
 					}
 				},
 			}
-			input.SetGenerator(method.generator)
-			transform.SetMap(method.transform)
-			sink.SetSink(method.sink)
+			input.setGenerator(method.generator)
+			transform.setMap(method.transform)
+			sink.setSink(method.sink)
 
 			output := input.createOutput(tt.args.bufferSize)
 			transform.setInputChannel(output)
@@ -172,11 +173,13 @@ func TestSubscriber_Subscribe(t *testing.T) {
 			ctx := &Context{
 				ctx: c,
 			}
-
-			input.Receive(ctx)
-			input.run(ctx)
-			transform.run(ctx)
-			sink.run(ctx)
+			input.setContext(ctx)
+			transform.setContext(ctx)
+			sink.setContext(ctx)
+			input.receive()
+			input.run()
+			transform.run()
+			sink.run()
 			wg.Wait()
 			sort.Ints(res)
 			assert.Equal(t, res, tt.want)

@@ -28,23 +28,29 @@ type runLoop struct {
 	cfg           *loopCfg
 	inputs        []chan any
 	overrideInput bool
+	stopped       bool
 	outputs       []chan any
 	methods       methods
+	context       *Context
 }
 
-func (s *runLoop) SetMap(transform MethodMap) {
+func (s *runLoop) setContext(context *Context) {
+	s.context = context
+}
+
+func (s *runLoop) setMap(transform MethodMap) {
 	s.methods = methods{
 		transform: transform,
 	}
 }
 
-func (s *runLoop) SetSink(sink MethodSink) {
+func (s *runLoop) setSink(sink MethodSink) {
 	s.methods = methods{
 		sink: sink,
 	}
 }
 
-func (s *runLoop) SetGenerator(g MethodGenerator) {
+func (s *runLoop) setGenerator(g MethodGenerator) {
 	s.methods = methods{
 		generator: g,
 	}
@@ -65,17 +71,17 @@ func newRunLoop(
 	return s
 }
 
-func (s *runLoop) Receive(ctx *Context) {
+func (s *runLoop) receive() {
 	for i := range s.inputs {
 		c := s.inputs[i]
 		go func(ch chan any) {
-			s.methods.generator(ctx, ch)
+			s.methods.generator(s.context, ch)
 			close(ch)
 		}(c)
 	}
 }
 
-func (s *runLoop) run(ctx *Context) {
+func (s *runLoop) run() {
 	var sema chan struct{}
 	if s.cfg.threadsCount != nil {
 		sema = make(chan struct{}, *s.cfg.threadsCount)
@@ -95,7 +101,7 @@ func (s *runLoop) run(ctx *Context) {
 			close(sema)
 		}
 	}
-	input := mergeInputs(ctx.Context(), s.inputs...)
+	input := mergeInputs(s.context.Context(), s.inputs...)
 	go func() {
 		defer closeSema()
 		defer s.stop()
@@ -112,7 +118,7 @@ func (s *runLoop) run(ctx *Context) {
 				go func(m any) {
 					defer semaphoreUnlock()
 					if s.methods.transform != nil {
-						m = s.methods.transform(ctx, m)
+						m = s.methods.transform(s.context, m)
 					}
 					if _, isErr := m.(error); isErr {
 						return
@@ -124,11 +130,12 @@ func (s *runLoop) run(ctx *Context) {
 						c <- m
 					}
 					if s.methods.sink != nil {
-						s.methods.sink(ctx, m)
+						s.methods.sink(s.context, m)
 					}
 
 				}(msg)
-			case <-ctx.Context().Done():
+			case <-s.context.Context().Done():
+				s.stopped = true
 				return
 			}
 		}
