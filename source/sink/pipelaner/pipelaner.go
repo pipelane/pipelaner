@@ -58,7 +58,7 @@ func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 	} else {
 		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", host, v.Port), opts...)
+	conn, err := grpc.NewClient(fmt.Sprintf("%s:%d", host, v.Port), opts...)
 	if err != nil {
 		return err
 	}

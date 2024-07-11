@@ -6,7 +6,6 @@ package debounce
 
 import (
 	"context"
-	"pipelaner/source/transform"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -16,6 +15,19 @@ import (
 
 	"pipelaner"
 )
+
+func newCfg(
+	itemType pipelaner.LaneTypes,
+	name string,
+	extended map[string]any,
+) *pipelaner.BaseLaneConfig {
+	c, _ := pipelaner.NewBaseConfigWithTypeAndExtended(
+		itemType,
+		name,
+		extended,
+	)
+	return c
+}
 
 func TestDebounce_Map(t *testing.T) {
 	type args struct {
@@ -33,7 +45,7 @@ func TestDebounce_Map(t *testing.T) {
 				iterations: 10,
 				ctx: pipelaner.NewContext(
 					context.Background(),
-					pipelaner.NewLaneItem(transform.newCfg(pipelaner.MapType,
+					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						"test_maps",
 						map[string]any{
 							"interval": "300ms",
@@ -85,7 +97,7 @@ func TestDebounceConcurrent_Map(t *testing.T) {
 				iterations: 10,
 				ctx: pipelaner.NewContext(
 					context.Background(),
-					pipelaner.NewLaneItem(transform.newCfg(pipelaner.MapType,
+					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						"test_maps",
 						map[string]any{
 							"interval": "300ms",

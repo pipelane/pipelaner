@@ -17,12 +17,11 @@ import (
 
 func newCfg(
 	itemType pipelaner.LaneTypes,
-	name string,
 	extended map[string]any,
 ) *pipelaner.BaseLaneConfig {
 	c, _ := pipelaner.NewBaseConfigWithTypeAndExtended(
 		itemType,
-		name,
+		"test_maps_sinks",
 		extended,
 	)
 	return c
@@ -43,7 +42,6 @@ func TestExprLanguage_Map(t *testing.T) {
 			args: args{
 				ctx: pipelaner.NewContext(context.Background(),
 					pipelaner.NewLaneItem(newCfg(pipelaner.SinkType,
-						"test_maps_sinks",
 						map[string]any{
 							"code": "Data.count > 5",
 						}),
@@ -60,7 +58,6 @@ func TestExprLanguage_Map(t *testing.T) {
 			args: args{
 				ctx: pipelaner.NewContext(context.Background(),
 					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
-						"test_maps_sinks",
 						map[string]any{
 							"code": "Data.count > 5",
 						}),
@@ -103,7 +100,6 @@ func TestExprLanguage_String(t *testing.T) {
 			args: args{
 				ctx: pipelaner.NewContext(context.Background(),
 					pipelaner.NewLaneItem(newCfg(pipelaner.SinkType,
-						"test_maps_sinks",
 						map[string]any{
 							"code": "Data.count > 5",
 						}),
@@ -118,7 +114,6 @@ func TestExprLanguage_String(t *testing.T) {
 			args: args{
 				ctx: pipelaner.NewContext(context.Background(),
 					pipelaner.NewLaneItem(newCfg(pipelaner.SinkType,
-						"test_maps_sinks",
 						map[string]any{
 							"code": "Data.count > 5",
 						}),
@@ -157,7 +152,6 @@ func TestExprLanguage_Bytes(t *testing.T) {
 			args: args{
 				ctx: pipelaner.NewContext(context.Background(),
 					pipelaner.NewLaneItem(newCfg(pipelaner.SinkType,
-						"test_maps_sinks",
 						map[string]any{
 							"code": "Data.count > 5",
 						}),
@@ -172,7 +166,6 @@ func TestExprLanguage_Bytes(t *testing.T) {
 			args: args{
 				ctx: pipelaner.NewContext(context.Background(),
 					pipelaner.NewLaneItem(newCfg(pipelaner.SinkType,
-						"test_maps_sinks",
 						map[string]any{
 							"code": "Data.count > 5",
 						}),
