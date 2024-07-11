@@ -14,6 +14,9 @@ var (
 	ErrInputsNotFound       = errors.New("ErrInputsNotFound")
 	ErrLaneNameMustBeUnique = errors.New("ErrLaneNameMustBeUnique")
 	ErrInvalidConfig        = errors.New("ErrInvalidConfig")
+	ErrUnknownGenerator     = errors.New("ErrUnknownGenerator")
+	ErrUnknownMap           = errors.New("ErrUnknownMap")
+	ErrUnknownSink          = errors.New("ErrUnknownSink")
 )
 
 func ErrLaneWithoutSink(s string) error {
@@ -178,7 +181,10 @@ func (t *TreeLanes) run(ctx context.Context) error {
 			ctx:      ctx,
 			laneItem: item,
 		}
-		tr := dataSource.Maps[c.LaneItem().Config().SourceName]
+		tr, ok := dataSource.Maps[c.LaneItem().Config().SourceName]
+		if !ok {
+			return ErrUnknownMap
+		}
 		t := tr.New()
 		err := t.Init(c)
 		if err != nil {
@@ -193,7 +199,10 @@ func (t *TreeLanes) run(ctx context.Context) error {
 			ctx:      ctx,
 			laneItem: item,
 		}
-		si := dataSource.Sinks[c.LaneItem().Config().SourceName]
+		si, ok := dataSource.Sinks[c.LaneItem().Config().SourceName]
+		if !ok {
+			return ErrUnknownSink
+		}
 		err := si.Init(c)
 		if err != nil {
 			return err
@@ -207,7 +216,10 @@ func (t *TreeLanes) run(ctx context.Context) error {
 			ctx:      ctx,
 			laneItem: item,
 		}
-		generator := dataSource.Generators[c.LaneItem().Config().SourceName]
+		generator, ok := dataSource.Generators[c.LaneItem().Config().SourceName]
+		if !ok {
+			return ErrUnknownGenerator
+		}
 		err := generator.Init(c)
 		if err != nil {
 			return err

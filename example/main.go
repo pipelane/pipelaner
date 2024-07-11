@@ -5,12 +5,15 @@
 package main
 
 import (
+	"pipelaner/example/tests"
 	"time"
 
 	"pipelaner"
+	_ "pipelaner/source"
 )
 
 func main() {
+	pipelaner.RegisterGenerator("int", &tests.IntGenerator{})
 	agent, err := pipelaner.NewAgent(
 		"example/pipeline.toml",
 	)
