@@ -18,7 +18,6 @@ type Agent struct {
 }
 
 func NewAgent(
-	dataSource DataSource,
 	file string,
 ) (*Agent, error) {
 
@@ -29,7 +28,6 @@ func NewAgent(
 	)
 	t, err := NewTreeFrom(
 		ctx,
-		dataSource,
 		file,
 	)
 	if err != nil {

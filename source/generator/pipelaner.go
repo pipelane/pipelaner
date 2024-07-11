@@ -33,6 +33,10 @@ type Pipelaner struct {
 	srv    *server.PipelanerServer
 }
 
+func init() {
+	pipelaner.RegisterGenerator("pipelaner", &Pipelaner{})
+}
+
 func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 	p.cfg = ctx.LaneItem().Config()
 	p.logger = pipelaner.NewLogger()

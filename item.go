@@ -35,7 +35,7 @@ func (c *Context) Value() any {
 }
 
 func (c *Context) ReturnValue(value any) error {
-	if !c.LaneItem().runLoop.stopped {
+	if !c.LaneItem().runLoop.stopped.Load() {
 		c.value = value
 	}
 	return ErrLaneIsStopped

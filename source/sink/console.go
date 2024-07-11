@@ -16,8 +16,12 @@ type Console struct {
 	logger zerolog.Logger
 }
 
-func NewConsole(logger zerolog.Logger) *Console {
-	return &Console{logger: logger}
+func init() {
+	pipelaner.RegisterSink("console", NewConsole())
+}
+
+func NewConsole() *Console {
+	return &Console{}
 }
 func (c *Console) Init(ctx *pipelaner.Context) error {
 	return nil

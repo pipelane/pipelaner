@@ -20,6 +20,10 @@ type Batch struct {
 	ch  chan any
 }
 
+func init() {
+	pipelaner.RegisterMap("batch", &Batch{})
+}
+
 func (b *Batch) Init(ctx *pipelaner.Context) error {
 	b.cfg = ctx.LaneItem().Config()
 	v := &BatchCfg{}

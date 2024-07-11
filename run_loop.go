@@ -6,6 +6,7 @@ package pipelaner
 
 import (
 	"sync"
+	"sync/atomic"
 )
 
 type MethodMap func(ctx *Context, val any) any
@@ -28,7 +29,7 @@ type runLoop struct {
 	cfg           *loopCfg
 	inputs        []chan any
 	overrideInput bool
-	stopped       bool
+	stopped       atomic.Bool
 	outputs       []chan any
 	methods       methods
 	context       *Context
@@ -126,16 +127,17 @@ func (s *runLoop) run() {
 					if m == nil {
 						return
 					}
+					s.mx.RLock()
 					for _, c := range s.outputs {
 						c <- m
 					}
+					s.mx.RUnlock()
 					if s.methods.sink != nil {
 						s.methods.sink(s.context, m)
 					}
-
 				}(msg)
 			case <-s.context.Context().Done():
-				s.stopped = true
+				s.stopped.Store(true)
 				return
 			}
 		}

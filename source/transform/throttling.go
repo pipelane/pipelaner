@@ -39,6 +39,10 @@ func (d *Throttling) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
+func init() {
+	pipelaner.RegisterMap("throttling", &Throttling{})
+}
+
 func (d *Throttling) New() pipelaner.Map {
 	return &Throttling{}
 }

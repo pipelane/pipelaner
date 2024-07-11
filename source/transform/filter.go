@@ -35,6 +35,10 @@ type Filter struct {
 	program *vm.Program
 }
 
+func init() {
+	pipelaner.RegisterMap("filter", &Filter{})
+}
+
 func (e *Filter) New() pipelaner.Map {
 	return &Filter{}
 }

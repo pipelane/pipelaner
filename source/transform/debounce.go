@@ -39,6 +39,10 @@ func (d *Debounce) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
+func init() {
+	pipelaner.RegisterMap("debounce", &Debounce{})
+}
+
 func (d *Debounce) New() pipelaner.Map {
 	return &Debounce{}
 }

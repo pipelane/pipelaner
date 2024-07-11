@@ -26,6 +26,10 @@ type GrpcCfg struct {
 	KeyFile  string  `pipelane:"key"`
 }
 
+func init() {
+	pipelaner.RegisterSink("pipelaner", &Pipelaner{})
+}
+
 type Pipelaner struct {
 	logger zerolog.Logger
 	cfg    *pipelaner.BaseLaneConfig

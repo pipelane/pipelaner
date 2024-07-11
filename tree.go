@@ -89,14 +89,13 @@ func newPipelinesTree() *TreeLanes {
 
 func NewTreeFrom(
 	ctx context.Context,
-	dataSource DataSource,
 	file string,
 ) (*TreeLanes, error) {
 	c, err := readToml(file)
 	if err != nil {
 		return nil, err
 	}
-	a, err := newPipelinesTreeMapWith(ctx, dataSource, c)
+	a, err := newPipelinesTreeMapWith(ctx, c)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +104,6 @@ func NewTreeFrom(
 
 func newPipelinesTreeMapWith(
 	ctx context.Context,
-	dataSource DataSource,
 	c map[string]any,
 ) (*TreeLanes, error) {
 	lanes := newPipelinesTree()
@@ -136,7 +134,7 @@ func newPipelinesTreeMapWith(
 		return nil, ErrLaneNameMustBeUnique
 	}
 	lanes.connect(ctx)
-	if err = lanes.run(ctx, dataSource); err != nil {
+	if err = lanes.run(ctx); err != nil {
 		return nil, err
 	}
 	return lanes, nil
@@ -164,7 +162,7 @@ func flat(
 	return nil
 }
 
-func (t *TreeLanes) run(ctx context.Context, dataSource DataSource) error {
+func (t *TreeLanes) run(ctx context.Context) error {
 	inputs := t.filterByType(InputType)
 	if err := t.validateOutputs(inputs); err != nil {
 		return err

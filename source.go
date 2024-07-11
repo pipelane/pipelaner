@@ -8,7 +8,7 @@ type Generators map[string]Generator
 type Maps map[string]Map
 type Sinks map[string]Sink
 
-type DataSource struct {
+type dataSources struct {
 	Generators Generators
 	Maps       Maps
 	Sinks      Sinks

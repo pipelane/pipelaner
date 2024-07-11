@@ -25,6 +25,10 @@ type Exec struct {
 	logger zerolog.Logger
 }
 
+func init() {
+	pipelaner.RegisterGenerator("cmd", &Exec{})
+}
+
 func (c *Exec) Init(ctx *pipelaner.Context) error {
 	c.cfg = ctx.LaneItem().Config()
 	c.logger = pipelaner.NewLogger()

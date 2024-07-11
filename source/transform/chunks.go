@@ -26,6 +26,10 @@ type Chunks[T any] struct {
 	input   chan T
 }
 
+func init() {
+	pipelaner.RegisterMap("chunks", &Chunk{})
+}
+
 func (c *Chunks[T]) Ctx() context.Context {
 	return c.ctx
 }

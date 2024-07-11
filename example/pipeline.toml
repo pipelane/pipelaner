@@ -66,11 +66,12 @@
 ######## Test debounce
 
 
-[input.test_input]
+[input.feed_api]
 buffer = 100
 source_name = "int"
 
-[map.test_int_transform]
+
+[map.transform_gavno]
 inputs = ["test_input"]
 buffer = 10
 max_idle_time = "300s"
