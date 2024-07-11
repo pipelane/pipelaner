@@ -6,7 +6,6 @@ package throttling
 
 import (
 	"context"
-	"pipelaner/source/transform/filter"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -33,7 +32,7 @@ func TestThrottling_Map(t *testing.T) {
 				iterations: 10,
 				ctx: pipelaner.NewContext(
 					context.Background(),
-					pipelaner.NewLaneItem(filter.newCfg(pipelaner.MapType,
+					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						"test_maps",
 						map[string]any{
 							"interval": "300ms",
@@ -85,7 +84,7 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 				iterations: 10,
 				ctx: pipelaner.NewContext(
 					context.Background(),
-					pipelaner.NewLaneItem(filter.newCfg(pipelaner.MapType,
+					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						"test_maps",
 						map[string]any{
 							"interval": "300ms",
@@ -127,4 +126,17 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 			assert.NotNil(t, val)
 		})
 	}
+}
+
+func newCfg(
+	itemType pipelaner.LaneTypes,
+	name string,
+	extended map[string]any,
+) *pipelaner.BaseLaneConfig {
+	c, _ := pipelaner.NewBaseConfigWithTypeAndExtended(
+		itemType,
+		name,
+		extended,
+	)
+	return c
 }

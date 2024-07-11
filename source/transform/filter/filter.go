@@ -5,14 +5,13 @@
 package filter
 
 import (
+	"encoding/json"
 	"errors"
 
-	"github.com/goccy/go-json"
-
-	"github.com/antonmedv/expr/vm"
+	"github.com/expr-lang/expr/vm"
 	"github.com/rs/zerolog"
 
-	"github.com/antonmedv/expr"
+	"github.com/expr-lang/expr"
 
 	"pipelaner"
 )
