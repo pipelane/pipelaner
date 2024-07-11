@@ -4,7 +4,7 @@
 
 package pipelaner
 
-var dataSource = dataSources{}
+var dataSource = newDataSources()
 
 func RegisterSink(name string, sink Sink) {
 	dataSource.Sinks[name] = sink

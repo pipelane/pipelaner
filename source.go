@@ -13,3 +13,11 @@ type dataSources struct {
 	Maps       Maps
 	Sinks      Sinks
 }
+
+func newDataSources() *dataSources {
+	return &dataSources{
+		Generators: map[string]Generator{},
+		Maps:       map[string]Map{},
+		Sinks:      map[string]Sink{},
+	}
+}
