@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2023 Alexey Khokhlov
+ * Copyright (c) 2024 Alexey Khokhlov
  */
 
-package transform
+package filter
 
 import (
 	"context"

@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2023 Alexey Khokhlov
+ * Copyright (c) 2024 Alexey Khokhlov
  */
 
-package transform
+package throttling
 
 import (
 	"sync"
@@ -12,11 +12,11 @@ import (
 	"pipelaner"
 )
 
-type DebounceCfg struct {
+type ThrottlingCfg struct {
 	Interval string `pipelane:"interval"`
 }
 
-type Debounce struct {
+type Throttling struct {
 	mx     sync.Mutex
 	cfg    *pipelaner.BaseLaneConfig
 	val    atomic.Value
@@ -24,38 +24,40 @@ type Debounce struct {
 	timer  *time.Timer
 }
 
-func (d *Debounce) Init(ctx *pipelaner.Context) error {
+func (d *Throttling) Init(ctx *pipelaner.Context) error {
 	d.cfg = ctx.LaneItem().Config()
-	v := &DebounceCfg{}
+	v := &ThrottlingCfg{}
 	err := d.cfg.ParseExtended(v)
 	if err != nil {
 		return err
 	}
-	interval, err := d.Interval()
+	i, err := d.Interval()
 	if err != nil {
 		return err
 	}
-	d.timer = time.NewTimer(interval)
+	d.timer = time.NewTimer(i)
 	return nil
 }
 
 func init() {
-	pipelaner.RegisterMap("debounce", &Debounce{})
+	pipelaner.RegisterMap("throttling", &Throttling{})
 }
 
-func (d *Debounce) New() pipelaner.Map {
-	return &Debounce{}
+func (d *Throttling) New() pipelaner.Map {
+	return &Throttling{}
 }
 
-func (d *Debounce) Map(ctx *pipelaner.Context, val any) any {
+func (d *Throttling) Map(ctx *pipelaner.Context, val any) any {
 	d.storeValue(val)
 	lock := d.locked.Load()
 	if lock {
 		return nil
 	}
 	d.locked.Store(true)
+	d.reset()
 	select {
 	case <-ctx.Context().Done():
+		d.timer.Stop()
 		return nil
 	case <-d.timer.C:
 		v := d.val.Load()
@@ -65,18 +67,17 @@ func (d *Debounce) Map(ctx *pipelaner.Context, val any) any {
 	}
 }
 
-func (d *Debounce) storeValue(val any) {
-	d.reset()
+func (d *Throttling) storeValue(val any) {
 	d.val.Store(val)
 }
 
-func (d *Debounce) reset() {
+func (d *Throttling) reset() {
 	d.mx.Lock()
 	defer d.mx.Unlock()
 	i, _ := d.Interval()
 	d.timer.Reset(i)
 }
 
-func (d *Debounce) Interval() (time.Duration, error) {
-	return time.ParseDuration(d.cfg.Extended.(*DebounceCfg).Interval)
+func (d *Throttling) Interval() (time.Duration, error) {
+	return time.ParseDuration(d.cfg.Extended.(*ThrottlingCfg).Interval)
 }

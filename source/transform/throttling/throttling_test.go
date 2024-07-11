@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2023 Alexey Khokhlov
+ * Copyright (c) 2024 Alexey Khokhlov
  */
 
-package transform
+package throttling
 
 import (
 	"context"
+	"pipelaner/source/transform/filter"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -16,7 +17,7 @@ import (
 	"pipelaner"
 )
 
-func TestDebounce_Map(t *testing.T) {
+func TestThrottling_Map(t *testing.T) {
 	type args struct {
 		ctx        *pipelaner.Context
 		iterations int
@@ -27,12 +28,12 @@ func TestDebounce_Map(t *testing.T) {
 		want any
 	}{
 		{
-			name: "Test debounce 300 ms",
+			name: "Test throttling 300 ms",
 			args: args{
 				iterations: 10,
 				ctx: pipelaner.NewContext(
 					context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
+					pipelaner.NewLaneItem(filter.newCfg(pipelaner.MapType,
 						"test_maps",
 						map[string]any{
 							"interval": "300ms",
@@ -44,7 +45,7 @@ func TestDebounce_Map(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &Debounce{
+			d := &Throttling{
 				mx:  sync.Mutex{},
 				cfg: tt.args.ctx.LaneItem().Config(),
 				val: atomic.Value{},
@@ -68,7 +69,7 @@ func TestDebounce_Map(t *testing.T) {
 	}
 }
 
-func TestDebounceConcurrent_Map(t *testing.T) {
+func TestThrottlingConcurrent_Map(t *testing.T) {
 	type args struct {
 		ctx        *pipelaner.Context
 		iterations int
@@ -79,12 +80,12 @@ func TestDebounceConcurrent_Map(t *testing.T) {
 		want any
 	}{
 		{
-			name: "Test concurrent debounce 300 ms",
+			name: "Test concurrent throttling 300 ms",
 			args: args{
 				iterations: 10,
 				ctx: pipelaner.NewContext(
 					context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
+					pipelaner.NewLaneItem(filter.newCfg(pipelaner.MapType,
 						"test_maps",
 						map[string]any{
 							"interval": "300ms",
@@ -96,7 +97,7 @@ func TestDebounceConcurrent_Map(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &Debounce{
+			d := &Throttling{
 				mx:  sync.Mutex{},
 				cfg: tt.args.ctx.LaneItem().Config(),
 				val: atomic.Value{},

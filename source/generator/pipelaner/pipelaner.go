@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2023 Alexey Khokhlov
+ * Copyright (c) 2024 Alexey Khokhlov
  */
 
-package generator
+package pipelaner
 
 import (
 	"fmt"
 	"net"
+	"pipelaner/source/generator/pipelaner/server"
 
 	"github.com/goccy/go-json"
 
@@ -16,7 +17,6 @@ import (
 
 	"pipelaner"
 	"pipelaner/internal/service"
-	"pipelaner/source/generator/server"
 )
 
 type GrpcCfg struct {

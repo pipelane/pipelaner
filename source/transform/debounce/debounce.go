@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2023 Alexey Khokhlov
+ * Copyright (c) 2024 Alexey Khokhlov
  */
 
-package transform
+package debounce
 
 import (
 	"sync"
@@ -12,11 +12,11 @@ import (
 	"pipelaner"
 )
 
-type ThrottlingCfg struct {
+type DebounceCfg struct {
 	Interval string `pipelane:"interval"`
 }
 
-type Throttling struct {
+type Debounce struct {
 	mx     sync.Mutex
 	cfg    *pipelaner.BaseLaneConfig
 	val    atomic.Value
@@ -24,40 +24,38 @@ type Throttling struct {
 	timer  *time.Timer
 }
 
-func (d *Throttling) Init(ctx *pipelaner.Context) error {
+func (d *Debounce) Init(ctx *pipelaner.Context) error {
 	d.cfg = ctx.LaneItem().Config()
-	v := &ThrottlingCfg{}
+	v := &DebounceCfg{}
 	err := d.cfg.ParseExtended(v)
 	if err != nil {
 		return err
 	}
-	i, err := d.Interval()
+	interval, err := d.Interval()
 	if err != nil {
 		return err
 	}
-	d.timer = time.NewTimer(i)
+	d.timer = time.NewTimer(interval)
 	return nil
 }
 
 func init() {
-	pipelaner.RegisterMap("throttling", &Throttling{})
+	pipelaner.RegisterMap("debounce", &Debounce{})
 }
 
-func (d *Throttling) New() pipelaner.Map {
-	return &Throttling{}
+func (d *Debounce) New() pipelaner.Map {
+	return &Debounce{}
 }
 
-func (d *Throttling) Map(ctx *pipelaner.Context, val any) any {
+func (d *Debounce) Map(ctx *pipelaner.Context, val any) any {
 	d.storeValue(val)
 	lock := d.locked.Load()
 	if lock {
 		return nil
 	}
 	d.locked.Store(true)
-	d.reset()
 	select {
 	case <-ctx.Context().Done():
-		d.timer.Stop()
 		return nil
 	case <-d.timer.C:
 		v := d.val.Load()
@@ -67,17 +65,18 @@ func (d *Throttling) Map(ctx *pipelaner.Context, val any) any {
 	}
 }
 
-func (d *Throttling) storeValue(val any) {
+func (d *Debounce) storeValue(val any) {
+	d.reset()
 	d.val.Store(val)
 }
 
-func (d *Throttling) reset() {
+func (d *Debounce) reset() {
 	d.mx.Lock()
 	defer d.mx.Unlock()
 	i, _ := d.Interval()
 	d.timer.Reset(i)
 }
 
-func (d *Throttling) Interval() (time.Duration, error) {
-	return time.ParseDuration(d.cfg.Extended.(*ThrottlingCfg).Interval)
+func (d *Debounce) Interval() (time.Duration, error) {
+	return time.ParseDuration(d.cfg.Extended.(*DebounceCfg).Interval)
 }
