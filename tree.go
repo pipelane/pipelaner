@@ -55,6 +55,13 @@ func (t *TreeLanes) filter(f func(i *LaneItem) bool) []*LaneItem {
 	return res
 }
 
+func (t *TreeLanes) sortedByType() []*LaneItem {
+	l := t.filterByType(InputType)
+	l = append(l, t.filterByType(MapType)...)
+	l = append(l, t.filterByType(SinkType)...)
+	return l
+}
+
 func (t *TreeLanes) filterByType(lt LaneTypes) []*LaneItem {
 	return t.filter(func(i *LaneItem) bool {
 		return i.cfg.LaneType == lt
@@ -185,12 +192,12 @@ func (t *TreeLanes) run(ctx context.Context) error {
 		if !ok {
 			return ErrUnknownMap
 		}
-		t := tr.New()
-		err := t.Init(c)
+		nT := tr.New()
+		err := nT.Init(c)
 		if err != nil {
 			return err
 		}
-		item.runLoop.setMap(t.Map)
+		item.runLoop.setMap(nT.Map)
 		item.runLoop.run()
 	}
 	for i := range sinks {
@@ -238,8 +245,9 @@ func (t *TreeLanes) connect(ctx context.Context) {
 		input := inputs[i]
 		input.runLoop.setContext(NewContext(ctx, input))
 	}
-	for i := range t.Items {
-		input := t.Items[i]
+	sorted := t.sortedByType()
+	for i := range sorted {
+		input := sorted[i]
 		output, ok := allWithInputs[input.cfg.Name]
 		if !ok {
 			continue
