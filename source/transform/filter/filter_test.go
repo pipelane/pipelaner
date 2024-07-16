@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"pipelaner"
+	"github.com/pipelane/pipelaner"
 )
 
 func newCfg(

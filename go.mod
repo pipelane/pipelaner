@@ -1,4 +1,4 @@
-module pipelaner
+module github.com/pipelane/pipelaner
 
 go 1.22
 

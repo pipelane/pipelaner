@@ -7,7 +7,7 @@ package batch
 import (
 	"sync"
 
-	"pipelaner"
+	"github.com/pipelane/pipelaner"
 )
 
 type BatchCfg struct {

@@ -7,7 +7,7 @@ package tests
 import (
 	"time"
 
-	"pipelaner"
+	"github.com/pipelane/pipelaner"
 )
 
 type IntGenerator struct {

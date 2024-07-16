@@ -8,7 +8,7 @@ import (
 	"crypto/rand"
 	"math/big"
 
-	"pipelaner"
+	"github.com/pipelane/pipelaner"
 )
 
 type MapGenerator struct {

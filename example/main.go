@@ -5,11 +5,11 @@
 package main
 
 import (
-	"pipelaner/example/tests"
+	"github.com/pipelane/pipelaner/example/tests"
 	"time"
 
-	"pipelaner"
-	_ "pipelaner/source"
+	"github.com/pipelane/pipelaner"
+	_ "github.com/pipelane/pipelaner/source"
 )
 
 func main() {

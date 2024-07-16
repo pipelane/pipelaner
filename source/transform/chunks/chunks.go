@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"pipelaner"
+	"github.com/pipelane/pipelaner"
 )
 
 type ChunksCfg struct {

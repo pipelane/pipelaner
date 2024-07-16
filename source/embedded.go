@@ -5,13 +5,13 @@
 package source
 
 import (
-	_ "pipelaner/source/generator/cmd"
-	_ "pipelaner/source/generator/pipelaner"
-	_ "pipelaner/source/sink/console"
-	_ "pipelaner/source/sink/pipelaner"
-	_ "pipelaner/source/transform/batch"
-	_ "pipelaner/source/transform/chunks"
-	_ "pipelaner/source/transform/debounce"
-	_ "pipelaner/source/transform/filter"
-	_ "pipelaner/source/transform/throttling"
+	_ "github.com/pipelane/pipelaner/source/generator/cmd"
+	_ "github.com/pipelane/pipelaner/source/generator/pipelaner"
+	_ "github.com/pipelane/pipelaner/source/sink/console"
+	_ "github.com/pipelane/pipelaner/source/sink/pipelaner"
+	_ "github.com/pipelane/pipelaner/source/transform/batch"
+	_ "github.com/pipelane/pipelaner/source/transform/chunks"
+	_ "github.com/pipelane/pipelaner/source/transform/debounce"
+	_ "github.com/pipelane/pipelaner/source/transform/filter"
+	_ "github.com/pipelane/pipelaner/source/transform/throttling"
 )

@@ -13,7 +13,7 @@ import (
 
 	"github.com/expr-lang/expr"
 
-	"pipelaner"
+	"github.com/pipelane/pipelaner"
 )
 
 var (

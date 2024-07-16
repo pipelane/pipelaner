@@ -13,7 +13,7 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"pipelaner"
+	"github.com/pipelane/pipelaner"
 )
 
 type ExecCfg struct {

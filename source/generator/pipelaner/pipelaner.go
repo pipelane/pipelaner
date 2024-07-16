@@ -6,8 +6,8 @@ package pipelaner
 
 import (
 	"fmt"
+	"github.com/pipelane/pipelaner/source/generator/pipelaner/server"
 	"net"
-	"pipelaner/source/generator/pipelaner/server"
 
 	"github.com/goccy/go-json"
 
@@ -15,8 +15,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
-	"pipelaner"
-	"pipelaner/internal/service"
+	"github.com/pipelane/pipelaner"
+	"github.com/pipelane/pipelaner/internal/service"
 )
 
 type GrpcCfg struct {
