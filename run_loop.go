@@ -116,8 +116,9 @@ func (s *runLoop) run() {
 				if msg == nil {
 					continue
 				}
-				if reflect.ValueOf(msg).Kind() == reflect.Pointer {
-					msg = reflect.ValueOf(msg).Elem()
+				valMsg := reflect.ValueOf(msg)
+				if valMsg.Kind() == reflect.Pointer {
+					msg = valMsg.Elem().Interface()
 				}
 				semaphoreLock()
 				go func(m any) {
