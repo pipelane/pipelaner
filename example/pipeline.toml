@@ -1,5 +1,5 @@
 ## grpc_server
-#[input.grpc_server]
+#[input.collector]
 #buffer = 100
 #source_name = "pipelaner"
 #port = 9090
