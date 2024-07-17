@@ -1,0 +1,23 @@
+/*
+ * Copyright (c) 2023 Alexey Khokhlov
+ */
+
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/pipelane/pipelaner/internal/service";
+
+package pipelaner.service;
+
+service Pipelaner {
+  rpc Sink (Message) returns (google.protobuf.Empty) {}
+}
+
+message Message {
+  oneof data {
+    string string_value = 1;
+    bytes bytes_value = 2;
+    bytes json_value = 3;
+  }
+}
