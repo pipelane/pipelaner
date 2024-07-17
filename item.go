@@ -70,11 +70,10 @@ func (l *LaneItem) addOutputs(output *LaneItem) {
 }
 
 func (l *LaneItem) Subscribe(output *LaneItem) {
-	ctx := withContext(l.runLoop.context)
 	outputCh := l.runLoop.createOutput(output.cfg.BufferSize)
 	output.runLoop.setInputChannel(outputCh)
+	ctx := withContext(l.runLoop.context)
 	output.runLoop.setContext(ctx)
-	l.addOutputs(output)
 }
 
 func NewLaneItem(
