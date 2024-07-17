@@ -5,6 +5,7 @@
 package pipelaner
 
 import (
+	"reflect"
 	"sync"
 	"sync/atomic"
 )
@@ -115,6 +116,9 @@ func (s *runLoop) run() {
 				if msg == nil {
 					continue
 				}
+				if reflect.ValueOf(msg).Kind() == reflect.Pointer {
+					msg = reflect.ValueOf(msg).Elem()
+				}
 				semaphoreLock()
 				go func(m any) {
 					defer semaphoreUnlock()
@@ -130,6 +134,9 @@ func (s *runLoop) run() {
 					s.mx.RLock()
 					for _, c := range s.outputs {
 						c <- m
+					}
+					if reflect.ValueOf(m).Kind() == reflect.Pointer {
+						m = reflect.ValueOf(m).Elem()
 					}
 					s.mx.RUnlock()
 					if s.methods.sink != nil {
