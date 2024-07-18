@@ -12,6 +12,7 @@ import (
 
 var (
 	ErrInputsNotFound       = errors.New("ErrInputsNotFound")
+	ErrUnknownItem          = errors.New("ErrUnknownItem")
 	ErrLaneNameMustBeUnique = errors.New("ErrLaneNameMustBeUnique")
 	ErrInvalidConfig        = errors.New("ErrInvalidConfig")
 	ErrUnknownGenerator     = errors.New("ErrUnknownGenerator")
@@ -143,7 +144,7 @@ func newPipelinesTreeMapWith(
 	if len(cfg.Sink)+len(cfg.Map)+len(cfg.Input) != len(lanes.Items) {
 		return nil, ErrLaneNameMustBeUnique
 	}
-	lanes.connect(ctx)
+	lanes.makeTree(ctx)
 	if err = lanes.run(ctx); err != nil {
 		return nil, err
 	}
@@ -238,7 +239,7 @@ func (t *TreeLanes) run(ctx context.Context) error {
 	return nil
 }
 
-func (t *TreeLanes) connect(ctx context.Context) {
+func (t *TreeLanes) makeTree(ctx context.Context) {
 	allWithInputs := t.mapWithInputs()
 	inputs := t.filterByType(InputType)
 	for i := range inputs {
@@ -254,8 +255,22 @@ func (t *TreeLanes) connect(ctx context.Context) {
 		}
 		for j := range output {
 			out := output[j]
-			input.Subscribe(out)
+			input.addOutputs(out)
 		}
+	}
+	t.subscribeRecursive(inputs)
+}
+func (t *TreeLanes) subscribeRecursive(inputs []*LaneItem) {
+	if len(inputs) == 0 {
+		return
+	}
+	for i := range inputs {
+		input := inputs[i]
+		for j := range input.outputPipelines {
+			output := input.outputPipelines[j]
+			input.Subscribe(output)
+		}
+		t.subscribeRecursive(input.outputPipelines)
 	}
 }
 
