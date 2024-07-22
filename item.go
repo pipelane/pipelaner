@@ -7,6 +7,7 @@ package pipelaner
 import (
 	"context"
 	"errors"
+	"github.com/rs/zerolog"
 )
 
 var (
@@ -32,6 +33,10 @@ func withContext(parent *Context) *Context {
 
 func (c *Context) Value() any {
 	return c.value
+}
+
+func (c *Context) Logger() *zerolog.Logger {
+	return c.ctx.Value(logKey).(*zerolog.Logger)
 }
 
 func (c *Context) ReturnValue(value any) error {

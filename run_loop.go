@@ -5,6 +5,7 @@
 package pipelaner
 
 import (
+	"github.com/LastPossum/kamino"
 	"reflect"
 	"sync"
 	"sync/atomic"
@@ -26,14 +27,15 @@ type methods struct {
 }
 
 type runLoop struct {
+	cfg     *loopCfg
+	stopped atomic.Bool
+	methods methods
+	context *Context
+
 	mx            sync.RWMutex
-	cfg           *loopCfg
-	inputs        []chan any
 	overrideInput bool
-	stopped       atomic.Bool
+	inputs        []chan any
 	outputs       []chan any
-	methods       methods
-	context       *Context
 }
 
 func (s *runLoop) setContext(context *Context) {
@@ -118,7 +120,11 @@ func (s *runLoop) run() {
 				}
 				valMsg := reflect.ValueOf(msg)
 				if valMsg.Kind() == reflect.Pointer {
-					msg = valMsg.Elem().Interface()
+					m, err := kamino.Clone(msg)
+					if err != nil {
+						return
+					}
+					msg = m
 				}
 				semaphoreLock()
 				go func(m any) {
@@ -133,8 +139,14 @@ func (s *runLoop) run() {
 						return
 					}
 					s.mx.RLock()
-					for _, c := range s.outputs {
-						c <- m
+					// check message type before send to output
+					switch mVal := m.(type) {
+					case chan any: // temp contract solution
+						broadcastChannels(s.outputs, mVal)
+					default:
+						for _, c := range s.outputs {
+							c <- m
+						}
 					}
 					s.mx.RUnlock()
 					if s.methods.sink != nil {

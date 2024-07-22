@@ -141,6 +141,13 @@ func newPipelinesTreeMapWith(
 		return nil, err
 	}
 
+	// set logger into context
+	logger, err := initLogger(cfg)
+	if err != nil {
+		return nil, err
+	}
+	ctx = context.WithValue(ctx, logKey, logger)
+
 	if len(cfg.Sink)+len(cfg.Map)+len(cfg.Input) != len(lanes.Items) {
 		return nil, ErrLaneNameMustBeUnique
 	}
