@@ -118,7 +118,7 @@ func (s *runLoop) run() {
 				if msg == nil {
 					continue
 				}
-				valMsg := reflect.ValueOf(msg)
+				valMsg := reflect.TypeOf(msg)
 				if valMsg.Kind() == reflect.Pointer {
 					m, err := kamino.Clone(msg)
 					if err != nil {

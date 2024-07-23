@@ -61,7 +61,7 @@ func broadcastChannels(outputs []chan any, ch chan any) {
 	}
 
 	for v := range ch {
-		val := reflect.ValueOf(v)
+		val := reflect.TypeOf(v)
 		if val.Kind() == reflect.Pointer {
 			c, err := kamino.Clone(v)
 			if err != nil {

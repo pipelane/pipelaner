@@ -271,8 +271,7 @@ func (t *TreeLanes) subscribeRecursive(inputs []*LaneItem) {
 	if len(inputs) == 0 {
 		return
 	}
-	for i := range inputs {
-		input := inputs[i]
+	for _, input := range inputs {
 		for j := range input.outputPipelines {
 			output := input.outputPipelines[j]
 			input.Subscribe(output)
