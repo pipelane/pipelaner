@@ -141,6 +141,13 @@ func newPipelinesTreeMapWith(
 		return nil, err
 	}
 
+	// set logger into context
+	logger, err := initLogger(cfg)
+	if err != nil {
+		return nil, err
+	}
+	ctx = context.WithValue(ctx, logKey, logger)
+
 	if len(cfg.Sink)+len(cfg.Map)+len(cfg.Input) != len(lanes.Items) {
 		return nil, ErrLaneNameMustBeUnique
 	}
@@ -264,8 +271,7 @@ func (t *TreeLanes) subscribeRecursive(inputs []*LaneItem) {
 	if len(inputs) == 0 {
 		return
 	}
-	for i := range inputs {
-		input := inputs[i]
+	for _, input := range inputs {
 		for j := range input.outputPipelines {
 			output := input.outputPipelines[j]
 			input.Subscribe(output)
