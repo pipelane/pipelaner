@@ -13,17 +13,14 @@ import (
 )
 
 type Kafka struct {
-	cons           *kafka.Consumer
-	cfg            *pipelaner.KafkaConfig
-	logger         zerolog.Logger
-	ticker         *time.Ticker
-	delayReadTopic time.Duration
+	cons   *kafka.Consumer
+	cfg    *pipelaner.KafkaConfig
+	logger zerolog.Logger
 }
 
 func NewKafka(
 	cfg *pipelaner.KafkaConfig,
 	logger zerolog.Logger,
-	delayReadTopic time.Duration,
 ) (*Kafka, error) {
 	castCfg := pipelaner.CastConfig[*pipelaner.KafkaConfig, config.Kafka](cfg)
 
@@ -32,10 +29,9 @@ func NewKafka(
 		return nil, err
 	}
 	return &Kafka{
-		cons:           consumer,
-		cfg:            cfg,
-		logger:         logger,
-		delayReadTopic: delayReadTopic,
+		cons:   consumer,
+		cfg:    cfg,
+		logger: logger,
 	}, nil
 }
 
@@ -49,14 +45,14 @@ func (c *Kafka) Init(_ *pipelaner.Context) error {
 }
 
 func (c *Kafka) Generate(ctx *pipelaner.Context, input chan<- any) {
-	c.ticker = time.NewTicker(c.delayReadTopic)
-	defer c.ticker.Stop()
+	ticker := time.NewTicker(c.cfg.DelayReadTopic)
+	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ctx.Context().Done():
 			return
-		case <-c.ticker.C:
+		case <-ticker.C:
 			msg, err := c.cons.ReadMessage(-1)
 			var kafkaErr *kafka.Error
 			if err != nil && errors.As(err, &kafkaErr) && kafkaErr.IsTimeout() {

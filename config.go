@@ -62,19 +62,20 @@ type BaseLaneConfig struct {
 }
 
 type KafkaConfig struct {
-	KafkaBrokers           string   `pipelane:"brokers"`
-	KafkaVersion           string   `pipelane:"version"`
-	KafkaOffsetNewest      bool     `pipelane:"offset_newest"`
-	KafkaSASLEnabled       bool     `pipelane:"sasl_enabled"`
-	KafkaSASLMechanism     string   `pipelane:"sasl_mechanism"`
-	KafkaSASLUsername      string   `pipelane:"sasl_username"`
-	KafkaSASLPassword      string   `pipelane:"sasl_password"`
-	KafkaAutoCommitEnabled bool     `pipelane:"auto_commit_enabled"`
-	KafkaConsumerGroupId   string   `pipelane:"consumer_group_id"`
-	KafkaTopics            []string `pipelane:"topics"`
-	KafkaAutoOffsetReset   string   `pipelane:"auto_offset_reset"`
-	KafkaBatchSize         int      `pipelane:"batch_size"`
-	KafkaSchemaRegistry    string   `pipelane:"schema_registry"`
+	KafkaBrokers           string        `pipelane:"brokers"`
+	KafkaVersion           string        `pipelane:"version"`
+	KafkaOffsetNewest      bool          `pipelane:"offset_newest"`
+	KafkaSASLEnabled       bool          `pipelane:"sasl_enabled"`
+	KafkaSASLMechanism     string        `pipelane:"sasl_mechanism"`
+	KafkaSASLUsername      string        `pipelane:"sasl_username"`
+	KafkaSASLPassword      string        `pipelane:"sasl_password"`
+	KafkaAutoCommitEnabled bool          `pipelane:"auto_commit_enabled"`
+	KafkaConsumerGroupId   string        `pipelane:"consumer_group_id"`
+	KafkaTopics            []string      `pipelane:"topics"`
+	KafkaAutoOffsetReset   string        `pipelane:"auto_offset_reset"`
+	KafkaBatchSize         int           `pipelane:"batch_size"`
+	KafkaSchemaRegistry    string        `pipelane:"schema_registry"`
+	DelayReadTopic         time.Duration `pipelane:"delay_read_topic"`
 	Internal
 }
 
@@ -93,6 +94,7 @@ type ClickHouseConfig struct {
 	BlockBufferSize          uint8         `pipelane:"block_buffer_size"`
 	MaxCompressionBuffer     string        `pipelane:"max_compression_buffer"`
 	EnableDebug              bool          `pipelane:"enable_debug"`
+	TableName                string        `pipelane:"table_name"`
 	Internal
 }
 
@@ -141,7 +143,7 @@ func NewBaseConfigWithTypeAndExtended(
 	return &c, nil
 }
 
-func readToml(file string) (map[string]any, error) {
+func ReadToml(file string) (map[string]any, error) {
 	var c map[string]any
 	_, err := toml.DecodeFile(file, &c)
 	if err != nil {
@@ -218,19 +220,20 @@ func CastConfig[K, V any](config K) *V {
 
 	res := new(V)
 	if reflect.ValueOf(res).Kind() == reflect.Struct {
-		panic("V is not struct")
+		panic("Result is not struct")
 	}
 
-	val := reflect.ValueOf(config).Elem()
-	for i := 0; i < val.NumField(); i++ {
-		fieldName := val.Type().Field(i).Name
+	resVal := reflect.ValueOf(res).Elem()
+	confVal := reflect.ValueOf(config).Elem()
+	for i := 0; i < resVal.NumField(); i++ {
+		fieldName := resVal.Type().Field(i).Name
 
-		valueField := val.FieldByName(fieldName)
+		valueField := confVal.FieldByName(fieldName)
 		if !valueField.IsValid() {
 			panic(fmt.Sprintf("No such field: %s in valueField", fieldName))
 		}
 
-		setField := reflect.ValueOf(res).Elem().FieldByName(fieldName)
+		setField := resVal.FieldByName(fieldName)
 		if !setField.IsValid() {
 			panic(fmt.Sprintf("No such field: %s in setField", fieldName))
 		}
