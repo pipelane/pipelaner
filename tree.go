@@ -102,7 +102,7 @@ func NewTreeFrom(
 	ctx context.Context,
 	file string,
 ) (*TreeLanes, error) {
-	c, err := readToml(file)
+	c, err := ReadToml(file)
 	if err != nil {
 		return nil, err
 	}

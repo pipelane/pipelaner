@@ -15,14 +15,12 @@ type Clickhouse struct {
 	logger zerolog.Logger
 	cfg    *pipelaner.ClickHouseConfig
 	client *clickhouse.ClientClickhouse
-	table  string
 }
 
-func NewClickhouse(logger zerolog.Logger, cfg *pipelaner.ClickHouseConfig, table string) *Clickhouse {
+func NewClickhouse(logger zerolog.Logger, cfg *pipelaner.ClickHouseConfig) *Clickhouse {
 	return &Clickhouse{
 		logger: logger,
 		cfg:    cfg,
-		table:  table,
 	}
 }
 
@@ -51,7 +49,7 @@ func (c *Clickhouse) write(ctx context.Context, data map[string]any) {
 	}
 
 	sb := sqlbuilder.NewInsertBuilder()
-	sb.InsertInto(c.table).Cols(cols...).Values(values).SetFlavor(sqlbuilder.ClickHouse)
+	sb.InsertInto(c.cfg.TableName).Cols(cols...).Values(values).SetFlavor(sqlbuilder.ClickHouse)
 
 	sql, args := sb.Build()
 
