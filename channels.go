@@ -46,6 +46,9 @@ func mergeInputs[T any](ctx context.Context, chs ...chan T) chan T {
 }
 
 func broadcastChannels(outputs []chan any, ch chan any) {
+	if outputs == nil {
+		return
+	}
 	channels := make([]chan any, len(outputs))
 	for i := 0; i < len(channels); i++ {
 		channels[i] = make(chan any, cap(ch))
@@ -61,12 +64,15 @@ func broadcastChannels(outputs []chan any, ch chan any) {
 	}
 
 	for v := range ch {
-		if reflect.TypeOf(v).Kind() == reflect.Pointer {
+		kind := reflect.TypeOf(v).Kind()
+		switch kind {
+		case reflect.Pointer, reflect.Slice, reflect.Map, reflect.Struct:
 			c, err := kamino.Clone(v)
 			if err != nil {
 				return
 			}
 			v = c
+		default:
 		}
 		for _, c := range channels {
 			c <- v

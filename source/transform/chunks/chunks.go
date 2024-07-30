@@ -146,11 +146,7 @@ func (c *Chunk) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
-func (c *Chunk) New() pipelaner.Map {
-	return &Chunk{}
-}
-
-func (c *Chunk) Map(ctx *pipelaner.Context, val any) any {
+func (c *Chunk) Map(_ *pipelaner.Context, val any) any {
 	c.buffer.Input() <- val
 	if c.locked.Load() {
 		return nil

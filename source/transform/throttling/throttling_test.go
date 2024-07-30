@@ -44,12 +44,11 @@ func TestThrottling_Map(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &Throttling{
+			maps := &Throttling{
 				mx:  sync.Mutex{},
 				cfg: tt.args.ctx.LaneItem().Config(),
 				val: atomic.Value{},
 			}
-			maps := d.New()
 			e := maps.Init(tt.args.ctx)
 			if e != nil {
 				t.Error(e)
@@ -96,12 +95,11 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := &Throttling{
+			maps := &Throttling{
 				mx:  sync.Mutex{},
 				cfg: tt.args.ctx.LaneItem().Config(),
 				val: atomic.Value{},
 			}
-			maps := d.New()
 			e := maps.Init(tt.args.ctx)
 			if e != nil {
 				t.Error(e)
@@ -121,7 +119,7 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 				}(i)
 			}
 			wg.Wait()
-			i, _ := d.Interval()
+			i, _ := maps.Interval()
 			time.Sleep(i + time.Second)
 			assert.NotNil(t, val)
 		})

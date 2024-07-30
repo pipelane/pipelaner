@@ -43,10 +43,6 @@ func init() {
 	pipelaner.RegisterMap("debounce", &Debounce{})
 }
 
-func (d *Debounce) New() pipelaner.Map {
-	return &Debounce{}
-}
-
 func (d *Debounce) Map(ctx *pipelaner.Context, val any) any {
 	d.storeValue(val)
 	lock := d.locked.Load()
