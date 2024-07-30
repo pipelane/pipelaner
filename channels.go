@@ -46,7 +46,7 @@ func mergeInputs[T any](ctx context.Context, chs ...chan T) chan T {
 }
 
 func broadcastChannels(outputs []chan any, ch chan any) {
-	if outputs == nil {
+	if len(outputs) == 0 {
 		return
 	}
 	channels := make([]chan any, len(outputs))

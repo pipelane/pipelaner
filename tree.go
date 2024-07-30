@@ -242,7 +242,7 @@ func (t *TreeLanes) run(ctx context.Context) error {
 		}
 		generatorCopy, err := kamino.Clone(generator)
 		if err != nil {
-			return nil
+			return err
 		}
 		if err = generatorCopy.Init(c); err != nil {
 			return err
