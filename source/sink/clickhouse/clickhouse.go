@@ -57,12 +57,12 @@ func (c *Clickhouse) Sink(ctx *pipelaner.Context, val any) {
 	switch v := val.(type) {
 	case json.RawMessage:
 		if err := json.Unmarshal(v, &data); err != nil {
-			c.logger.Error().Err(err).Msgf("unmarshal val")
+			c.logger.Error().Err(err).Msgf("RawMessage unmarshal")
 			return
 		}
 	case []byte:
 		if err := json.Unmarshal(v, &data); err != nil {
-			c.logger.Error().Err(err).Msgf("unmarshal val")
+			c.logger.Error().Err(err).Msgf("[]byte unmarshal val")
 			return
 		}
 	case map[string]any:
@@ -72,18 +72,18 @@ func (c *Clickhouse) Sink(ctx *pipelaner.Context, val any) {
 			switch vv := ch.(type) {
 			case json.RawMessage:
 				if err := json.Unmarshal(vv, &data); err != nil {
-					c.logger.Error().Err(err).Msgf("unmarshal value channel")
+					c.logger.Error().Err(err).Msgf("channel RawMessage unmarshal")
 					return
 				}
 			case []byte:
 				if err := json.Unmarshal(vv, &data); err != nil {
-					c.logger.Error().Err(err).Msgf("unmarshal value channel")
+					c.logger.Error().Err(err).Msgf("channel []byte unmarshal")
 					return
 				}
 			case map[string]any:
 				data = vv
 			default:
-				c.logger.Error().Err(errors.New("unknown type channel"))
+				c.logger.Error().Err(errors.New("unknown channel type"))
 			}
 
 			c.write(ctx.Context(), data)
