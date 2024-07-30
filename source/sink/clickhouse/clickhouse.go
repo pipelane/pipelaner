@@ -5,31 +5,23 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/huandu/go-sqlbuilder"
-	"github.com/pipelane/go-kit/clickhouse"
-	"github.com/pipelane/go-kit/config"
 	"github.com/pipelane/pipelaner"
 	"github.com/rs/zerolog"
 )
 
 type Clickhouse struct {
-	logger zerolog.Logger
-	cfg    *pipelaner.ClickHouseConfig
-	client *clickhouse.ClientClickhouse
-}
-
-func NewClickhouse(logger zerolog.Logger, cfg *pipelaner.ClickHouseConfig) *Clickhouse {
-	return &Clickhouse{
-		logger: logger,
-		cfg:    cfg,
-	}
+	logger      zerolog.Logger
+	clickConfig *ClickhouseConfig
+	client      *ClientClickhouse
 }
 
 func (c *Clickhouse) Init(ctx *pipelaner.Context) error {
 	c.logger = pipelaner.NewLogger()
-
-	castCfg := pipelaner.CastConfig[*pipelaner.ClickHouseConfig, config.ClickHouse](c.cfg)
-
-	cli, err := clickhouse.NewClickhouseClient(ctx.Context(), castCfg)
+	err := ctx.LaneItem().Config().ParseExtended(c.clickConfig)
+	if err != nil {
+		return err
+	}
+	cli, err := NewClickhouseClient(ctx.Context(), c.clickConfig)
 	if err != nil {
 		return err
 	}
@@ -49,7 +41,7 @@ func (c *Clickhouse) write(ctx context.Context, data map[string]any) {
 	}
 
 	sb := sqlbuilder.NewInsertBuilder()
-	sb.InsertInto(c.cfg.TableName).Cols(cols...).Values(values).SetFlavor(sqlbuilder.ClickHouse)
+	sb.InsertInto(c.clickConfig.TableName).Cols(cols...).Values(values).SetFlavor(sqlbuilder.ClickHouse)
 
 	sql, args := sb.Build()
 
@@ -62,24 +54,34 @@ func (c *Clickhouse) write(ctx context.Context, data map[string]any) {
 func (c *Clickhouse) Sink(ctx *pipelaner.Context, val any) {
 	data := make(map[string]any)
 
-	switch val.(type) {
-	case json.RawMessage, []byte:
-		if err := json.Unmarshal(val.([]byte), &data); err != nil {
+	switch v := val.(type) {
+	case json.RawMessage:
+		if err := json.Unmarshal(v, &data); err != nil {
+			c.logger.Error().Err(err).Msgf("unmarshal val")
+			return
+		}
+	case []byte:
+		if err := json.Unmarshal(v, &data); err != nil {
 			c.logger.Error().Err(err).Msgf("unmarshal val")
 			return
 		}
 	case map[string]any:
-		data = val.(map[string]any)
+		data = v
 	case chan any:
 		for ch := range val.(chan any) {
-			switch ch.(type) {
-			case json.RawMessage, []byte:
-				if err := json.Unmarshal(ch.([]byte), &data); err != nil {
+			switch vv := ch.(type) {
+			case json.RawMessage:
+				if err := json.Unmarshal(vv, &data); err != nil {
+					c.logger.Error().Err(err).Msgf("unmarshal value channel")
+					return
+				}
+			case []byte:
+				if err := json.Unmarshal(vv, &data); err != nil {
 					c.logger.Error().Err(err).Msgf("unmarshal value channel")
 					return
 				}
 			case map[string]any:
-				data = ch.(map[string]any)
+				data = vv
 			default:
 				c.logger.Error().Err(errors.New("unknown type channel"))
 			}
