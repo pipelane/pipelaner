@@ -118,12 +118,15 @@ func (s *runLoop) run() {
 				if msg == nil {
 					continue
 				}
-				if reflect.TypeOf(msg).Kind() == reflect.Pointer {
+				kind := reflect.TypeOf(msg).Kind()
+				switch kind {
+				case reflect.Pointer, reflect.Slice, reflect.Map, reflect.Struct:
 					m, err := kamino.Clone(msg)
 					if err != nil {
 						return
 					}
 					msg = m
+				default:
 				}
 				semaphoreLock()
 				go func(m any) {
