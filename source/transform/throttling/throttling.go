@@ -43,10 +43,6 @@ func init() {
 	pipelaner.RegisterMap("throttling", &Throttling{})
 }
 
-func (d *Throttling) New() pipelaner.Map {
-	return &Throttling{}
-}
-
 func (d *Throttling) Map(ctx *pipelaner.Context, val any) any {
 	d.storeValue(val)
 	lock := d.locked.Load()

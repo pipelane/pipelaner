@@ -38,10 +38,6 @@ func init() {
 	pipelaner.RegisterMap("filter", &Filter{})
 }
 
-func (e *Filter) New() pipelaner.Map {
-	return &Filter{}
-}
-
 func (e *Filter) Init(ctx *pipelaner.Context) error {
 	e.cfg = ctx.LaneItem().Config()
 	e.logger = pipelaner.NewLogger()
@@ -59,7 +55,7 @@ func (e *Filter) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
-func (e *Filter) Map(ctx *pipelaner.Context, val any) any {
+func (e *Filter) Map(_ *pipelaner.Context, val any) any {
 	var v map[string]any
 	switch value := val.(type) {
 	case map[string]any:

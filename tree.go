@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/LastPossum/kamino"
 )
 
 var (
@@ -30,7 +31,6 @@ type Init interface {
 
 type Map interface {
 	Init
-	New() Map
 	Map(ctx *Context, val any) any
 }
 type Sink interface {
@@ -200,12 +200,14 @@ func (t *TreeLanes) run(ctx context.Context) error {
 		if !ok {
 			return ErrUnknownMap
 		}
-		nT := tr.New()
-		err := nT.Init(c)
+		trCopy, err := kamino.Clone(tr)
 		if err != nil {
 			return err
 		}
-		item.runLoop.setMap(nT.Map)
+		if err = trCopy.Init(c); err != nil {
+			return err
+		}
+		item.runLoop.setMap(trCopy.Map)
 		item.runLoop.run()
 	}
 	for i := range sinks {
@@ -218,11 +220,14 @@ func (t *TreeLanes) run(ctx context.Context) error {
 		if !ok {
 			return ErrUnknownSink
 		}
-		err := si.Init(c)
+		siCopy, err := kamino.Clone(si)
 		if err != nil {
 			return err
 		}
-		item.runLoop.setSink(si.Sink)
+		if err = siCopy.Init(c); err != nil {
+			return err
+		}
+		item.runLoop.setSink(siCopy.Sink)
 		item.runLoop.run()
 	}
 	for i := range inputs {
@@ -235,11 +240,14 @@ func (t *TreeLanes) run(ctx context.Context) error {
 		if !ok {
 			return ErrUnknownGenerator
 		}
-		err := generator.Init(c)
+		generatorCopy, err := kamino.Clone(generator)
 		if err != nil {
 			return err
 		}
-		item.runLoop.setGenerator(generator.Generate)
+		if err = generatorCopy.Init(c); err != nil {
+			return err
+		}
+		item.runLoop.setGenerator(generatorCopy.Generate)
 		item.runLoop.run()
 		item.runLoop.receive()
 	}

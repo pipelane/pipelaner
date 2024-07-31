@@ -35,10 +35,6 @@ func (b *Batch) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
-func (b *Batch) New() pipelaner.Map {
-	return &Batch{}
-}
-
 func (b *Batch) Map(ctx *pipelaner.Context, val any) any {
 	b.mx.Lock()
 	defer b.mx.Unlock()
