@@ -7,9 +7,8 @@ package kafka
 import (
 	"encoding/json"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"github.com/pipelane/go-kit/config"
-	gokit "github.com/pipelane/go-kit/kafka"
 	"github.com/pipelane/pipelaner"
+	kCfg "github.com/pipelane/pipelaner/source/shared/kafka"
 	"github.com/rs/zerolog"
 )
 
@@ -17,23 +16,18 @@ const timeout = 15 * 1000
 
 type Kafka struct {
 	logger zerolog.Logger
-	cfg    *pipelaner.KafkaConfig
+	cfg    *kCfg.KafkaConfig
 	prod   *kafka.Producer
-}
-
-func NewKafka(logger zerolog.Logger, cfg *pipelaner.KafkaConfig) *Kafka {
-	return &Kafka{
-		logger: zerolog.Logger{},
-		cfg:    cfg,
-	}
 }
 
 func (k *Kafka) Init(ctx *pipelaner.Context) error {
 	k.logger = pipelaner.NewLogger()
+	err := ctx.LaneItem().Config().ParseExtended(k.cfg)
+	if err != nil {
+		return err
+	}
 
-	castCfg := pipelaner.CastConfig[*pipelaner.KafkaConfig, config.Kafka](k.cfg)
-
-	p, err := gokit.NewProducer(castCfg)
+	p, err := NewProducer(k.cfg)
 	if err != nil {
 		return err
 	}
@@ -42,8 +36,7 @@ func (k *Kafka) Init(ctx *pipelaner.Context) error {
 
 	go func() {
 		for e := range k.prod.Events() {
-			switch ev := e.(type) {
-			case *kafka.Message:
+			if ev, ok := e.(*kafka.Message); ok {
 				if ev.TopicPartition.Error != nil {
 					k.logger.Error().Err(ev.TopicPartition.Error).Msgf("delivered failed")
 				}
@@ -71,11 +64,11 @@ func (k *Kafka) write(message []byte) {
 func (k *Kafka) Sink(_ *pipelaner.Context, val any) {
 	var message []byte
 
-	switch val.(type) {
+	switch v := val.(type) {
 	case []byte:
-		message = val.([]byte)
+		message = v
 	case string:
-		message = []byte(val.(string))
+		message = []byte(v)
 	default:
 		data, err := json.Marshal(val)
 		if err != nil {
