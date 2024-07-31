@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+
 	"github.com/huandu/go-sqlbuilder"
-	"github.com/pipelane/pipelaner"
 	"github.com/rs/zerolog"
+
+	"github.com/pipelane/pipelaner"
 )
 
 type Clickhouse struct {
@@ -17,6 +19,7 @@ type Clickhouse struct {
 
 func (c *Clickhouse) Init(ctx *pipelaner.Context) error {
 	c.logger = pipelaner.NewLogger()
+	c.clickConfig = new(ClickhouseConfig)
 	err := ctx.LaneItem().Config().ParseExtended(c.clickConfig)
 	if err != nil {
 		return err

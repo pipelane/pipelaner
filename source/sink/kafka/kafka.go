@@ -6,10 +6,12 @@ package kafka
 
 import (
 	"encoding/json"
+
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/rs/zerolog"
+
 	"github.com/pipelane/pipelaner"
 	kCfg "github.com/pipelane/pipelaner/source/shared/kafka"
-	"github.com/rs/zerolog"
 )
 
 const timeout = 15 * 1000
@@ -22,6 +24,7 @@ type Kafka struct {
 
 func (k *Kafka) Init(ctx *pipelaner.Context) error {
 	k.logger = pipelaner.NewLogger()
+	k.cfg = new(kCfg.KafkaConfig)
 	err := ctx.LaneItem().Config().ParseExtended(k.cfg)
 	if err != nil {
 		return err

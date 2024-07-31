@@ -2,12 +2,14 @@ package kafka
 
 import (
 	"errors"
-	kcfg "github.com/pipelane/pipelaner/source/shared/kafka"
 	"time"
 
+	kcfg "github.com/pipelane/pipelaner/source/shared/kafka"
+
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"github.com/pipelane/pipelaner"
 	"github.com/rs/zerolog"
+
+	"github.com/pipelane/pipelaner"
 )
 
 type Kafka struct {
@@ -45,6 +47,7 @@ func NewConsumer(cfg *kcfg.KafkaConfig) (*kafka.Consumer, error) {
 }
 
 func (c *Kafka) Init(ctx *pipelaner.Context) error {
+	c.cfg = new(kcfg.KafkaConfig)
 	err := ctx.LaneItem().Config().ParseExtended(c.cfg)
 	if err != nil {
 		return err
