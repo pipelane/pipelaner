@@ -49,6 +49,9 @@ func (c *Kafka) Init(ctx *pipelaner.Context) error {
 	if err != nil {
 		return err
 	}
+	if c.cfg.ReadTopicTimeout == 0 {
+		c.cfg.ReadTopicTimeout = -1
+	}
 	c.cons, err = NewConsumer(c.cfg)
 	if err != nil {
 		return err
@@ -63,15 +66,12 @@ func (c *Kafka) Init(ctx *pipelaner.Context) error {
 }
 
 func (c *Kafka) Generate(ctx *pipelaner.Context, input chan<- any) {
-	ticker := time.NewTicker(c.cfg.DelayReadTopic)
-	defer ticker.Stop()
-
 	for {
 		select {
 		case <-ctx.Context().Done():
 			return
-		case <-ticker.C:
-			msg, err := c.cons.ReadMessage(-1)
+		default:
+			msg, err := c.cons.ReadMessage(c.cfg.ReadTopicTimeout)
 			var kafkaErr *kafka.Error
 			if err != nil && errors.As(err, &kafkaErr) && kafkaErr.IsTimeout() {
 				c.logger.Warn().Err(err).Msg("kafka consume timeout")

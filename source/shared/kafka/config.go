@@ -52,6 +52,6 @@ type KafkaConfig struct {
 	KafkaAutoOffsetReset   string        `pipelane:"auto_offset_reset"`
 	KafkaBatchSize         int           `pipelane:"batch_size"`
 	KafkaSchemaRegistry    string        `pipelane:"schema_registry"`
-	DelayReadTopic         time.Duration `pipelane:"delay_read_topic"`
+	ReadTopicTimeout       time.Duration `pipelane:"read_topic_timeout"`
 	pipelaner.Internal
 }
