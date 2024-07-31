@@ -43,7 +43,7 @@ type ClientClickhouse struct {
 	conn driver.Conn
 }
 
-func NewClickhouseClient(ctx context.Context, cfg *ClickhouseConfig) (*ClientClickhouse, error) {
+func NewClickhouseClient(ctx context.Context, cfg ClickhouseConfig) (*ClientClickhouse, error) {
 	maxCompressionBuffer, err := ParseSize(cfg.MaxCompressionBuffer)
 	if err != nil {
 		return nil, err

@@ -14,11 +14,11 @@ import (
 
 type Kafka struct {
 	cons   *kafka.Consumer
-	cfg    *kcfg.KafkaConfig
+	cfg    kcfg.KafkaConfig
 	logger zerolog.Logger
 }
 
-func NewConsumer(cfg *kcfg.KafkaConfig) (*kafka.Consumer, error) {
+func NewConsumer(cfg kcfg.KafkaConfig) (*kafka.Consumer, error) {
 	cfgMap := kafka.ConfigMap{
 		kcfg.OptBootstrapServers:      cfg.KafkaBrokers,
 		kcfg.OptGroupID:               cfg.KafkaConsumerGroupId,
@@ -47,8 +47,7 @@ func NewConsumer(cfg *kcfg.KafkaConfig) (*kafka.Consumer, error) {
 }
 
 func (c *Kafka) Init(ctx *pipelaner.Context) error {
-	c.cfg = new(kcfg.KafkaConfig)
-	err := ctx.LaneItem().Config().ParseExtended(c.cfg)
+	err := ctx.LaneItem().Config().ParseExtended(&c.cfg)
 	if err != nil {
 		return err
 	}

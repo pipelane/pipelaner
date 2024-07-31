@@ -13,14 +13,14 @@ import (
 
 type Clickhouse struct {
 	logger      zerolog.Logger
-	clickConfig *ClickhouseConfig
+	clickConfig ClickhouseConfig
 	client      *ClientClickhouse
 }
 
 func (c *Clickhouse) Init(ctx *pipelaner.Context) error {
 	c.logger = pipelaner.NewLogger()
-	c.clickConfig = new(ClickhouseConfig)
-	err := ctx.LaneItem().Config().ParseExtended(c.clickConfig)
+
+	err := ctx.LaneItem().Config().ParseExtended(&c.clickConfig)
 	if err != nil {
 		return err
 	}

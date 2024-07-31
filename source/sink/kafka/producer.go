@@ -9,7 +9,7 @@ import (
 	kcfg "github.com/pipelane/pipelaner/source/shared/kafka"
 )
 
-func NewProducer(cfg *kcfg.KafkaConfig) (*kafka.Producer, error) {
+func NewProducer(cfg kcfg.KafkaConfig) (*kafka.Producer, error) {
 	cfgMap := kafka.ConfigMap{
 		kcfg.OptBootstrapServers: cfg.KafkaBrokers,
 	}
