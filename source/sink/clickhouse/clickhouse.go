@@ -44,11 +44,11 @@ func (c *Clickhouse) write(ctx context.Context, data map[string]any) {
 	}
 
 	sb := sqlbuilder.NewInsertBuilder()
-	sb.InsertInto(c.clickConfig.TableName).Cols(cols...).Values(values).SetFlavor(sqlbuilder.ClickHouse)
+	sb.InsertInto(c.clickConfig.TableName).Cols(cols...).Values(values...).SetFlavor(sqlbuilder.ClickHouse)
 
 	sql, args := sb.Build()
 
-	if _, err := c.client.Conn().Query(ctx, sql, args); err != nil {
+	if _, err := c.client.Conn().Query(ctx, sql, args...); err != nil {
 		c.logger.Error().Err(err).Msgf("insert values clickhouse")
 		return
 	}
