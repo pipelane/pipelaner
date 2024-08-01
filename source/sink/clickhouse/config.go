@@ -5,8 +5,9 @@
 package clickhouse
 
 import (
-	"github.com/pipelane/pipelaner"
 	"time"
+
+	"github.com/pipelane/pipelaner"
 )
 
 type ClickhouseConfig struct {

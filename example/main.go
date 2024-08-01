@@ -5,9 +5,10 @@
 package main
 
 import (
+	"time"
+
 	"github.com/pipelane/pipelaner/example/tests"
 	"github.com/pipelane/pipelaner/source/sink/console"
-	"time"
 
 	"github.com/pipelane/pipelaner"
 	_ "github.com/pipelane/pipelaner/source"

@@ -5,8 +5,9 @@
 package kafka
 
 import (
-	"github.com/pipelane/pipelaner"
 	"time"
+
+	"github.com/pipelane/pipelaner"
 )
 
 const (

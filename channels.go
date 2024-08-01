@@ -6,9 +6,10 @@ package pipelaner
 
 import (
 	"context"
-	"github.com/LastPossum/kamino"
 	"reflect"
 	"sync"
+
+	"github.com/LastPossum/kamino"
 )
 
 func mergeInputs[T any](ctx context.Context, chs ...chan T) chan T {

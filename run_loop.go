@@ -5,10 +5,11 @@
 package pipelaner
 
 import (
-	"github.com/LastPossum/kamino"
 	"reflect"
 	"sync"
 	"sync/atomic"
+
+	"github.com/LastPossum/kamino"
 )
 
 type MethodMap func(ctx *Context, val any) any

@@ -6,8 +6,9 @@ package pipelaner
 
 import (
 	"fmt"
-	"github.com/pipelane/pipelaner/source/generator/pipelaner/server"
 	"net"
+
+	"github.com/pipelane/pipelaner/source/generator/pipelaner/server"
 
 	"github.com/goccy/go-json"
 
