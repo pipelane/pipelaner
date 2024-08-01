@@ -19,11 +19,14 @@ func newCfg(
 	itemType pipelaner.LaneTypes,
 	extended map[string]any,
 ) *pipelaner.BaseLaneConfig {
-	c, _ := pipelaner.NewBaseConfigWithTypeAndExtended(
+	c, err := pipelaner.NewBaseConfigWithTypeAndExtended(
 		itemType,
 		"test_maps_sinks",
 		extended,
 	)
+	if err != nil {
+		return nil
+	}
 	return c
 }
 

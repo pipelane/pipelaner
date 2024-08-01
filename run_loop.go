@@ -86,7 +86,7 @@ func (s *runLoop) receive() {
 	}
 }
 
-func (s *runLoop) run() {
+func (s *runLoop) start() {
 	var sema chan struct{}
 	if s.cfg.threadsCount != nil {
 		sema = make(chan struct{}, *s.cfg.threadsCount)

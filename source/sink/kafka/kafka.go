@@ -18,7 +18,7 @@ const timeout = 15 * 1000
 
 type Kafka struct {
 	logger zerolog.Logger
-	cfg    kCfg.KafkaConfig
+	cfg    kCfg.Config
 	prod   *kafka.Producer
 }
 
@@ -50,7 +50,7 @@ func (k *Kafka) Init(ctx *pipelaner.Context) error {
 }
 
 func (k *Kafka) write(message []byte) {
-	for _, topic := range k.cfg.KafkaTopics {
+	for _, topic := range k.cfg.Topics {
 		if err := k.prod.Produce(&kafka.Message{
 			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 			Value:          message,

@@ -23,10 +23,10 @@ func init() {
 func NewConsole() *Console {
 	return &Console{}
 }
-func (c *Console) Init(ctx *pipelaner.Context) error {
+func (c *Console) Init(_ *pipelaner.Context) error {
 	return nil
 }
 
-func (c *Console) Sink(ctx *pipelaner.Context, val any) {
+func (c *Console) Sink(_ *pipelaner.Context, val any) {
 	c.logger.Info().Msg(fmt.Sprintf("%v", val))
 }

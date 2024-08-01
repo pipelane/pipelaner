@@ -23,7 +23,7 @@ import (
 type GrpcCfg struct {
 	Host     *string `pipelane:"host"`
 	Port     int     `pipelane:"port"`
-	Tls      bool    `pipelane:"tls"`
+	TLS      bool    `pipelane:"tls"`
 	CertFile string  `pipelane:"cert"`
 	KeyFile  string  `pipelane:"key"`
 }
@@ -55,10 +55,10 @@ func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 		p.logger.Fatal().Err(err).Msgf("Failed to listen %s:%d", host, v.Port)
 	}
 	var opts []grpc.ServerOption
-	if v.Tls {
-		cred, err := credentials.NewServerTLSFromFile(v.CertFile, v.KeyFile)
-		if err != nil {
-			p.logger.Fatal().Err(err).Msg("Failed to generate credentials")
+	if v.TLS {
+		cred, errs := credentials.NewServerTLSFromFile(v.CertFile, v.KeyFile)
+		if errs != nil {
+			p.logger.Fatal().Err(errs).Msg("Failed to generate credentials")
 		}
 		opts = []grpc.ServerOption{grpc.Creds(cred)}
 	}

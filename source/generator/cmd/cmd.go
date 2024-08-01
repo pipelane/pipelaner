@@ -7,6 +7,7 @@ package cmd
 import (
 	"bufio"
 	"context"
+	"errors"
 	"io"
 	"os/exec"
 	"strings"
@@ -42,7 +43,11 @@ func (c *Exec) Init(ctx *pipelaner.Context) error {
 
 func (c *Exec) Generate(ctx *pipelaner.Context, input chan<- any) {
 	var args []string
-	cfg := c.cfg.Extended.(*ExecCfg)
+	cfg, ok := c.cfg.Extended.(*ExecCfg)
+	if !ok {
+		c.logger.Error().Err(errors.New("invalid config")).Msg("Exec: create stdPipe error")
+		return
+	}
 	if len(cfg.Exec) > 1 {
 		args = strings.Split(cfg.Exec[1], " ")
 	}

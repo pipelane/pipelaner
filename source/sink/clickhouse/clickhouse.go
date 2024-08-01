@@ -13,7 +13,7 @@ import (
 
 type Clickhouse struct {
 	logger      zerolog.Logger
-	clickConfig ClickhouseConfig
+	clickConfig Config
 	client      *ClientClickhouse
 }
 

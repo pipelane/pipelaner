@@ -19,7 +19,7 @@ type PipelanerServer struct {
 	buffer chan *service.Message
 }
 
-func (s *PipelanerServer) Sink(ctx context.Context, message *service.Message) (*emptypb.Empty, error) {
+func (s *PipelanerServer) Sink(_ context.Context, message *service.Message) (*emptypb.Empty, error) {
 	s.buffer <- message
 	return &emptypb.Empty{}, nil
 }

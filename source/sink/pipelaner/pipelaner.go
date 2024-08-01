@@ -21,7 +21,7 @@ import (
 type GrpcCfg struct {
 	Host     *string `pipelane:"host"`
 	Port     int     `pipelane:"port"`
-	Tls      bool    `pipelane:"tls"`
+	TLS      bool    `pipelane:"tls"`
 	CertFile string  `pipelane:"cert"`
 	KeyFile  string  `pipelane:"key"`
 }
@@ -49,10 +49,10 @@ func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 		host = *v.Host
 	}
 	var opts []grpc.DialOption
-	if v.Tls {
-		creds, err := credentials.NewClientTLSFromFile(v.CertFile, "")
-		if err != nil {
-			p.logger.Fatal().Msgf("Failed to create TLS credentials: %v", err)
+	if v.TLS {
+		creds, errs := credentials.NewClientTLSFromFile(v.CertFile, "")
+		if errs != nil {
+			p.logger.Fatal().Msgf("Failed to create TLS credentials: %v", errs)
 		}
 		opts = append(opts, grpc.WithTransportCredentials(creds))
 	} else {

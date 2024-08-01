@@ -9,15 +9,15 @@ import (
 	kcfg "github.com/pipelane/pipelaner/source/shared/kafka"
 )
 
-func NewProducer(cfg kcfg.KafkaConfig) (*kafka.Producer, error) {
+func NewProducer(cfg kcfg.Config) (*kafka.Producer, error) {
 	cfgMap := kafka.ConfigMap{
-		kcfg.OptBootstrapServers: cfg.KafkaBrokers,
+		kcfg.OptBootstrapServers: cfg.Brokers,
 	}
 
-	if cfg.KafkaSASLEnabled {
-		cfgMap[kcfg.OptSaslMechanism] = cfg.KafkaSASLMechanism
-		cfgMap[kcfg.OptSaslUserName] = cfg.KafkaSASLUsername
-		cfgMap[kcfg.OptSaslPassword] = cfg.KafkaSASLPassword
+	if cfg.SASLEnabled {
+		cfgMap[kcfg.OptSaslMechanism] = cfg.SASLMechanism
+		cfgMap[kcfg.OptSaslUserName] = cfg.SASLUsername
+		cfgMap[kcfg.OptSaslPassword] = cfg.SASLPassword
 		cfgMap[kcfg.OptSecurityProtocol] = kcfg.SecuritySaslPlainText
 	}
 

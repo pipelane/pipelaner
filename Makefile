@@ -4,7 +4,7 @@ install-linter:
 
 .PHONY: lint
 lint:
-	@golangci-lint run --enable=gocritic,gocyclo,gofmt,gosec,misspell,unparam,asciicheck --timeout=30m
+	@golangci-lint run --config=./golangci.yml
 
 .PHONY: test
 test:

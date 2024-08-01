@@ -5,6 +5,7 @@
 package pipelaner
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -501,14 +502,21 @@ inputs = ["input_name"]
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			tom, err := decodeTomlString(tt.args.tomlString)
 			if err != nil {
 				assert.Error(t, err)
 				return
 			}
-			data := tom[string(tt.args.itemType)].(map[string]any)
-			extended := data[tt.args.name].(map[string]any)
+			data, ok := tom[string(tt.args.itemType)].(map[string]any)
+			if !ok {
+				assert.Error(t, errors.New("not a map[string]any"))
+				return
+			}
+			extended, ok := data[tt.args.name].(map[string]any)
+			if !ok {
+				assert.Error(t, errors.New("not a map[string]any"))
+				return
+			}
 			got, err := NewBaseConfigWithTypeAndExtended(tt.args.itemType, tt.args.name, extended)
 			if err != nil {
 				assert.NotNil(t, err)
@@ -572,14 +580,21 @@ host = "0.0.0.0"
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			tom, err := decodeTomlString(tt.args.tomlString)
 			if err != nil {
 				assert.Error(t, err)
 				return
 			}
-			data := tom[string(tt.args.itemType)].(map[string]any)
-			extended := data[tt.args.name].(map[string]any)
+			data, ok := tom[string(tt.args.itemType)].(map[string]any)
+			if !ok {
+				assert.Error(t, errors.New("not a map[string]any"))
+				return
+			}
+			extended, ok := data[tt.args.name].(map[string]any)
+			if !ok {
+				assert.Error(t, errors.New("not a map[string]any"))
+				return
+			}
 			cfg, err := NewBaseConfigWithTypeAndExtended(tt.args.itemType, tt.args.name, extended)
 			if err != nil {
 				assert.NotNil(t, err)
@@ -629,14 +644,21 @@ hosts = ["0.0.0.0", "1.1.1.1"]
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			tom, err := decodeTomlString(tt.args.tomlString)
 			if err != nil {
 				assert.Error(t, err)
 				return
 			}
-			data := tom[string(tt.args.itemType)].(map[string]any)
-			extended := data[tt.args.name].(map[string]any)
+			data, ok := tom[string(tt.args.itemType)].(map[string]any)
+			if !ok {
+				assert.Error(t, errors.New("not a map[string]any"))
+				return
+			}
+			extended, ok := data[tt.args.name].(map[string]any)
+			if !ok {
+				assert.Error(t, errors.New("not a map[string]any"))
+				return
+			}
 			cfg, err := NewBaseConfigWithTypeAndExtended(tt.args.itemType, tt.args.name, extended)
 			if err != nil {
 				assert.NotNil(t, err)

@@ -4,6 +4,7 @@
 
 package source
 
+//nolint
 import (
 	_ "github.com/pipelane/pipelaner/source/generator/cmd"
 	_ "github.com/pipelane/pipelaner/source/generator/kafka"
