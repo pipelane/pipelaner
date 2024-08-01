@@ -12,13 +12,13 @@ import (
 	"github.com/pipelane/pipelaner"
 )
 
-type ChunksCfg struct {
+type Config struct {
 	MaxChunkSize int
 	BufferSize   int
 	MaxIdleTime  time.Duration
 }
 type Chunks[T any] struct {
-	Cfg     ChunksCfg
+	Cfg     Config
 	buffers chan chan T
 	stopped atomic.Bool
 	ctx     context.Context
@@ -34,7 +34,7 @@ func (c *Chunks[T]) Ctx() context.Context {
 	return c.ctx
 }
 
-func NewChunks[T any](ctx context.Context, cfg ChunksCfg) *Chunks[T] {
+func NewChunks[T any](ctx context.Context, cfg Config) *Chunks[T] {
 	b := &Chunks[T]{
 		Cfg: cfg,
 	}
@@ -137,7 +137,7 @@ func (c *Chunk) Init(ctx *pipelaner.Context) error {
 	if err != nil {
 		return err
 	}
-	c.buffer = NewChunks[any](ctx.Context(), ChunksCfg{
+	c.buffer = NewChunks[any](ctx.Context(), Config{
 		MaxChunkSize: int(v.MaxChunkSize),
 		BufferSize:   int(c.cfg.BufferSize),
 		MaxIdleTime:  interval,

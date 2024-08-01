@@ -113,13 +113,17 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 					defer wg.Done()
 					v := maps.Map(tt.args.ctx, j)
 					if v != nil {
-						_v := v.(int)
+						_v, ok := v.(int)
+						if !ok {
+							assert.Fail(t, "value is not int")
+						}
 						val = &_v
 					}
 				}(i)
 			}
 			wg.Wait()
-			i, _ := maps.Interval()
+			i, err := maps.Interval()
+			assert.NoError(t, err)
 			time.Sleep(i + time.Second)
 			assert.NotNil(t, val)
 		})
@@ -131,10 +135,13 @@ func newCfg(
 	name string,
 	extended map[string]any,
 ) *pipelaner.BaseLaneConfig {
-	c, _ := pipelaner.NewBaseConfigWithTypeAndExtended(
+	c, err := pipelaner.NewBaseConfigWithTypeAndExtended(
 		itemType,
 		name,
 		extended,
 	)
+	if err != nil {
+		return nil
+	}
 	return c
 }

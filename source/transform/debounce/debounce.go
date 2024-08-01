@@ -12,7 +12,7 @@ import (
 	"github.com/pipelane/pipelaner"
 )
 
-type DebounceCfg struct {
+type Config struct {
 	Interval string `pipelane:"interval"`
 }
 
@@ -26,7 +26,7 @@ type Debounce struct {
 
 func (d *Debounce) Init(ctx *pipelaner.Context) error {
 	d.cfg = ctx.LaneItem().Config()
-	v := &DebounceCfg{}
+	v := &Config{}
 	err := d.cfg.ParseExtended(v)
 	if err != nil {
 		return err
@@ -69,10 +69,13 @@ func (d *Debounce) storeValue(val any) {
 func (d *Debounce) reset() {
 	d.mx.Lock()
 	defer d.mx.Unlock()
-	i, _ := d.Interval()
+	i, err := d.Interval()
+	if err != nil {
+		return
+	}
 	d.timer.Reset(i)
 }
 
 func (d *Debounce) Interval() (time.Duration, error) {
-	return time.ParseDuration(d.cfg.Extended.(*DebounceCfg).Interval)
+	return time.ParseDuration(d.cfg.Extended.(*Config).Interval)
 }

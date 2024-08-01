@@ -5,10 +5,11 @@
 package pipelaner
 
 import (
-	"github.com/LastPossum/kamino"
 	"reflect"
 	"sync"
 	"sync/atomic"
+
+	"github.com/LastPossum/kamino"
 )
 
 type MethodMap func(ctx *Context, val any) any
@@ -85,7 +86,7 @@ func (s *runLoop) receive() {
 	}
 }
 
-func (s *runLoop) run() {
+func (s *runLoop) start() {
 	var sema chan struct{}
 	if s.cfg.threadsCount != nil {
 		sema = make(chan struct{}, *s.cfg.threadsCount)

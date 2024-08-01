@@ -14,7 +14,7 @@ import (
 type MapGenerator struct {
 }
 
-func (i *MapGenerator) Init(ctx *pipelaner.Context) error {
+func (i *MapGenerator) Init(_ *pipelaner.Context) error {
 	return nil
 }
 

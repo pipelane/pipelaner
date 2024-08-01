@@ -2,37 +2,39 @@ package kafka
 
 import (
 	"errors"
-	kcfg "github.com/pipelane/pipelaner/source/shared/kafka"
 	"time"
 
+	kcfg "github.com/pipelane/pipelaner/source/shared/kafka"
+
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"github.com/pipelane/pipelaner"
 	"github.com/rs/zerolog"
+
+	"github.com/pipelane/pipelaner"
 )
 
 type Kafka struct {
 	cons   *kafka.Consumer
-	cfg    *kcfg.KafkaConfig
+	cfg    kcfg.Config
 	logger zerolog.Logger
 }
 
-func NewConsumer(cfg *kcfg.KafkaConfig) (*kafka.Consumer, error) {
+func NewConsumer(cfg kcfg.Config) (*kafka.Consumer, error) {
 	cfgMap := kafka.ConfigMap{
-		kcfg.OptBootstrapServers:      cfg.KafkaBrokers,
-		kcfg.OptGroupID:               cfg.KafkaConsumerGroupId,
-		kcfg.OptEnableAutoCommit:      cfg.KafkaAutoCommitEnabled,
+		kcfg.OptBootstrapServers:      cfg.Brokers,
+		kcfg.OptGroupID:               cfg.ConsumerGroupID,
+		kcfg.OptEnableAutoCommit:      cfg.AutoCommitEnabled,
 		kcfg.OptCommitIntervalMs:      time.Millisecond * 500,
-		kcfg.OptAutoOffsetReset:       cfg.KafkaAutoOffsetReset,
+		kcfg.OptAutoOffsetReset:       cfg.AutoOffsetReset,
 		kcfg.OptGoEventsChannelEnable: false,
 		kcfg.OptSessionTimeoutMs:      10000,
 		kcfg.OptHeartBeatIntervalMs:   1500,
-		kcfg.OptBatchNumMessages:      cfg.KafkaBatchSize,
+		kcfg.OptBatchNumMessages:      cfg.BatchSize,
 	}
 
-	if cfg.KafkaSASLEnabled {
-		cfgMap[kcfg.OptSaslMechanism] = cfg.KafkaSASLMechanism
-		cfgMap[kcfg.OptSaslUserName] = cfg.KafkaSASLUsername
-		cfgMap[kcfg.OptSaslPassword] = cfg.KafkaSASLPassword
+	if cfg.SASLEnabled {
+		cfgMap[kcfg.OptSaslMechanism] = cfg.SASLMechanism
+		cfgMap[kcfg.OptSaslUserName] = cfg.SASLUsername
+		cfgMap[kcfg.OptSaslPassword] = cfg.SASLPassword
 		cfgMap[kcfg.OptSecurityProtocol] = kcfg.SecuritySaslPlainText
 	}
 
@@ -45,7 +47,7 @@ func NewConsumer(cfg *kcfg.KafkaConfig) (*kafka.Consumer, error) {
 }
 
 func (c *Kafka) Init(ctx *pipelaner.Context) error {
-	err := ctx.LaneItem().Config().ParseExtended(c.cfg)
+	err := ctx.LaneItem().Config().ParseExtended(&c.cfg)
 	if err != nil {
 		return err
 	}
@@ -57,7 +59,7 @@ func (c *Kafka) Init(ctx *pipelaner.Context) error {
 		return err
 	}
 	c.logger = pipelaner.NewLogger()
-	err = c.cons.SubscribeTopics(c.cfg.KafkaTopics, nil)
+	err = c.cons.SubscribeTopics(c.cfg.Topics, nil)
 	if err != nil {
 		return err
 	}

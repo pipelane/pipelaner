@@ -56,16 +56,16 @@ func TestSubscriber_Run_Receive(t *testing.T) {
 			mx := sync.Mutex{}
 			wg.Add(tt.args.iterationsCount)
 			s.methods = methods{
-				transform: func(ctx *Context, val any) any {
+				transform: func(_ *Context, val any) any {
 					return val
 				},
-				sink: func(ctx *Context, val any) {
+				sink: func(_ *Context, val any) {
 					mx.Lock()
 					defer mx.Unlock()
 					res = append(res, val.(int))
 					wg.Done()
 				},
-				generator: func(ctx *Context, input chan<- any) {
+				generator: func(_ *Context, input chan<- any) {
 					for {
 						if inc < tt.args.iterationsCount {
 							input <- inc
@@ -84,7 +84,7 @@ func TestSubscriber_Run_Receive(t *testing.T) {
 			}
 			s.setContext(ctx)
 			s.receive()
-			s.run()
+			s.start()
 			wg.Wait()
 			sort.Ints(res)
 			assert.Equal(t, res, tt.want)
@@ -140,16 +140,16 @@ func TestSubscriber_Subscribe(t *testing.T) {
 			mx := sync.Mutex{}
 			wg.Add(tt.args.iterationsCount)
 			method := methods{
-				transform: func(ctx *Context, val any) any {
+				transform: func(_ *Context, val any) any {
 					return val
 				},
-				sink: func(ctx *Context, val any) {
+				sink: func(_ *Context, val any) {
 					mx.Lock()
 					defer mx.Unlock()
 					res = append(res, val.(int))
 					wg.Done()
 				},
-				generator: func(ctx *Context, input chan<- any) {
+				generator: func(_ *Context, input chan<- any) {
 					for {
 						if inc < tt.args.iterationsCount {
 							input <- inc
@@ -177,9 +177,9 @@ func TestSubscriber_Subscribe(t *testing.T) {
 			transform.setContext(ctx)
 			sink.setContext(ctx)
 			input.receive()
-			input.run()
-			transform.run()
-			sink.run()
+			input.start()
+			transform.start()
+			sink.start()
 			wg.Wait()
 			sort.Ints(res)
 			assert.Equal(t, res, tt.want)

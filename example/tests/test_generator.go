@@ -14,13 +14,13 @@ type IntGenerator struct {
 	inc uint64
 }
 
-func (i *IntGenerator) Init(ctx *pipelaner.Context) error {
+func (i *IntGenerator) Init(_ *pipelaner.Context) error {
 	i.inc = 1
 	return nil
 }
 func (i *IntGenerator) Generate(ctx *pipelaner.Context, input chan<- any) {
 	for {
-		i.inc += 1
+		i.inc++
 		select {
 		case <-ctx.Context().Done():
 			break
@@ -36,7 +36,7 @@ func (i *IntGenerator) Generate(ctx *pipelaner.Context, input chan<- any) {
 type IntTwoGenerator struct {
 }
 
-func (i *IntTwoGenerator) Init(ctx *pipelaner.Context) error {
+func (i *IntTwoGenerator) Init(_ *pipelaner.Context) error {
 	return nil
 }
 
@@ -58,12 +58,12 @@ func (i *IntTransform) New() pipelaner.Map {
 	return &IntTransform{}
 }
 
-func (i *IntTransform) Map(ctx *pipelaner.Context, val any) any {
+func (i *IntTransform) Map(_ *pipelaner.Context, val any) any {
 	time.Sleep(time.Second)
 	return val.(uint64) + 2
 }
 
-func (i *IntTransform) Init(ctx *pipelaner.Context) error {
+func (i *IntTransform) Init(_ *pipelaner.Context) error {
 	return nil
 }
 
@@ -74,11 +74,11 @@ func (i *IntTransformEmpty) New() pipelaner.Map {
 	return &IntTransformEmpty{}
 }
 
-func (i *IntTransformEmpty) Map(ctx *pipelaner.Context, val any) any {
+func (i *IntTransformEmpty) Map(_ *pipelaner.Context, val any) any {
 	time.Sleep(time.Second)
 	return val
 }
 
-func (i *IntTransformEmpty) Init(ctx *pipelaner.Context) error {
+func (i *IntTransformEmpty) Init(_ *pipelaner.Context) error {
 	return nil
 }

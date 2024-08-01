@@ -4,20 +4,23 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+
 	"github.com/huandu/go-sqlbuilder"
-	"github.com/pipelane/pipelaner"
 	"github.com/rs/zerolog"
+
+	"github.com/pipelane/pipelaner"
 )
 
 type Clickhouse struct {
 	logger      zerolog.Logger
-	clickConfig *ClickhouseConfig
+	clickConfig Config
 	client      *ClientClickhouse
 }
 
 func (c *Clickhouse) Init(ctx *pipelaner.Context) error {
 	c.logger = pipelaner.NewLogger()
-	err := ctx.LaneItem().Config().ParseExtended(c.clickConfig)
+
+	err := ctx.LaneItem().Config().ParseExtended(&c.clickConfig)
 	if err != nil {
 		return err
 	}
@@ -41,11 +44,11 @@ func (c *Clickhouse) write(ctx context.Context, data map[string]any) {
 	}
 
 	sb := sqlbuilder.NewInsertBuilder()
-	sb.InsertInto(c.clickConfig.TableName).Cols(cols...).Values(values).SetFlavor(sqlbuilder.ClickHouse)
+	sb.InsertInto(c.clickConfig.TableName).Cols(cols...).Values(values...).SetFlavor(sqlbuilder.ClickHouse)
 
 	sql, args := sb.Build()
 
-	if _, err := c.client.Conn().Query(ctx, sql, args); err != nil {
+	if _, err := c.client.Conn().Query(ctx, sql, args...); err != nil {
 		c.logger.Error().Err(err).Msgf("insert values clickhouse")
 		return
 	}

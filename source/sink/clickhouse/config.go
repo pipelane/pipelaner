@@ -5,11 +5,12 @@
 package clickhouse
 
 import (
-	"github.com/pipelane/pipelaner"
 	"time"
+
+	"github.com/pipelane/pipelaner"
 )
 
-type ClickhouseConfig struct {
+type Config struct {
 	Address                  string        `pipelane:"address"`
 	User                     string        `pipelane:"user"`
 	Password                 string        `pipelane:"password"`

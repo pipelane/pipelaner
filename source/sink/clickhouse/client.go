@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"net"
 	"regexp"
 	"strconv"
+
+	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 )
 
 var r = regexp.MustCompile(`(?P<Size>[0-9]+)(?P<Parameter>[a-zA-Z]+)?`)
@@ -43,7 +44,7 @@ type ClientClickhouse struct {
 	conn driver.Conn
 }
 
-func NewClickhouseClient(ctx context.Context, cfg *ClickhouseConfig) (*ClientClickhouse, error) {
+func NewClickhouseClient(ctx context.Context, cfg Config) (*ClientClickhouse, error) {
 	maxCompressionBuffer, err := ParseSize(cfg.MaxCompressionBuffer)
 	if err != nil {
 		return nil, err
@@ -81,8 +82,8 @@ func NewClickhouseClient(ctx context.Context, cfg *ClickhouseConfig) (*ClientCli
 	if err != nil {
 		return nil, err
 	}
-	if err := conn.Ping(ctx); err != nil {
-		return nil, err
+	if errs := conn.Ping(ctx); errs != nil {
+		return nil, errs
 	}
 	return &ClientClickhouse{
 		conn: conn,

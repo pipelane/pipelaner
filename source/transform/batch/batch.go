@@ -10,7 +10,7 @@ import (
 	"github.com/pipelane/pipelaner"
 )
 
-type BatchCfg struct {
+type Config struct {
 	Size int64 `pipelane:"size"`
 }
 
@@ -26,12 +26,12 @@ func init() {
 
 func (b *Batch) Init(ctx *pipelaner.Context) error {
 	b.cfg = ctx.LaneItem().Config()
-	v := &BatchCfg{}
+	v := &Config{}
 	err := b.cfg.ParseExtended(v)
 	if err != nil {
 		return err
 	}
-	b.ch = make(chan any, b.cfg.Extended.(*BatchCfg).Size)
+	b.ch = make(chan any, b.cfg.Extended.(*Config).Size)
 	return nil
 }
 
@@ -45,7 +45,7 @@ func (b *Batch) Map(ctx *pipelaner.Context, val any) any {
 		return nil
 	default:
 		ch := b.ch
-		b.ch = make(chan any, b.cfg.Extended.(*BatchCfg).Size)
+		b.ch = make(chan any, b.cfg.Extended.(*Config).Size)
 		close(ch)
 		return ch
 	}

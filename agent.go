@@ -20,7 +20,6 @@ type Agent struct {
 func NewAgent(
 	file string,
 ) (*Agent, error) {
-
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
 		os.Interrupt,

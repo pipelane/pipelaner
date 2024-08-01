@@ -6,23 +6,25 @@ package kafka
 
 import (
 	"encoding/json"
+
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/rs/zerolog"
+
 	"github.com/pipelane/pipelaner"
 	kCfg "github.com/pipelane/pipelaner/source/shared/kafka"
-	"github.com/rs/zerolog"
 )
 
 const timeout = 15 * 1000
 
 type Kafka struct {
 	logger zerolog.Logger
-	cfg    *kCfg.KafkaConfig
+	cfg    kCfg.Config
 	prod   *kafka.Producer
 }
 
 func (k *Kafka) Init(ctx *pipelaner.Context) error {
 	k.logger = pipelaner.NewLogger()
-	err := ctx.LaneItem().Config().ParseExtended(k.cfg)
+	err := ctx.LaneItem().Config().ParseExtended(&k.cfg)
 	if err != nil {
 		return err
 	}
@@ -48,7 +50,7 @@ func (k *Kafka) Init(ctx *pipelaner.Context) error {
 }
 
 func (k *Kafka) write(message []byte) {
-	for _, topic := range k.cfg.KafkaTopics {
+	for _, topic := range k.cfg.Topics {
 		if err := k.prod.Produce(&kafka.Message{
 			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 			Value:          message,

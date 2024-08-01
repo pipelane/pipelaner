@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/LastPossum/kamino"
 )
 
@@ -208,7 +209,7 @@ func (t *TreeLanes) run(ctx context.Context) error {
 			return err
 		}
 		item.runLoop.setMap(trCopy.Map)
-		item.runLoop.run()
+		item.runLoop.start() //nolint:contextcheck
 	}
 	for i := range sinks {
 		item := sinks[i]
@@ -228,7 +229,7 @@ func (t *TreeLanes) run(ctx context.Context) error {
 			return err
 		}
 		item.runLoop.setSink(siCopy.Sink)
-		item.runLoop.run()
+		item.runLoop.start() //nolint:contextcheck
 	}
 	for i := range inputs {
 		item := inputs[i]
@@ -248,7 +249,7 @@ func (t *TreeLanes) run(ctx context.Context) error {
 			return err
 		}
 		item.runLoop.setGenerator(generatorCopy.Generate)
-		item.runLoop.run()
+		item.runLoop.start() //nolint:contextcheck
 		item.runLoop.receive()
 	}
 	return nil

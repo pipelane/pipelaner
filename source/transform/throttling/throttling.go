@@ -12,7 +12,7 @@ import (
 	"github.com/pipelane/pipelaner"
 )
 
-type ThrottlingCfg struct {
+type Config struct {
 	Interval string `pipelane:"interval"`
 }
 
@@ -26,7 +26,7 @@ type Throttling struct {
 
 func (d *Throttling) Init(ctx *pipelaner.Context) error {
 	d.cfg = ctx.LaneItem().Config()
-	v := &ThrottlingCfg{}
+	v := &Config{}
 	err := d.cfg.ParseExtended(v)
 	if err != nil {
 		return err
@@ -70,10 +70,13 @@ func (d *Throttling) storeValue(val any) {
 func (d *Throttling) reset() {
 	d.mx.Lock()
 	defer d.mx.Unlock()
-	i, _ := d.Interval()
+	i, err := d.Interval()
+	if err != nil {
+		return
+	}
 	d.timer.Reset(i)
 }
 
 func (d *Throttling) Interval() (time.Duration, error) {
-	return time.ParseDuration(d.cfg.Extended.(*ThrottlingCfg).Interval)
+	return time.ParseDuration(d.cfg.Extended.(*Config).Interval)
 }

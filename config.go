@@ -6,6 +6,7 @@ package pipelaner
 
 import (
 	"errors"
+
 	"github.com/BurntSushi/toml"
 	"github.com/mitchellh/mapstructure"
 )

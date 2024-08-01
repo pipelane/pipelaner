@@ -5,8 +5,9 @@
 package kafka
 
 import (
-	"github.com/pipelane/pipelaner"
 	"time"
+
+	"github.com/pipelane/pipelaner"
 )
 
 const (
@@ -38,20 +39,20 @@ const (
 	SecuritySaslPlainText               = "sasl_plaintext"
 )
 
-type KafkaConfig struct {
-	KafkaBrokers           string        `pipelane:"brokers"`
-	KafkaVersion           string        `pipelane:"version"`
-	KafkaOffsetNewest      bool          `pipelane:"offset_newest"`
-	KafkaSASLEnabled       bool          `pipelane:"sasl_enabled"`
-	KafkaSASLMechanism     string        `pipelane:"sasl_mechanism"`
-	KafkaSASLUsername      string        `pipelane:"sasl_username"`
-	KafkaSASLPassword      string        `pipelane:"sasl_password"`
-	KafkaAutoCommitEnabled bool          `pipelane:"auto_commit_enabled"`
-	KafkaConsumerGroupId   string        `pipelane:"consumer_group_id"`
-	KafkaTopics            []string      `pipelane:"topics"`
-	KafkaAutoOffsetReset   string        `pipelane:"auto_offset_reset"`
-	KafkaBatchSize         int           `pipelane:"batch_size"`
-	KafkaSchemaRegistry    string        `pipelane:"schema_registry"`
-	ReadTopicTimeout       time.Duration `pipelane:"read_topic_timeout"`
+type Config struct {
+	Brokers           string        `pipelane:"brokers"`
+	Version           string        `pipelane:"version"`
+	OffsetNewest      bool          `pipelane:"offset_newest"`
+	SASLEnabled       bool          `pipelane:"sasl_enabled"`
+	SASLMechanism     string        `pipelane:"sasl_mechanism"`
+	SASLUsername      string        `pipelane:"sasl_username"`
+	SASLPassword      string        `pipelane:"sasl_password"`
+	AutoCommitEnabled bool          `pipelane:"auto_commit_enabled"`
+	ConsumerGroupID   string        `pipelane:"consumer_group_id"`
+	Topics            []string      `pipelane:"topics"`
+	AutoOffsetReset   string        `pipelane:"auto_offset_reset"`
+	BatchSize         int           `pipelane:"batch_size"`
+	SchemaRegistry    string        `pipelane:"schema_registry"`
+	ReadTopicTimeout  time.Duration `pipelane:"read_topic_timeout"`
 	pipelaner.Internal
 }
