@@ -17,5 +17,6 @@ import (
 	_ "github.com/pipelane/pipelaner/source/transform/chunks"
 	_ "github.com/pipelane/pipelaner/source/transform/debounce"
 	_ "github.com/pipelane/pipelaner/source/transform/filter"
+	_ "github.com/pipelane/pipelaner/source/transform/remap"
 	_ "github.com/pipelane/pipelaner/source/transform/throttling"
 )

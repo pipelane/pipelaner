@@ -21,24 +21,24 @@ var (
 )
 
 type EnvMap struct {
-	Data map[string]any
+	Data any
 }
 
 type ExprConfig struct {
 	Code string `pipelane:"code"`
 }
 
-type Filter struct {
+type Remap struct {
 	cfg     *pipelaner.BaseLaneConfig
 	logger  zerolog.Logger
 	program *vm.Program
 }
 
 func init() {
-	pipelaner.RegisterMap("filter", &Filter{})
+	pipelaner.RegisterMap("remap", &Remap{})
 }
 
-func (e *Filter) Init(ctx *pipelaner.Context) error {
+func (e *Remap) Init(ctx *pipelaner.Context) error {
 	e.cfg = ctx.LaneItem().Config()
 	e.logger = pipelaner.NewLogger()
 	v := &ExprConfig{}
@@ -55,10 +55,12 @@ func (e *Filter) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
-func (e *Filter) Map(_ *pipelaner.Context, val any) any {
-	var v map[string]any
+func (e *Remap) Map(_ *pipelaner.Context, val any) any {
+	var v any
 	switch value := val.(type) {
 	case map[string]any:
+		v = value
+	case map[string][]any:
 		v = value
 	case string:
 		b := []byte(value)
@@ -79,8 +81,5 @@ func (e *Filter) Map(_ *pipelaner.Context, val any) any {
 		e.logger.Err(err).Msg("Expr: output error")
 		return err
 	}
-	if !output.(bool) {
-		return nil
-	}
-	return val
+	return output
 }

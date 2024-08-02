@@ -13,17 +13,15 @@ import (
 )
 
 type Console struct {
-	logger zerolog.Logger
+	logger *zerolog.Logger
 }
 
 func init() {
-	pipelaner.RegisterSink("console", NewConsole())
+	pipelaner.RegisterSink("console", &Console{})
 }
 
-func NewConsole() *Console {
-	return &Console{}
-}
-func (c *Console) Init(_ *pipelaner.Context) error {
+func (c *Console) Init(ctx *pipelaner.Context) error {
+	c.logger = ctx.Logger()
 	return nil
 }
 
