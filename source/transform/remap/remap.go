@@ -21,7 +21,7 @@ var (
 )
 
 type EnvMap struct {
-	Data map[string]any
+	Data any
 }
 
 type ExprConfig struct {
@@ -56,9 +56,11 @@ func (e *Remap) Init(ctx *pipelaner.Context) error {
 }
 
 func (e *Remap) Map(_ *pipelaner.Context, val any) any {
-	var v map[string]any
+	var v any
 	switch value := val.(type) {
 	case map[string]any:
+		v = value
+	case map[string][]any:
 		v = value
 	case string:
 		b := []byte(value)
