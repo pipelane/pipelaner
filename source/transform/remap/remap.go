@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	ErrInvalidDataType = errors.New("Error invalid sendded data type")
+	ErrInvalidDataType = errors.New("error invalid data type")
 )
 
 type EnvMap struct {
