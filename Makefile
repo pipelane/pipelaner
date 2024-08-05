@@ -12,7 +12,8 @@ test:
 
 .PHONY: proto
 proto:
-	@rm -rf service/proto/*
+	@rm -rf source/shared/proto
+	@mkdir source/shared/proto
 	@docker run -v $(PWD):/defs namely/protoc-all:1.51_2 -i proto -d proto -o go -l go && \
-    mv go/github.com/pipelane/pipelaner/internal/service/* internal/service/  && \
+    mv go/github.com/pipelane/pipelaner/source/shared/proto source/shared  && \
     rm -rf go
