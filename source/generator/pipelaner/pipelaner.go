@@ -17,7 +17,7 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	"github.com/pipelane/pipelaner"
-	"github.com/pipelane/pipelaner/internal/service"
+	"github.com/pipelane/pipelaner/source/shared/proto/service"
 )
 
 type GrpcCfg struct {

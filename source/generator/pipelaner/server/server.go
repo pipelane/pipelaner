@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	"github.com/pipelane/pipelaner/internal/service"
+	"github.com/pipelane/pipelaner/source/shared/proto/service"
 )
 
 type PipelanerServer struct {
