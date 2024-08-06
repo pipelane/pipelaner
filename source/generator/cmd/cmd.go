@@ -17,7 +17,7 @@ import (
 	"github.com/pipelane/pipelaner"
 )
 
-type ExecCfg struct {
+type Config struct {
 	Exec []string `pipelane:"exec"`
 }
 
@@ -33,7 +33,7 @@ func init() {
 func (c *Exec) Init(ctx *pipelaner.Context) error {
 	c.cfg = ctx.LaneItem().Config()
 	c.logger = pipelaner.NewLogger()
-	v := &ExecCfg{}
+	v := &Config{}
 	err := c.cfg.ParseExtended(v)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (c *Exec) Init(ctx *pipelaner.Context) error {
 
 func (c *Exec) Generate(ctx *pipelaner.Context, input chan<- any) {
 	var args []string
-	cfg, ok := c.cfg.Extended.(*ExecCfg)
+	cfg, ok := c.cfg.Extended.(*Config)
 	if !ok {
 		c.logger.Error().Err(errors.New("invalid config")).Msg("Exec: create stdPipe error")
 		return

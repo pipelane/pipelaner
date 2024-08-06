@@ -18,7 +18,7 @@ import (
 	"github.com/pipelane/pipelaner/source/shared/proto/service"
 )
 
-type GrpcCfg struct {
+type Config struct {
 	Host     *string `pipelane:"host"`
 	Port     int     `pipelane:"port"`
 	TLS      bool    `pipelane:"tls"`
@@ -39,7 +39,7 @@ type Pipelaner struct {
 func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 	p.cfg = ctx.LaneItem().Config()
 	p.logger = pipelaner.NewLogger()
-	v := &GrpcCfg{}
+	v := &Config{}
 	err := p.cfg.ParseExtended(v)
 	if err != nil {
 		return err
