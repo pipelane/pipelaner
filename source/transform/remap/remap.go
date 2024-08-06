@@ -24,7 +24,7 @@ type EnvMap struct {
 	Data any
 }
 
-type ExprConfig struct {
+type Config struct {
 	Code string `pipelane:"code"`
 }
 
@@ -41,7 +41,7 @@ func init() {
 func (e *Remap) Init(ctx *pipelaner.Context) error {
 	e.cfg = ctx.LaneItem().Config()
 	e.logger = pipelaner.NewLogger()
-	v := &ExprConfig{}
+	v := &Config{}
 	err := e.cfg.ParseExtended(v)
 	if err != nil {
 		return err
