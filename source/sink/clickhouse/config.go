@@ -26,5 +26,8 @@ type Config struct {
 	MaxCompressionBuffer     string        `pipelane:"max_compression_buffer"`
 	EnableDebug              bool          `pipelane:"enable_debug"`
 	TableName                string        `pipelane:"table_name"`
+	ValueCountWriteBatch     int           `pipelane:"value_count_write_batch"`
+	AsyncInsert              string        `pipelane:"async_insert"`
+	WaitForAsyncInsert       string        `pipelane:"wait_for_async_insert"`
 	pipelaner.Internal
 }

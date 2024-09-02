@@ -16,7 +16,7 @@ import (
 )
 
 func newCfg(
-	itemType pipelaner.LaneTypes,
+	itemType pipelaner.LaneTypes, //nolint:unparam
 	extended map[string]any,
 ) *pipelaner.BaseLaneConfig {
 	c, err := pipelaner.NewBaseConfigWithTypeAndExtended(

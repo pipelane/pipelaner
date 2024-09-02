@@ -4,8 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
+	"time"
 
-	"github.com/huandu/go-sqlbuilder"
+	"github.com/ClickHouse/ch-go"
+	"github.com/ClickHouse/ch-go/proto"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 
 	"github.com/pipelane/pipelaner"
@@ -14,7 +19,7 @@ import (
 type Clickhouse struct {
 	logger      zerolog.Logger
 	clickConfig Config
-	client      *ClientClickhouse
+	client      *LowLevelClickhouseClient
 }
 
 func (c *Clickhouse) Init(ctx *pipelaner.Context) error {
@@ -24,7 +29,7 @@ func (c *Clickhouse) Init(ctx *pipelaner.Context) error {
 	if err != nil {
 		return err
 	}
-	cli, err := NewClickhouseClient(ctx.Context(), c.clickConfig)
+	cli, err := NewLowLevelClickhouseClient(ctx.Context(), c.clickConfig)
 	if err != nil {
 		return err
 	}
@@ -34,24 +39,190 @@ func (c *Clickhouse) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
-func (c *Clickhouse) write(ctx context.Context, data map[string]any) {
-	cols := make([]string, 0, len(data))
-	values := make([]any, 0, len(data))
+func AppendInput(
+	input proto.Input,
+	columnName string,
+	data proto.Column,
+) proto.Input {
+	input = append(input, proto.InputColumn{Name: columnName, Data: data})
+	return input
+}
 
-	for k, v := range data {
-		cols = append(cols, k)
-		values = append(values, v)
+type column struct {
+	str         *proto.ColStr
+	flt         *proto.ColFloat64
+	integer     *proto.ColInt64
+	strArr      *proto.ColArr[string]
+	arrStrArray *proto.ColArr[[]string]
+	fltArr      *proto.ColArr[float64]
+	integerArr  *proto.ColArr[int64]
+	uid         *proto.ColUUID
+	boolean     *proto.ColBool
+	timestamp   *proto.ColDateTime64
+}
+
+// depending on the type of the column, write data to the proto column .
+
+func (c *column) Append(v any) error {
+	switch val := v.(type) {
+	case string:
+		if c.str != nil {
+			c.str.Append(val)
+		}
+	case float64:
+		if c.flt != nil {
+			c.flt.Append(val)
+		}
+	case int64:
+		if c.integer != nil {
+			c.integer.Append(val)
+		}
+	case []string:
+		if c.strArr != nil {
+			c.strArr.Append(val)
+		}
+	case []float64:
+		if c.fltArr != nil {
+			c.fltArr.Append(val)
+		}
+	case []int64:
+		if c.integerArr != nil {
+			c.integerArr.Append(val)
+		}
+	case uuid.UUID:
+		if c.uid != nil {
+			c.uid.Append(val)
+		}
+	case bool:
+		if c.boolean != nil {
+			c.boolean.Append(val)
+		}
+	case time.Time:
+		if c.timestamp != nil {
+			c.timestamp.Append(val)
+		}
+	case [][]string:
+		if c.arrStrArray != nil {
+			c.arrStrArray.Append(val)
+		}
+	default:
+		return errors.New("unknown type")
 	}
 
-	sb := sqlbuilder.NewInsertBuilder()
-	sb.InsertInto(c.clickConfig.TableName).Cols(cols...).Values(values...).SetFlavor(sqlbuilder.ClickHouse)
+	return nil
+}
 
-	sql, args := sb.Build()
+// buildProtoInput returns column map and input where column field
+// is a pointer to input.Data, map key column name(input.Name)
 
-	if _, err := c.client.Conn().Query(ctx, sql, args...); err != nil {
-		c.logger.Error().Err(err).Msgf("insert values clickhouse")
-		return
+func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, proto.Input, error) {
+	input := proto.Input{}
+
+	columns := make(map[string]*column, len(m))
+
+	for k, v := range m {
+		col := new(column)
+		switch v.(type) {
+		case string:
+			col.str = new(proto.ColStr)
+			input = AppendInput(input, k, col.str)
+		case float64:
+			col.flt = new(proto.ColFloat64)
+			input = AppendInput(input, k, col.flt)
+		case int64:
+			col.integer = new(proto.ColInt64)
+			input = AppendInput(input, k, col.integer)
+		case []string:
+			col.strArr = new(proto.ColStr).Array()
+			input = AppendInput(input, k, col.strArr)
+		case []float64:
+			col.fltArr = new(proto.ColFloat64).Array()
+			input = AppendInput(input, k, col.fltArr)
+		case []int64:
+			col.integerArr = new(proto.ColInt64).Array()
+			input = AppendInput(input, k, col.integerArr)
+		case uuid.UUID:
+			col.uid = new(proto.ColUUID)
+			input = AppendInput(input, k, col.uid)
+		case bool:
+			col.boolean = new(proto.ColBool)
+			input = AppendInput(input, k, col.boolean)
+		case time.Time:
+			col.timestamp = new(proto.ColDateTime64)
+			input = AppendInput(input, k, col.timestamp)
+		case [][]string:
+			col.arrStrArray = new(proto.ColArr[[]string])
+			input = AppendInput(input, k, col.arrStrArray)
+		default:
+			return nil, nil, fmt.Errorf("type val for column %s not found", k)
+		}
+
+		columns[k] = col
 	}
+
+	return columns, input, nil
+}
+
+func (c *Clickhouse) write(ctx context.Context, data []map[string]any) error {
+	if len(data) == 0 {
+		return fmt.Errorf("empty data")
+	}
+
+	columns, input, err := c.buildProtoInput(data[0])
+	if err != nil {
+		return fmt.Errorf("build proto input: %w", err)
+	}
+
+	conn, err := c.client.GetConn(ctx)
+	if err != nil {
+		return fmt.Errorf("failed get conn: %w", err)
+	}
+	defer conn.Release()
+
+	var blocks int
+	if err = conn.Do(ctx, ch.Query{
+		Body: input.Into(c.clickConfig.TableName),
+		Settings: []ch.Setting{
+			{
+				Key:       "async_insert",
+				Value:     c.clickConfig.AsyncInsert,
+				Important: true,
+			},
+			{
+				Key:       "wait_for_async_insert",
+				Value:     c.clickConfig.WaitForAsyncInsert,
+				Important: true,
+			},
+		},
+		OnInput: func(_ context.Context) error {
+			input.Reset()
+
+			if blocks >= len(data)-1 {
+				return io.EOF
+			}
+			for i := range data {
+				for k, v := range data[i] {
+					col, ok := columns[k]
+					if !ok {
+						return fmt.Errorf("column %s not found", k)
+					}
+
+					if err = col.Append(v); err != nil {
+						return err
+					}
+				}
+
+				blocks++
+			}
+
+			return nil
+		},
+		Input: input,
+	}); err != nil {
+		return fmt.Errorf("write batch: %w", err)
+	}
+
+	return nil
 }
 
 func (c *Clickhouse) Sink(ctx *pipelaner.Context, val any) {
@@ -71,6 +242,8 @@ func (c *Clickhouse) Sink(ctx *pipelaner.Context, val any) {
 	case map[string]any:
 		data = v
 	case chan any:
+		listData := make([]map[string]any, 0, cap(v))
+
 		for ch := range val.(chan any) {
 			switch vv := ch.(type) {
 			case json.RawMessage:
@@ -87,9 +260,15 @@ func (c *Clickhouse) Sink(ctx *pipelaner.Context, val any) {
 				data = vv
 			default:
 				c.logger.Error().Err(errors.New("unknown channel type"))
+				return
 			}
 
-			c.write(ctx.Context(), data)
+			listData = append(listData, data)
+		}
+
+		if err := c.write(ctx.Context(), listData); err != nil {
+			c.logger.Error().Err(err).Msg("write")
+			return
 		}
 
 		return
@@ -98,5 +277,8 @@ func (c *Clickhouse) Sink(ctx *pipelaner.Context, val any) {
 		return
 	}
 
-	c.write(ctx.Context(), data)
+	if err := c.write(ctx.Context(), []map[string]any{data}); err != nil {
+		c.logger.Error().Err(err).Msg("write")
+		return
+	}
 }

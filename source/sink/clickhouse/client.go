@@ -7,8 +7,12 @@ import (
 	"net"
 	"regexp"
 	"strconv"
+	"time"
 
+	ch "github.com/ClickHouse/ch-go"
+	"github.com/ClickHouse/ch-go/chpool"
 	"github.com/ClickHouse/clickhouse-go/v2"
+
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 )
 
@@ -38,6 +42,42 @@ func ParseSize(text string) (int, error) {
 	default:
 		return 0, fmt.Errorf("unsupported size postfix: %s", parameter)
 	}
+}
+
+type LowLevelClickhouseClient struct {
+	conn *chpool.Pool
+}
+
+func NewLowLevelClickhouseClient(ctx context.Context, cfg Config) (*LowLevelClickhouseClient, error) {
+	conn, err := chpool.Dial(ctx, chpool.Options{
+
+		ClientOptions: ch.Options{
+			Address:          cfg.Address,
+			Database:         cfg.Database,
+			User:             cfg.User,
+			Password:         cfg.Password,
+			Compression:      ch.CompressionLZ4,
+			DialTimeout:      5 * time.Second,
+			HandshakeTimeout: 10 * time.Second,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &LowLevelClickhouseClient{
+		conn: conn,
+	}, nil
+}
+
+func (c *LowLevelClickhouseClient) GetConn(ctx context.Context) (*chpool.Client, error) {
+	conn, err := c.conn.Acquire(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
 }
 
 type ClientClickhouse struct {
