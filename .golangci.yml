@@ -30,7 +30,7 @@ linters:
     - errcheck
     - errname
     - errorlint
-    - exportloopref
+    - copyloopvar
     - gocritic
     - godot
     - gofmt
