@@ -161,3 +161,15 @@ source_name = "console"
 #input="transform_transform_input1"
 #buffer = 2
 
+##grpc over unix socket
+#log_enable_console=true
+#
+#[input.unix]
+#buffer = 100
+#source_name = "pipelaner"
+#connection_type= "unix"
+#unix_socket_path = "./test"
+#
+#[sink.test]
+#inputs = ["unix"]
+#source_name = "console"
