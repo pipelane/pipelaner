@@ -67,6 +67,7 @@ func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 		Opts:           opts,
 	}, p.logger)
 
+	p.srv = server.NewServer(p.logger, p.cfg.BufferSize)
 	serv.Serve(func(s *grpc.Server) {
 		service.RegisterPipelanerServer(s, p.srv)
 	})
