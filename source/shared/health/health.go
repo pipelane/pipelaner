@@ -2,9 +2,9 @@ package health
 
 import (
 	"fmt"
-	"net"
 
 	"github.com/pipelane/pipelaner"
+	"github.com/pipelane/pipelaner/source/shared/grpc_server"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -17,6 +17,7 @@ type Config struct {
 	EnableHealthCheck bool   `pipelane:"enable_health_check"`
 }
 
+//nolint:revive
 type HealthCheck struct {
 	logger zerolog.Logger
 	cfg    *pipelaner.BaseLaneConfig
@@ -49,25 +50,15 @@ func (p *HealthCheck) Init(ctx *pipelaner.Context) error {
 	if conf.Port != nil {
 		port = *conf.Port
 	}
-	lis := p.createListener(conf.Host, port)
-	var opts []grpc.ServerOption
 
-	grpcServer := grpc.NewServer(opts...)
+	serv := grpc_server.NewServer(&grpc_server.ServerConfig{
+		Host: conf.Host,
+		Port: port,
+	}, p.logger)
 
-	go func() {
-		err = grpcServer.Serve(lis)
-		grpc_health_v1.RegisterHealthServer(grpcServer, health.NewServer())
-		if err != nil {
-			p.logger.Fatal().Err(err).Msg("Failed run server")
-		}
-	}()
+	serv.Serve(func(s *grpc.Server) {
+		grpc_health_v1.RegisterHealthServer(s, health.NewServer())
+	})
+
 	return nil
-}
-
-func (p *HealthCheck) createListener(host string, port int) net.Listener {
-	tcpListener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", host, port))
-	if err != nil {
-		p.logger.Fatal().Err(err).Msgf("Failed to listen on TCP %s:%d", host, port)
-	}
-	return tcpListener
 }

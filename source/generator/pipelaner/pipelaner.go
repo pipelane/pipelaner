@@ -5,14 +5,9 @@
 package pipelaner
 
 import (
-	"fmt"
-	"net"
-	"os"
-	"syscall"
-
-	"github.com/pipelane/pipelaner/source/generator/pipelaner/server"
-
 	"github.com/goccy/go-json"
+	"github.com/pipelane/pipelaner/source/generator/pipelaner/server"
+	grpc_server "github.com/pipelane/pipelaner/source/shared/grpc_server"
 
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
@@ -54,7 +49,7 @@ func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 	if v.Host != nil {
 		host = *v.Host
 	}
-	lis := p.createListener(v, host)
+
 	var opts []grpc.ServerOption
 	if v.TLS {
 		cred, errs := credentials.NewServerTLSFromFile(v.CertFile, v.KeyFile)
@@ -64,15 +59,18 @@ func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 		opts = []grpc.ServerOption{grpc.Creds(cred)}
 	}
 
-	grpcServer := grpc.NewServer(opts...)
-	p.srv = server.NewServer(p.logger, p.cfg.BufferSize)
-	service.RegisterPipelanerServer(grpcServer, p.srv)
-	go func() {
-		err = grpcServer.Serve(lis)
-		if err != nil {
-			p.logger.Fatal().Err(err).Msg("Failed run server")
-		}
-	}()
+	serv := grpc_server.NewServer(&grpc_server.ServerConfig{
+		Host:           host,
+		Port:           v.Port,
+		ConnectionType: v.ConnectionType,
+		UnixSocketPath: v.UnixSocketPath,
+		Opts:           opts,
+	}, p.logger)
+
+	serv.Serve(func(s *grpc.Server) {
+		service.RegisterPipelanerServer(s, p.srv)
+	})
+
 	return nil
 }
 
@@ -98,24 +96,4 @@ func (p *Pipelaner) Generate(ctx *pipelaner.Context, input chan<- any) {
 			}
 		}
 	}
-}
-
-func (p *Pipelaner) createListener(v *Config, host string) net.Listener {
-	if v.ConnectionType == "unix" {
-		if err := syscall.Unlink(v.UnixSocketPath); err != nil && !os.IsNotExist(err) {
-			p.logger.Fatal().Err(err).Msgf("Failed to unlink Unix socket %s", v.UnixSocketPath)
-		}
-
-		unixListener, err := net.ListenUnix("unix", &net.UnixAddr{Name: v.UnixSocketPath, Net: "unix"})
-		if err != nil {
-			p.logger.Fatal().Err(err).Msgf("Failed to listen on Unix socket %s", v.UnixSocketPath)
-		}
-		return unixListener
-	}
-
-	tcpListener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", host, v.Port))
-	if err != nil {
-		p.logger.Fatal().Err(err).Msgf("Failed to listen on TCP %s:%d", host, v.Port)
-	}
-	return tcpListener
 }
