@@ -23,7 +23,7 @@ func Test_newConfig(t *testing.T) {
 	tests := []struct {
 		name      string
 		args      args
-		want      *config
+		want      *Config
 		wantError bool
 	}{
 		{
@@ -35,7 +35,7 @@ buffer = 1
 source_name = "int"
 	`,
 			},
-			want: &config{
+			want: &Config{
 				Input: map[string]any{
 					"input1": map[string]any{
 						"buffer":      int64(1),
@@ -56,7 +56,7 @@ buffer = 1
 source_name = "int"
 	`,
 			},
-			want: &config{
+			want: &Config{
 				Input: nil,
 				Map: map[string]any{
 					"map2": map[string]any{
@@ -77,7 +77,7 @@ buffer = 1
 source_name = "int"
 	`,
 			},
-			want: &config{
+			want: &Config{
 				Input: nil,
 				Map:   nil,
 				Sink: map[string]any{
@@ -104,7 +104,7 @@ buffer = 30
 source_name = "sink_int"
 	`,
 			},
-			want: &config{
+			want: &Config{
 				Input: map[string]any{
 					"input1": map[string]any{
 						"buffer":      int64(10),

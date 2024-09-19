@@ -25,10 +25,12 @@ func NewAgent(
 		os.Interrupt,
 		syscall.SIGTERM,
 	)
-	t, err := NewTreeFrom(
-		ctx,
-		file,
-	)
+
+	cfg, err := NewConfigFromFile(file)
+	if err != nil {
+		return nil, err
+	}
+	t, err := NewTreeFromConfig(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
