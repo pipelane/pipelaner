@@ -14,6 +14,7 @@ import (
 type Agent struct {
 	tree   *TreeLanes
 	ctx    context.Context
+	hc     *HealthCheck
 	cancel context.CancelFunc
 }
 
@@ -34,14 +35,19 @@ func NewAgent(
 	if err != nil {
 		return nil, err
 	}
+
+	hc, err := NewHealthCheck(cfg.healthCheckConfig)
 	return &Agent{
 		tree:   t,
 		ctx:    ctx,
+		hc:     hc,
 		cancel: stop,
 	}, err
 }
 
 func (a *Agent) Serve() {
+	a.hc.Serve()
+
 	<-a.ctx.Done()
 }
 

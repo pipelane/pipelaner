@@ -36,12 +36,18 @@ type logConfig struct {
 	FileLocalTime  bool   `pipelane:"log_file_local_time"`
 }
 
+type healthCheckConfig struct {
+	Host              string `pipelaner:"host"`
+	Port              *int   `pipelane:"port"`
+	EnableHealthCheck bool   `pipelane:"enable_health_check"`
+}
+
 type Config struct {
-	logConfig    `pipelane:",squash"`
-	healthConfig `pipelane:",squash"`
-	Input        map[string]any `pipeline:"input"`
-	Map          map[string]any `pipeline:"map"`
-	Sink         map[string]any `pipeline:"sink"`
+	logConfig         `pipelane:",squash"`
+	healthCheckConfig `pipelane:",squash"`
+	Input             map[string]any `pipeline:"input"`
+	Map               map[string]any `pipeline:"map"`
+	Sink              map[string]any `pipeline:"sink"`
 }
 
 type Internal struct {
