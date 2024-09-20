@@ -37,7 +37,7 @@ type logConfig struct {
 }
 
 type healthCheckConfig struct {
-	Host              string `pipelaner:"host"`
+	Host              string `pipelane:"host"`
 	Port              *int   `pipelane:"port"`
 	EnableHealthCheck bool   `pipelane:"enable_health_check"`
 }
