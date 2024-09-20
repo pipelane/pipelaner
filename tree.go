@@ -103,11 +103,22 @@ func NewTreeFrom(
 	ctx context.Context,
 	file string,
 ) (*TreeLanes, error) {
-	c, err := ReadToml(file)
+	cfg, err := NewConfigFromFile(file)
 	if err != nil {
 		return nil, err
 	}
-	a, err := newPipelinesTreeMapWith(ctx, c)
+	a, err := newPipelinesTreeMapWith(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+	return a, nil
+}
+
+func NewTreeFromConfig(
+	ctx context.Context,
+	cfg *Config,
+) (*TreeLanes, error) {
+	a, err := newPipelinesTreeMapWith(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -116,18 +127,13 @@ func NewTreeFrom(
 
 func newPipelinesTreeMapWith(
 	ctx context.Context,
-	c map[string]any,
+	cfg *Config,
 ) (*TreeLanes, error) {
 	lanes := newPipelinesTree()
-	cfg, err := newConfig(c)
-	if err != nil {
-		return nil, err
-	}
 	if len(cfg.Input) == 0 {
 		return nil, ErrInputsNotFound
 	}
-
-	err = flat(InputType, cfg.Input, lanes)
+	err := flat(InputType, cfg.Input, lanes)
 	if err != nil {
 		return nil, err
 	}

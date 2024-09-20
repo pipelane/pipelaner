@@ -36,11 +36,18 @@ type logConfig struct {
 	FileLocalTime  bool   `pipelane:"log_file_local_time"`
 }
 
-type config struct {
-	logConfig `pipelane:",squash"`
-	Input     map[string]any `pipeline:"input"`
-	Map       map[string]any `pipeline:"map"`
-	Sink      map[string]any `pipeline:"sink"`
+type healthCheckConfig struct {
+	Host              string `pipelaner:"host"`
+	Port              *int   `pipelane:"port"`
+	EnableHealthCheck bool   `pipelane:"enable_health_check"`
+}
+
+type Config struct {
+	logConfig         `pipelane:",squash"`
+	healthCheckConfig `pipelane:",squash"`
+	Input             map[string]any `pipeline:"input"`
+	Map               map[string]any `pipeline:"map"`
+	Sink              map[string]any `pipeline:"sink"`
 }
 
 type Internal struct {
@@ -58,8 +65,8 @@ type BaseLaneConfig struct {
 	Internal
 }
 
-func newConfig(c map[string]any) (*config, error) {
-	cfg := &config{}
+func NewConfig(c map[string]any) (*Config, error) {
+	cfg := &Config{}
 	dC := &mapstructure.DecoderConfig{
 		TagName: "pipelane",
 		Result:  &cfg,
@@ -69,6 +76,18 @@ func newConfig(c map[string]any) (*config, error) {
 		return nil, err
 	}
 	err = dec.Decode(c)
+	if err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
+func NewConfigFromFile(file string) (*Config, error) {
+	c, err := ReadToml(file)
+	if err != nil {
+		return nil, err
+	}
+	cfg, err := NewConfig(c)
 	if err != nil {
 		return nil, err
 	}

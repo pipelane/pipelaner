@@ -15,7 +15,7 @@ const (
 	logKey loggerKey = iota
 )
 
-func initLogger(cfg *config) (*zerolog.Logger, error) {
+func initLogger(cfg *Config) (*zerolog.Logger, error) {
 	var writers []io.Writer
 
 	if cfg.LogLevel == "" {
@@ -42,7 +42,7 @@ func initLogger(cfg *config) (*zerolog.Logger, error) {
 	return &logger, nil
 }
 
-func newRollingFile(cfg *config) io.Writer {
+func newRollingFile(cfg *Config) io.Writer {
 	return &lumberjack.Logger{
 		Filename:   path.Join(cfg.FileDirectory, cfg.FileName),
 		MaxBackups: cfg.FileMaxBackups,
