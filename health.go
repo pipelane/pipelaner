@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
-//nolint:revive
 type HealthCheck struct {
 	serv *grpc_server.Server
 }
@@ -18,7 +17,7 @@ func NewHealthCheck(conf healthCheckConfig) (*HealthCheck, error) {
 	logger := NewLogger()
 
 	if !conf.EnableHealthCheck {
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 
 	if conf.Host == "" {
@@ -41,7 +40,9 @@ func NewHealthCheck(conf healthCheckConfig) (*HealthCheck, error) {
 }
 
 func (p *HealthCheck) Serve() {
-	p.serv.Serve(func(s *grpc.Server) {
-		grpc_health_v1.RegisterHealthServer(s, health.NewServer())
-	})
+	if p.serv != nil {
+		p.serv.Serve(func(s *grpc.Server) {
+			grpc_health_v1.RegisterHealthServer(s, health.NewServer())
+		})
+	}
 }

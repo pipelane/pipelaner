@@ -104,6 +104,9 @@ func NewTreeFrom(
 	file string,
 ) (*TreeLanes, error) {
 	cfg, err := NewConfigFromFile(file)
+	if err != nil {
+		return nil, err
+	}
 	a, err := newPipelinesTreeMapWith(ctx, cfg)
 	if err != nil {
 		return nil, err

@@ -152,7 +152,7 @@ source_name = "sink_int"
 				assert.Error(t, err)
 				return
 			}
-			got, err := newConfig(tom)
+			got, err := NewConfig(tom)
 			if tt.wantError && err != nil {
 				assert.Error(t, err)
 				return
