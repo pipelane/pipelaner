@@ -6,6 +6,7 @@ package pipelaner
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -29,14 +30,17 @@ func NewAgent(
 
 	cfg, err := NewConfigFromFile(file)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("read config: %w", err)
 	}
 	t, err := NewTreeFromConfig(ctx, cfg)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init tree from config: %w", err)
 	}
 
 	hc, err := NewHealthCheck(cfg.healthCheckConfig)
+	if err != nil {
+		return nil, fmt.Errorf("init healthcheck: %w", err)
+	}
 	return &Agent{
 		tree:   t,
 		ctx:    ctx,
@@ -46,7 +50,9 @@ func NewAgent(
 }
 
 func (a *Agent) Serve() {
-	a.hc.Serve()
+	if a.hc != nil {
+		a.hc.Serve()
+	}
 
 	<-a.ctx.Done()
 }
