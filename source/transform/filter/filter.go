@@ -30,7 +30,7 @@ type Config struct {
 
 type Filter struct {
 	cfg     *pipelaner.BaseLaneConfig
-	logger  zerolog.Logger
+	logger  *zerolog.Logger
 	program *vm.Program
 }
 
@@ -40,7 +40,7 @@ func init() {
 
 func (e *Filter) Init(ctx *pipelaner.Context) error {
 	e.cfg = ctx.LaneItem().Config()
-	e.logger = pipelaner.NewLogger()
+	e.logger = ctx.Logger()
 	v := &Config{}
 	err := e.cfg.ParseExtended(v)
 	if err != nil {

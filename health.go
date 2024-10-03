@@ -32,7 +32,7 @@ func NewHealthCheck(conf healthCheckConfig) (*HealthCheck, error) {
 	serv := grpc_server.NewServer(&grpc_server.ServerConfig{
 		Host: conf.Host,
 		Port: port,
-	}, logger)
+	}, &logger)
 
 	return &HealthCheck{
 		serv: serv,

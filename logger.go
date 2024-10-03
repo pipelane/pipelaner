@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"time"
 
 	"github.com/rs/zerolog"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -26,9 +27,17 @@ func initLogger(cfg *Config) (*zerolog.Logger, error) {
 		return nil, err
 	}
 	if cfg.EnableConsole {
-		writers = append(writers, zerolog.ConsoleWriter{
-			Out: os.Stderr,
-		})
+		if cfg.LogFormat == LogFormatJSON {
+			writers = append(writers, zerolog.ConsoleWriter{
+				Out:        os.Stdout,
+				TimeFormat: time.RFC3339Nano,
+			})
+		} else {
+			writers = append(writers, zerolog.ConsoleWriter{
+				Out:        os.Stderr,
+				TimeFormat: time.RFC3339Nano,
+			})
+		}
 	}
 	if cfg.EnableFile {
 		writers = append(writers, newRollingFile(cfg))
@@ -51,4 +60,15 @@ func newRollingFile(cfg *Config) io.Writer {
 		Compress:   cfg.FileCompress,
 		LocalTime:  cfg.FileLocalTime,
 	}
+}
+
+func NewLogger() zerolog.Logger {
+	lg := zerolog.New(zerolog.ConsoleWriter{
+		Out:        os.Stderr,
+		TimeFormat: time.RFC3339,
+	}).Level(zerolog.InfoLevel).
+		With().
+		Timestamp()
+	l := lg.Logger()
+	return l
 }

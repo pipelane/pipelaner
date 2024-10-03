@@ -31,14 +31,14 @@ func init() {
 }
 
 type Pipelaner struct {
-	logger zerolog.Logger
+	logger *zerolog.Logger
 	cfg    *pipelaner.BaseLaneConfig
 	client service.PipelanerClient
 }
 
 func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 	p.cfg = ctx.LaneItem().Config()
-	p.logger = pipelaner.NewLogger()
+	p.logger = ctx.Logger()
 	v := &Config{}
 	err := p.cfg.ParseExtended(v)
 	if err != nil {

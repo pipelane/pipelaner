@@ -25,10 +25,10 @@ type ServerConfig struct {
 
 type Server struct {
 	config *ServerConfig
-	logger zerolog.Logger
+	logger *zerolog.Logger
 }
 
-func NewServer(config *ServerConfig, logger zerolog.Logger) *Server {
+func NewServer(config *ServerConfig, logger *zerolog.Logger) *Server {
 	return &Server{
 		config: config,
 		logger: logger,

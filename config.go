@@ -26,8 +26,8 @@ const (
 type LogFormat string
 
 const (
-	LogFormatPlain = "plain"
-	LogFormatJson  = "json"
+	LogFormatPlain LogFormat = "plain"
+	LogFormatJSON  LogFormat = "json"
 )
 
 type logConfig struct {
