@@ -17,13 +17,13 @@ import (
 const timeout = 15 * 1000
 
 type Kafka struct {
-	logger zerolog.Logger
+	logger *zerolog.Logger
 	cfg    kCfg.Config
 	prod   *kafka.Producer
 }
 
 func (k *Kafka) Init(ctx *pipelaner.Context) error {
-	k.logger = pipelaner.NewLogger()
+	k.logger = ctx.Logger()
 	err := ctx.LaneItem().Config().ParseExtended(&k.cfg)
 	if err != nil {
 		return err
