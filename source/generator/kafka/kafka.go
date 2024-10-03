@@ -17,6 +17,10 @@ type Kafka struct {
 	logger *zerolog.Logger
 }
 
+func init() {
+	pipelaner.RegisterGenerator("kafka", &Kafka{})
+}
+
 func (c *Kafka) Init(ctx *pipelaner.Context) error {
 	c.logger = ctx.Logger()
 	err := ctx.LaneItem().Config().ParseExtended(&c.cfg)

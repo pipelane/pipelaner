@@ -22,6 +22,10 @@ type Clickhouse struct {
 	client      *LowLevelClickhouseClient
 }
 
+func init() {
+	pipelaner.RegisterSink("clickhouse", &Clickhouse{})
+}
+
 func (c *Clickhouse) Init(ctx *pipelaner.Context) error {
 	c.logger = pipelaner.NewLogger()
 
