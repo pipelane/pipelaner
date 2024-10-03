@@ -21,7 +21,7 @@ var (
 )
 
 type EnvMap struct {
-	Data map[string]any
+	Data any
 }
 
 type Config struct {
@@ -56,7 +56,7 @@ func (e *Filter) Init(ctx *pipelaner.Context) error {
 }
 
 func (e *Filter) Map(_ *pipelaner.Context, val any) any {
-	var v map[string]any
+	var v any
 	switch value := val.(type) {
 	case map[string]any:
 		v = value

@@ -22,6 +22,10 @@ type Kafka struct {
 	prod   *kafka.Producer
 }
 
+func init() {
+	pipelaner.RegisterSink("kafka", &Kafka{})
+}
+
 func (k *Kafka) Init(ctx *pipelaner.Context) error {
 	k.logger = ctx.Logger()
 	err := ctx.LaneItem().Config().ParseExtended(&k.cfg)
