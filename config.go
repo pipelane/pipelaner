@@ -84,9 +84,6 @@ func NewConfig(c map[string]any) (*Config, error) {
 		return nil, err
 	}
 	err = dec.Decode(c)
-	if cfg.LogFormat == "" {
-		cfg.LogFormat = LogFormatPlain
-	}
 	if err != nil {
 		return nil, err
 	}
