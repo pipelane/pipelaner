@@ -77,8 +77,9 @@ func TestExprLanguage_Map(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			logger := zerolog.Nop()
 			e := &Filter{
-				logger: zerolog.Nop(),
+				logger: &logger,
 			}
 			err := e.Init(tt.args.ctx)
 			require.Nil(t, err)
@@ -129,8 +130,9 @@ func TestExprLanguage_String(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			logger := zerolog.Nop()
 			e := &Filter{
-				logger: zerolog.Nop(),
+				logger: &logger,
 			}
 			err := e.Init(tt.args.ctx)
 			require.Nil(t, err)
@@ -181,8 +183,9 @@ func TestExprLanguage_Bytes(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			logger := zerolog.Nop()
 			e := &Filter{
-				logger: zerolog.Nop(),
+				logger: &logger,
 			}
 			err := e.Init(tt.args.ctx)
 			require.Nil(t, err)

@@ -17,13 +17,17 @@ import (
 )
 
 type Clickhouse struct {
-	logger      zerolog.Logger
+	logger      *zerolog.Logger
 	clickConfig Config
 	client      *LowLevelClickhouseClient
 }
 
+func init() {
+	pipelaner.RegisterSink("clickhouse", &Clickhouse{})
+}
+
 func (c *Clickhouse) Init(ctx *pipelaner.Context) error {
-	c.logger = pipelaner.NewLogger()
+	c.logger = ctx.Logger()
 
 	err := ctx.LaneItem().Config().ParseExtended(&c.clickConfig)
 	if err != nil {

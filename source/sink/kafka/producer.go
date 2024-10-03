@@ -12,6 +12,7 @@ import (
 func NewProducer(cfg kcfg.Config) (*kafka.Producer, error) {
 	cfgMap := kafka.ConfigMap{
 		kcfg.OptBootstrapServers: cfg.Brokers,
+		kcfg.OptBatchNumMessages: cfg.BatchSize,
 	}
 
 	if cfg.SASLEnabled {

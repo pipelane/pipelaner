@@ -15,7 +15,7 @@ import (
 
 type PipelanerServer struct {
 	service.UnimplementedPipelanerServer
-	logger zerolog.Logger
+	logger *zerolog.Logger
 	buffer chan *service.Message
 }
 
@@ -24,7 +24,7 @@ func (s *PipelanerServer) Sink(_ context.Context, message *service.Message) (*em
 	return &emptypb.Empty{}, nil
 }
 
-func NewServer(logger zerolog.Logger, bufferSize int64) *PipelanerServer {
+func NewServer(logger *zerolog.Logger, bufferSize int64) *PipelanerServer {
 	s := &PipelanerServer{logger: logger, buffer: make(chan *service.Message, bufferSize)}
 	return s
 }

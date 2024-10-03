@@ -23,7 +23,7 @@ type Config struct {
 
 type Exec struct {
 	cfg    *pipelaner.BaseLaneConfig
-	logger zerolog.Logger
+	logger *zerolog.Logger
 }
 
 func init() {
@@ -32,7 +32,7 @@ func init() {
 
 func (c *Exec) Init(ctx *pipelaner.Context) error {
 	c.cfg = ctx.LaneItem().Config()
-	c.logger = pipelaner.NewLogger()
+	c.logger = ctx.Logger()
 	v := &Config{}
 	err := c.cfg.ParseExtended(v)
 	if err != nil {

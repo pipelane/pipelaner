@@ -37,7 +37,11 @@ func (c *Context) Value() any {
 }
 
 func (c *Context) Logger() *zerolog.Logger {
-	return c.ctx.Value(logKey).(*zerolog.Logger)
+	v, ok := c.ctx.Value(logKey).(*zerolog.Logger)
+	if !ok {
+		return nil
+	}
+	return v
 }
 
 func (c *Context) ReturnValue(value any) error {

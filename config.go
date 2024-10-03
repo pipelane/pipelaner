@@ -23,17 +23,25 @@ const (
 	SinkType  LaneTypes = "sink"
 )
 
+type LogFormat string
+
+const (
+	LogFormatPlain LogFormat = "plain"
+	LogFormatJSON  LogFormat = "json"
+)
+
 type logConfig struct {
-	LogLevel       string `pipelane:"log_level"`
-	EnableConsole  bool   `pipelane:"log_enable_console"`
-	EnableFile     bool   `pipelane:"log_enable_file"`
-	FileDirectory  string `pipelane:"log_file_directory"`
-	FileName       string `pipelane:"log_file_name"`
-	FileMaxSize    int    `pipelane:"log_file_max_size"`
-	FileMaxBackups int    `pipelane:"log_file_max_backups"`
-	FileMaxAge     int    `pipelane:"log_file_max_age"`
-	FileCompress   bool   `pipelane:"log_file_compress"`
-	FileLocalTime  bool   `pipelane:"log_file_local_time"`
+	LogLevel       string    `pipelane:"log_level"`
+	EnableConsole  bool      `pipelane:"log_enable_console"`
+	EnableFile     bool      `pipelane:"log_enable_file"`
+	FileDirectory  string    `pipelane:"log_file_directory"`
+	FileName       string    `pipelane:"log_file_name"`
+	FileMaxSize    int       `pipelane:"log_file_max_size"`
+	FileMaxBackups int       `pipelane:"log_file_max_backups"`
+	FileMaxAge     int       `pipelane:"log_file_max_age"`
+	FileCompress   bool      `pipelane:"log_file_compress"`
+	FileLocalTime  bool      `pipelane:"log_file_local_time"`
+	LogFormat      LogFormat `pipelane:"log_format"`
 }
 
 type healthCheckConfig struct {
