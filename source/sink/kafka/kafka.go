@@ -75,13 +75,32 @@ func (k *Kafka) Sink(_ *pipelaner.Context, val any) {
 		message = v
 	case string:
 		message = []byte(v)
+	case chan []byte:
+		for vls := range v {
+			k.write(vls)
+		}
+		return
+	case chan string:
+		for vls := range v {
+			k.write([]byte(vls))
+		}
+		return
+	case chan any:
+		for vls := range v {
+			data, err := json.Marshal(vls)
+			if err != nil {
+				k.logger.Error().Err(err).Msgf("marshal chan val")
+				return
+			}
+			k.write(data)
+		}
+		return
 	default:
 		data, err := json.Marshal(val)
 		if err != nil {
 			k.logger.Error().Err(err).Msgf("marshall val")
 			return
 		}
-
 		message = data
 	}
 
