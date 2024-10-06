@@ -65,6 +65,17 @@
 
 ######## Test debounce
 
+#logs
+log_enable_console=true
+
+#health check
+health_check_enable=true
+health_check_port=8083
+
+#metrics
+metrics_enable=true
+metrics_port=8082
+
 
 [input.test_input]
 buffer = 100
@@ -73,10 +84,10 @@ source_name = "int"
 
 [map.test_int_transform]
 inputs = ["test_input"]
-buffer = 10
-max_idle_time = "300s"
 source_name = "chunks"
-max_chunk_size = 1000000
+max_chunk_size = 10
+max_idle_time = "10s"
+
 
 [sink.input1_sink]
 buffer = 31

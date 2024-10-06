@@ -16,22 +16,17 @@ type HealthCheck struct {
 func NewHealthCheck(conf healthCheckConfig) (*HealthCheck, error) {
 	logger := NewLogger()
 
-	if !conf.EnableHealthCheck {
+	if !conf.HealthCheckEnable {
 		return nil, nil //nolint:nilnil
 	}
 
-	if conf.Host == "" {
-		return nil, fmt.Errorf("host is required")
-	}
-
-	port := 84
-	if conf.Port != nil {
-		port = *conf.Port
+	if conf.HealthCheckPort == 0 {
+		return nil, fmt.Errorf("health check port is required")
 	}
 
 	serv := grpc_server.NewServer(&grpc_server.ServerConfig{
-		Host: conf.Host,
-		Port: port,
+		Host: conf.HealthCheckHost,
+		Port: conf.HealthCheckPort,
 	}, &logger)
 
 	return &HealthCheck{

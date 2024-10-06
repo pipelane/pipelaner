@@ -26,5 +26,14 @@ func (c *Console) Init(ctx *pipelaner.Context) error {
 }
 
 func (c *Console) Sink(_ *pipelaner.Context, val any) {
-	c.logger.Info().Msg(fmt.Sprintf("%v", val))
+	switch v := val.(type) {
+	case chan any:
+		for vals := range v {
+			c.logger.Info().Msg(fmt.Sprintf("%v", vals))
+		}
+		return
+	default:
+		c.logger.Info().Msg(fmt.Sprintf("%v", val))
+	}
+
 }

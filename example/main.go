@@ -5,27 +5,21 @@
 package main
 
 import (
-	"time"
-
-	"github.com/pipelane/pipelaner/example/tests"
-	"github.com/pipelane/pipelaner/source/sink/console"
+	"log"
 
 	"github.com/pipelane/pipelaner"
+	"github.com/pipelane/pipelaner/example/tests"
 	_ "github.com/pipelane/pipelaner/source"
 )
 
 func main() {
+	log.Println("Start")
 	pipelaner.RegisterGenerator("int", &tests.IntGenerator{})
 	agent, err := pipelaner.NewAgent(
 		"example/pipeline.toml",
 	)
-	pipelaner.RegisterSink("int", &console.Console{})
 	if err != nil {
 		panic(err)
 	}
-	go func() {
-		time.Sleep(time.Second * 120)
-		agent.Stop()
-	}()
 	agent.Serve()
 }

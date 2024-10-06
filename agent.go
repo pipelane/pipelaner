@@ -17,6 +17,7 @@ type Agent struct {
 	ctx    context.Context
 	hc     *HealthCheck
 	cancel context.CancelFunc
+	cfg    *Config
 }
 
 func NewAgent(
@@ -32,20 +33,17 @@ func NewAgent(
 	if err != nil {
 		return nil, fmt.Errorf("read config: %w", err)
 	}
-	t, err := NewTreeFromConfig(ctx, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("init tree from config: %w", err)
-	}
 
 	hc, err := NewHealthCheck(cfg.healthCheckConfig)
 	if err != nil {
 		return nil, fmt.Errorf("init healthcheck: %w", err)
 	}
 	return &Agent{
-		tree:   t,
+		tree:   nil,
 		ctx:    ctx,
 		hc:     hc,
 		cancel: stop,
+		cfg:    cfg,
 	}, err
 }
 
@@ -53,7 +51,17 @@ func (a *Agent) Serve() {
 	if a.hc != nil {
 		a.hc.Serve()
 	}
-
+	go func() {
+		err := StartMetricsServer(a.cfg.metricsConfig)
+		if err != nil {
+			panic(err)
+		}
+	}()
+	t, err := NewTreeFromConfig(a.ctx, a.cfg)
+	if err != nil {
+		panic(fmt.Errorf("init tree from config: %w", err))
+	}
+	a.tree = t
 	<-a.ctx.Done()
 }
 
