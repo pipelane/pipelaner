@@ -35,7 +35,7 @@ func NewAgent(
 		return nil, fmt.Errorf("read config: %w", err)
 	}
 
-	hc, err := NewHealthCheck(cfg.healthCheckConfig)
+	hc, err := NewHealthCheck(*cfg)
 	if err != nil {
 		return nil, fmt.Errorf("init healthcheck: %w", err)
 	}

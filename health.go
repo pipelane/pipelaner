@@ -13,7 +13,7 @@ type HealthCheck struct {
 	serv *grpc_server.Server
 }
 
-func NewHealthCheck(conf healthCheckConfig) (*HealthCheck, error) {
+func NewHealthCheck(conf Config) (*HealthCheck, error) {
 	logger := NewLogger()
 
 	if !conf.HealthCheckEnable {
