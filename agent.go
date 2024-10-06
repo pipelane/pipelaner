@@ -13,10 +13,12 @@ import (
 )
 
 type Agent struct {
-	tree   *TreeLanes
-	ctx    context.Context
-	hc     *HealthCheck
-	cancel context.CancelFunc
+	cfg     *Config
+	tree    *TreeLanes
+	hc      *HealthCheck
+	metrics *MetricsServer
+	ctx     context.Context
+	cancel  context.CancelFunc
 }
 
 func NewAgent(
@@ -32,20 +34,22 @@ func NewAgent(
 	if err != nil {
 		return nil, fmt.Errorf("read config: %w", err)
 	}
-	t, err := NewTreeFromConfig(ctx, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("init tree from config: %w", err)
-	}
 
-	hc, err := NewHealthCheck(cfg.healthCheckConfig)
+	hc, err := NewHealthCheck(*cfg)
 	if err != nil {
-		return nil, fmt.Errorf("init healthcheck: %w", err)
+		return nil, fmt.Errorf("init healthcheck server: %w", err)
+	}
+	m, err := NewMetricsServer(*cfg)
+	if err != nil {
+		return nil, fmt.Errorf("init metrics server: %w", err)
 	}
 	return &Agent{
-		tree:   t,
-		ctx:    ctx,
-		hc:     hc,
-		cancel: stop,
+		tree:    nil,
+		ctx:     ctx,
+		hc:      hc,
+		metrics: m,
+		cancel:  stop,
+		cfg:     cfg,
 	}, err
 }
 
@@ -53,7 +57,19 @@ func (a *Agent) Serve() {
 	if a.hc != nil {
 		a.hc.Serve()
 	}
-
+	go func() {
+		if a.metrics != nil {
+			err := a.metrics.Serve()
+			if err != nil {
+				panic(err)
+			}
+		}
+	}()
+	t, err := NewTreeFromConfig(a.ctx, a.cfg)
+	if err != nil {
+		panic(fmt.Errorf("init tree from config: %w", err))
+	}
+	a.tree = t
 	<-a.ctx.Done()
 }
 

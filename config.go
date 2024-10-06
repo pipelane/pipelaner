@@ -45,14 +45,22 @@ type logConfig struct {
 }
 
 type healthCheckConfig struct {
-	Host              string `pipelane:"host"`
-	Port              *int   `pipelane:"port"`
-	EnableHealthCheck bool   `pipelane:"enable_health_check"`
+	HealthCheckHost   string `pipelane:"health_check_host"`
+	HealthCheckPort   int    `pipelane:"health_check_port"`
+	HealthCheckEnable bool   `pipelane:"health_check_enable"`
+}
+
+type metricsConfig struct {
+	MetricsHost        string `pipelane:"metrics_host"`
+	MetricsPort        int    `pipelane:"metrics_port"`
+	MetricsServiceName string `pipelane:"metrics_service_name"`
+	MetricsEnable      bool   `pipelane:"metrics_enable"`
 }
 
 type Config struct {
 	logConfig         `pipelane:",squash"`
 	healthCheckConfig `pipelane:",squash"`
+	metricsConfig     `pipelane:",squash"`
 	Input             map[string]any `pipeline:"input"`
 	Map               map[string]any `pipeline:"map"`
 	Sink              map[string]any `pipeline:"sink"`

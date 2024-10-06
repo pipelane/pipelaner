@@ -10,25 +10,31 @@ import (
 	"github.com/pipelane/pipelaner"
 )
 
+type IntStruct struct {
+	Counter uint64
+}
+
 type IntGenerator struct {
 	inc uint64
 }
 
 func (i *IntGenerator) Init(_ *pipelaner.Context) error {
-	i.inc = 1
+	i.inc = 0
 	return nil
 }
 func (i *IntGenerator) Generate(ctx *pipelaner.Context, input chan<- any) {
 	for {
-		i.inc++
 		select {
 		case <-ctx.Context().Done():
 			break
 		default:
-			// if i.inc%3 == 0 {
-			//	time.Sleep(time.Second * 5)
-			// }
-			input <- i.inc
+			input <- &IntStruct{
+				Counter: i.inc,
+			}
+		}
+		i.inc++
+		if i.inc%10 == 0 {
+			time.Sleep(60 * time.Second)
 		}
 	}
 }
