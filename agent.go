@@ -13,11 +13,12 @@ import (
 )
 
 type Agent struct {
-	tree   *TreeLanes
-	ctx    context.Context
-	hc     *HealthCheck
-	cancel context.CancelFunc
-	cfg    *Config
+	cfg     *Config
+	tree    *TreeLanes
+	hc      *HealthCheck
+	metrics *MetricsServer
+	ctx     context.Context
+	cancel  context.CancelFunc
 }
 
 func NewAgent(
@@ -38,12 +39,17 @@ func NewAgent(
 	if err != nil {
 		return nil, fmt.Errorf("init healthcheck: %w", err)
 	}
+	m, err := NewMetricsServer(*cfg)
+	if err != nil {
+		return nil, fmt.Errorf("init healthcheck: %w", err)
+	}
 	return &Agent{
-		tree:   nil,
-		ctx:    ctx,
-		hc:     hc,
-		cancel: stop,
-		cfg:    cfg,
+		tree:    nil,
+		ctx:     ctx,
+		hc:      hc,
+		metrics: m,
+		cancel:  stop,
+		cfg:     cfg,
 	}, err
 }
 
@@ -52,7 +58,7 @@ func (a *Agent) Serve() {
 		a.hc.Serve()
 	}
 	go func() {
-		err := StartMetricsServer(a.cfg.metricsConfig)
+		err := a.metrics.Serve()
 		if err != nil {
 			panic(err)
 		}
