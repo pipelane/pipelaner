@@ -35,5 +35,4 @@ func (c *Console) Sink(_ *pipelaner.Context, val any) {
 	default:
 		c.logger.Info().Msg(fmt.Sprintf("%v", val))
 	}
-
 }

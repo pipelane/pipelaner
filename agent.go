@@ -58,9 +58,11 @@ func (a *Agent) Serve() {
 		a.hc.Serve()
 	}
 	go func() {
-		err := a.metrics.Serve()
-		if err != nil {
-			panic(err)
+		if a.metrics != nil {
+			err := a.metrics.Serve()
+			if err != nil {
+				panic(err)
+			}
 		}
 	}()
 	t, err := NewTreeFromConfig(a.ctx, a.cfg)

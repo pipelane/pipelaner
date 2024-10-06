@@ -3,6 +3,7 @@ package pipelaner
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -19,7 +20,7 @@ type MetricsServer struct {
 
 func NewMetricsServer(cfg Config) (*MetricsServer, error) {
 	if !cfg.MetricsEnable {
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 	if cfg.MetricsPort == 0 {
 		return nil, fmt.Errorf("metrics port is required")
@@ -37,5 +38,9 @@ func (m *MetricsServer) Serve() error {
 		return nil
 	}
 	http.Handle("/metrics", promhttp.Handler())
-	return http.ListenAndServe(fmt.Sprintf("%s:%d", m.cfg.MetricsHost, m.cfg.MetricsPort), nil)
+	s := http.Server{
+		Addr:              fmt.Sprintf("%s:%d", m.cfg.MetricsHost, m.cfg.MetricsPort),
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+	return s.ListenAndServe()
 }
