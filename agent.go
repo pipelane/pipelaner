@@ -37,11 +37,11 @@ func NewAgent(
 
 	hc, err := NewHealthCheck(*cfg)
 	if err != nil {
-		return nil, fmt.Errorf("init healthcheck: %w", err)
+		return nil, fmt.Errorf("init healthcheck server: %w", err)
 	}
 	m, err := NewMetricsServer(*cfg)
 	if err != nil {
-		return nil, fmt.Errorf("init healthcheck: %w", err)
+		return nil, fmt.Errorf("init metrics server: %w", err)
 	}
 	return &Agent{
 		tree:    nil,
