@@ -200,6 +200,7 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 }
 
 func (c *Clickhouse) write(ctx context.Context, data []map[string]any) error {
+	c.logger.Info().Msgf("%#v", data)
 	if len(data) == 0 {
 		return fmt.Errorf("empty data")
 	}
