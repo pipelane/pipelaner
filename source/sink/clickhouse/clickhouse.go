@@ -53,16 +53,20 @@ func AppendInput(
 }
 
 type column struct {
-	str         *proto.ColStr
-	flt         *proto.ColFloat64
-	integer     *proto.ColInt64
-	strArr      *proto.ColArr[string]
-	arrStrArray *proto.ColArr[[]string]
-	fltArr      *proto.ColArr[float64]
-	integerArr  *proto.ColArr[int64]
-	uid         *proto.ColUUID
-	boolean     *proto.ColBool
-	timestamp   *proto.ColDateTime64
+	str          *proto.ColStr
+	flt          *proto.ColFloat64
+	integer      *proto.ColInt64
+	boolean      *proto.ColBool
+	strArr       *proto.ColArr[string]
+	intArr       *proto.ColArr[int64]
+	fltArr       *proto.ColArr[float64]
+	boolArr      *proto.ColArr[bool]
+	arrStrArray  *proto.ColArr[[]string]
+	arrIntArray  *proto.ColArr[[]int64]
+	arrFltArray  *proto.ColArr[[]float64]
+	arrBoolArray *proto.ColArr[[]bool]
+	uid          *proto.ColUUID
+	timestamp    *proto.ColDateTime64
 }
 
 // depending on the type of the column, write data to the proto column .
@@ -81,6 +85,10 @@ func (c *column) Append(v any) error {
 		if c.integer != nil {
 			c.integer.Append(val)
 		}
+	case bool:
+		if c.boolean != nil {
+			c.boolean.Append(val)
+		}
 	case []string:
 		if c.strArr != nil {
 			c.strArr.Append(val)
@@ -90,24 +98,36 @@ func (c *column) Append(v any) error {
 			c.fltArr.Append(val)
 		}
 	case []int64:
-		if c.integerArr != nil {
-			c.integerArr.Append(val)
+		if c.intArr != nil {
+			c.intArr.Append(val)
+		}
+	case []bool:
+		if c.boolArr != nil {
+			c.boolArr.Append(val)
+		}
+	case [][]string:
+		if c.arrStrArray != nil {
+			c.arrStrArray.Append(val)
+		}
+	case [][]int64:
+		if c.arrIntArray != nil {
+			c.arrIntArray.Append(val)
+		}
+	case [][]float64:
+		if c.arrFltArray != nil {
+			c.arrFltArray.Append(val)
+		}
+	case [][]bool:
+		if c.arrBoolArray != nil {
+			c.arrBoolArray.Append(val)
 		}
 	case uuid.UUID:
 		if c.uid != nil {
 			c.uid.Append(val)
 		}
-	case bool:
-		if c.boolean != nil {
-			c.boolean.Append(val)
-		}
 	case time.Time:
 		if c.timestamp != nil {
 			c.timestamp.Append(val)
-		}
-	case [][]string:
-		if c.arrStrArray != nil {
-			c.arrStrArray.Append(val)
 		}
 	default:
 		return errors.New("unknown type")
@@ -136,6 +156,9 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 		case int64:
 			col.integer = new(proto.ColInt64)
 			input = AppendInput(input, k, col.integer)
+		case bool:
+			col.boolean = new(proto.ColBool)
+			input = AppendInput(input, k, col.boolean)
 		case []string:
 			col.strArr = new(proto.ColStr).Array()
 			input = AppendInput(input, k, col.strArr)
@@ -143,20 +166,29 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 			col.fltArr = new(proto.ColFloat64).Array()
 			input = AppendInput(input, k, col.fltArr)
 		case []int64:
-			col.integerArr = new(proto.ColInt64).Array()
-			input = AppendInput(input, k, col.integerArr)
-		case uuid.UUID:
-			col.uid = new(proto.ColUUID)
-			input = AppendInput(input, k, col.uid)
-		case bool:
-			col.boolean = new(proto.ColBool)
-			input = AppendInput(input, k, col.boolean)
-		case time.Time:
-			col.timestamp = new(proto.ColDateTime64)
-			input = AppendInput(input, k, col.timestamp)
+			col.intArr = new(proto.ColInt64).Array()
+			input = AppendInput(input, k, col.intArr)
+		case []bool:
+			col.boolArr = new(proto.ColBool).Array()
+			input = AppendInput(input, k, col.boolArr)
 		case [][]string:
 			col.arrStrArray = new(proto.ColArr[[]string])
 			input = AppendInput(input, k, col.arrStrArray)
+		case [][]int64:
+			col.arrIntArray = new(proto.ColArr[[]int64])
+			input = AppendInput(input, k, col.arrIntArray)
+		case [][]float64:
+			col.arrFltArray = new(proto.ColArr[[]float64])
+			input = AppendInput(input, k, col.arrFltArray)
+		case [][]bool:
+			col.arrBoolArray = new(proto.ColArr[[]bool])
+			input = AppendInput(input, k, col.arrBoolArray)
+		case uuid.UUID:
+			col.uid = new(proto.ColUUID)
+			input = AppendInput(input, k, col.uid)
+		case time.Time:
+			col.timestamp = new(proto.ColDateTime64)
+			input = AppendInput(input, k, col.timestamp)
 		default:
 			return nil, nil, fmt.Errorf("type val for column %s not found", k)
 		}

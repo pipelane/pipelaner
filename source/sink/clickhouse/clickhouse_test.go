@@ -59,7 +59,7 @@ func TestBuildProtoInput(t *testing.T) {
 			},
 		},
 		{
-			name:   "build failed slice boolean",
+			name:   "build slice boolean",
 			fields: fields{},
 			args: args{
 				values: map[string]any{
@@ -69,16 +69,15 @@ func TestBuildProtoInput(t *testing.T) {
 					"time":         timeValue,
 				},
 			},
-			wantErr: true,
 			want: want{
 				mapColumns: map[string]*column{
-					"string":       {integer: new(proto.ColInt64)},
+					"bool_array":   {boolArr: new(proto.ColArr[bool])},
 					"string_array": {strArr: new(proto.ColArr[string])},
 					"float":        {flt: new(proto.ColFloat64)},
 					"time":         {timestamp: new(proto.ColDateTime64)},
 				},
 				input: proto.Input{
-					proto.InputColumn{Name: "string", Data: new(proto.ColInt64)},
+					proto.InputColumn{Name: "bool_array", Data: new(proto.ColArr[bool])},
 					proto.InputColumn{Name: "string_array", Data: new(proto.ColArr[string])},
 					proto.InputColumn{Name: "float", Data: new(proto.ColFloat64)},
 					proto.InputColumn{Name: "time", Data: new(proto.ColDateTime64)},
