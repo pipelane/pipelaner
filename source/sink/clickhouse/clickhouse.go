@@ -196,7 +196,7 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 			col.uid = new(proto.ColUUID)
 			input = AppendInput(input, k, col.uid)
 		case time.Time:
-			col.timestamp = new(proto.ColDateTime64)
+			col.timestamp = new(proto.ColDateTime64).WithPrecision(proto.PrecisionMicro)
 			input = AppendInput(input, k, col.timestamp)
 		default:
 			return nil, nil, fmt.Errorf("type val for column %s not found", k)
