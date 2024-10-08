@@ -233,7 +233,7 @@ func (c *Clickhouse) write(ctx context.Context, data []map[string]any) error {
 		OnInput: func(_ context.Context) error {
 			input.Reset()
 
-			if blocks >= len(data)-1 {
+			if blocks >= len(data) {
 				return io.EOF
 			}
 			for i := range data {
