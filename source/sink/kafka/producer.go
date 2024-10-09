@@ -16,6 +16,7 @@ func NewProducer(cfg kcfg.Config) (*kafka.Producer, error) {
 		"go.batch.producer":      true,
 		"linger.ms":              10000,
 		"queue.buffering.max.ms": 10000,
+		kcfg.OptAcks:             0,
 	}
 
 	if cfg.SASLEnabled {
