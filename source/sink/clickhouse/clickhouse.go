@@ -215,57 +215,86 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 	return columns, input, nil
 }
 
-func (c *Clickhouse) write(ctx context.Context, data []map[string]any) error {
-	c.logger.Info().Msgf("%#v", data)
-	if len(data) == 0 {
-		return fmt.Errorf("empty data")
+func (c *Clickhouse) getMap(val any) map[string]any {
+	var d map[string]any
+
+	switch v := val.(type) {
+	case json.RawMessage:
+		if err := json.Unmarshal(v, &d); err != nil {
+			panic("RawMessage unmarshal")
+
+		}
+	case []byte:
+		if err := json.Unmarshal(v, &d); err != nil {
+			panic("RawMessage unmarshal")
+
+		}
+	case map[string]any:
+		d = v
 	}
 
-	columns, input, err := c.buildProtoInput(data[0])
-	if err != nil {
-		return fmt.Errorf("build proto input: %w", err)
-	}
+	return d
+}
 
+func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 	conn, err := c.client.GetConn(ctx)
 	if err != nil {
 		return fmt.Errorf("failed get conn: %w", err)
 	}
 	defer conn.Release()
 
-	var blocks int
+	var (
+		input   proto.Input
+		columns map[string]*column
+		data    map[string]any
+	)
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case v := <-chData:
+		data = c.getMap(v)
+		columns, input, err = c.buildProtoInput(data)
+		if err != nil {
+			return fmt.Errorf("build proto input: %w", err)
+		}
+	}
+
 	if err = conn.Do(ctx, ch.Query{
-		Body: input.Into(c.clickConfig.TableName),
+		Body: input.Into("test_table_insert"),
 		Settings: []ch.Setting{
 			{
 				Key:       "async_insert",
-				Value:     c.clickConfig.AsyncInsert,
+				Value:     "1",
 				Important: true,
 			},
 			{
 				Key:       "wait_for_async_insert",
-				Value:     c.clickConfig.WaitForAsyncInsert,
+				Value:     "1",
 				Important: true,
 			},
 		},
 		OnInput: func(_ context.Context) error {
 			input.Reset()
 
-			if blocks >= len(data) {
-				return io.EOF
-			}
-			for i := range data {
-				for k, v := range data[i] {
-					col, ok := columns[k]
-					if !ok {
-						return fmt.Errorf("column %s not found", k)
-					}
-
-					if err = col.Append(v); err != nil {
-						return err
-					}
+			for k, v := range data {
+				col, okC := columns[k]
+				if !okC {
+					return fmt.Errorf("column %s not found", k)
 				}
 
-				blocks++
+				if err = col.Append(v); err != nil {
+					return err
+				}
+			}
+
+			select {
+			case newData, ok := <-chData:
+				if !ok {
+					return io.EOF
+				}
+
+				data = c.getMap(newData)
 			}
 
 			return nil
@@ -280,58 +309,36 @@ func (c *Clickhouse) write(ctx context.Context, data []map[string]any) error {
 
 func (c *Clickhouse) Sink(ctx *pipelaner.Context, val any) {
 	data := make(map[string]any)
+	chData := make(chan any)
 
 	switch v := val.(type) {
 	case json.RawMessage:
 		if err := json.Unmarshal(v, &data); err != nil {
-			c.logger.Error().Err(err).Msgf("RawMessage unmarshal")
+			c.logger.Error().Err(err).Msgf("channel RawMessage unmarshal")
 			return
 		}
+
+		chData <- data
 	case []byte:
 		if err := json.Unmarshal(v, &data); err != nil {
-			c.logger.Error().Err(err).Msgf("[]byte unmarshal val")
+			c.logger.Error().Err(err).Msgf("channel []byte unmarshal")
 			return
 		}
+
+		chData <- data
 	case map[string]any:
-		data = v
+		chData <- v
 	case chan any:
-		listData := make([]map[string]any, 0, cap(v))
-
-		for ch := range val.(chan any) {
-			switch vv := ch.(type) {
-			case json.RawMessage:
-				if err := json.Unmarshal(vv, &data); err != nil {
-					c.logger.Error().Err(err).Msgf("channel RawMessage unmarshal")
-					return
-				}
-			case []byte:
-				if err := json.Unmarshal(vv, &data); err != nil {
-					c.logger.Error().Err(err).Msgf("channel []byte unmarshal")
-					return
-				}
-			case map[string]any:
-				data = vv
-			default:
-				c.logger.Error().Err(errors.New("unknown channel type"))
-				return
-			}
-
-			listData = append(listData, data)
-		}
-
-		if err := c.write(ctx.Context(), listData); err != nil {
+		if err := c.write(ctx.Context(), v); err != nil {
 			c.logger.Error().Err(err).Msg("write")
-			return
 		}
 
 		return
 	default:
 		c.logger.Error().Err(errors.New("unknown type val"))
-		return
 	}
 
-	if err := c.write(ctx.Context(), []map[string]any{data}); err != nil {
+	if err := c.write(ctx.Context(), chData); err != nil {
 		c.logger.Error().Err(err).Msg("write")
-		return
 	}
 }
