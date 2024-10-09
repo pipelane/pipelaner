@@ -169,17 +169,17 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 			col.boolean = new(proto.ColBool)
 			input = AppendInput(input, k, col.boolean)
 		case []string:
-			col.strArr = new(proto.ColStr).Array()
-			input = AppendInput(input, k, col.strArr)
+			col.strArr = proto.NewArray[string](new(proto.ColStr))
+			input = AppendArrayInput(input, k, col.strArr)
 		case []float64:
-			col.fltArr = new(proto.ColFloat64).Array()
-			input = AppendInput(input, k, col.fltArr)
+			col.fltArr = proto.NewArray[float64](new(proto.ColFloat64))
+			input = AppendArrayInput(input, k, col.fltArr)
 		case []int64:
-			col.intArr = new(proto.ColInt64).Array()
-			input = AppendInput(input, k, col.intArr)
+			col.intArr = proto.NewArray[int64](new(proto.ColInt64))
+			input = AppendArrayInput(input, k, col.intArr)
 		case []bool:
-			col.boolArr = new(proto.ColBool).Array()
-			input = AppendInput(input, k, col.boolArr)
+			col.boolArr = proto.NewArray[bool](new(proto.ColBool))
+			input = AppendArrayInput(input, k, col.boolArr)
 		case [][]string:
 			col.arrStrArray = proto.NewArray[[]string](proto.NewArray[string](new(proto.ColStr)))
 			input = AppendArrayInput(input, k, col.arrStrArray)
