@@ -250,7 +250,10 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
-	case v := <-chData:
+	case v, ok := <-chData:
+		if !ok && v == nil {
+			return nil
+		}
 		data, err = c.getMap(v)
 		if err != nil {
 			return err
@@ -260,46 +263,56 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 		if err != nil {
 			return fmt.Errorf("build proto input: %w", err)
 		}
+
+		for k, val := range data {
+			col, okC := columns[k]
+			if !okC {
+				return fmt.Errorf("column %s not found", k)
+			}
+			if err = col.Append(val); err != nil {
+				return err
+			}
+		}
 	}
 
 	if err = conn.Do(ctx, ch.Query{
-		Body: input.Into("test_table_insert"),
+		Body: input.Into(c.clickConfig.TableName),
 		Settings: []ch.Setting{
 			{
 				Key:       "async_insert",
-				Value:     "1",
+				Value:     c.clickConfig.AsyncInsert,
 				Important: true,
 			},
 			{
 				Key:       "wait_for_async_insert",
-				Value:     "1",
+				Value:     c.clickConfig.WaitForAsyncInsert,
 				Important: true,
 			},
 		},
 		OnInput: func(_ context.Context) error {
 			input.Reset()
+			isClose := true
 
-			for k, v := range data {
-				col, okC := columns[k]
-				if !okC {
-					return fmt.Errorf("column %s not found", k)
-				}
-
-				if err = col.Append(v); err != nil {
+			for newData := range chData {
+				isClose = false
+				data, err = c.getMap(newData)
+				if err != nil {
 					return err
 				}
+				for k, v := range data {
+					col, okC := columns[k]
+					if !okC {
+						return fmt.Errorf("column %s not found", k)
+					}
+					if err = col.Append(v); err != nil {
+						return err
+					}
+				}
+				return nil
 			}
-
-			newData, ok := <-chData
-			if !ok {
+			if isClose {
 				return io.EOF
 			}
-
-			data, err = c.getMap(newData)
-			if err != nil {
-				return err
-			}
-
 			return nil
 		},
 		Input: input,
@@ -312,35 +325,34 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 
 func (c *Clickhouse) Sink(ctx *pipelaner.Context, val any) {
 	data := make(map[string]any)
-	chData := make(chan any)
-
+	var chData chan any
 	switch v := val.(type) {
 	case json.RawMessage:
+		chData = make(chan any, 1)
 		if err := json.Unmarshal(v, &data); err != nil {
 			c.logger.Error().Err(err).Msgf("channel RawMessage unmarshal")
 			return
 		}
-
 		chData <- data
+		close(chData)
 	case []byte:
+		chData = make(chan any, 1)
 		if err := json.Unmarshal(v, &data); err != nil {
 			c.logger.Error().Err(err).Msgf("channel []byte unmarshal")
 			return
 		}
-
 		chData <- data
+		close(chData)
 	case map[string]any:
+		chData = make(chan any, 1)
 		chData <- v
+		close(chData)
 	case chan any:
-		if err := c.write(ctx.Context(), v); err != nil {
-			c.logger.Error().Err(err).Msg("write")
-		}
-
-		return
+		chData = v
 	default:
 		c.logger.Error().Err(errors.New("unknown type val"))
+		return
 	}
-
 	if err := c.write(ctx.Context(), chData); err != nil {
 		c.logger.Error().Err(err).Msg("write")
 	}
