@@ -29,7 +29,7 @@ func init() {
 func (c *Clickhouse) Init(ctx *pipelaner.Context) error {
 	c.logger = ctx.Logger()
 	var clickConfig Config
-	err := ctx.LaneItem().Config().ParseExtended(clickConfig)
+	err := ctx.LaneItem().Config().ParseExtended(&clickConfig)
 	if err != nil {
 		return err
 	}
