@@ -38,6 +38,7 @@ func NewChunks[T any](ctx context.Context, cfg Config) *Chunks[T] {
 	b := &Chunks[T]{
 		Cfg: cfg,
 	}
+	b.input = make(chan T, b.Cfg.MaxChunkSize*b.Cfg.BufferSize)
 	b.resetChannels()
 	b.ctx, b.cancel = context.WithCancel(ctx)
 	return b
@@ -80,7 +81,6 @@ func (c *Chunks[T]) Generator() {
 	counter.Store(0)
 	timer := time.NewTicker(c.Cfg.MaxIdleTime)
 	buffer := c.NewChunk()
-	c.input = make(chan T, c.Cfg.MaxChunkSize*c.Cfg.BufferSize)
 	go func() {
 		defer c.Close()
 		defer timer.Stop()
@@ -99,13 +99,14 @@ func (c *Chunks[T]) Generator() {
 					return
 				}
 				timer.Reset(c.Cfg.MaxIdleTime)
+				buffer <- msg
+				counter.Add(1)
+
 				if counter.Load() >= int64(c.Cfg.MaxChunkSize) {
 					counter.Store(0)
 					close(buffer)
 					buffer = c.NewChunk()
 				}
-				buffer <- msg
-				counter.Add(1)
 			}
 		}
 	}()
