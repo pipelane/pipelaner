@@ -215,25 +215,23 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 	return columns, input, nil
 }
 
-func (c *Clickhouse) getMap(val any) map[string]any {
+func (c *Clickhouse) getMap(val any) (map[string]any, error) {
 	var d map[string]any
 
 	switch v := val.(type) {
 	case json.RawMessage:
 		if err := json.Unmarshal(v, &d); err != nil {
-			panic("RawMessage unmarshal")
-
+			return nil, fmt.Errorf("RawMessage unmarshal")
 		}
 	case []byte:
 		if err := json.Unmarshal(v, &d); err != nil {
-			panic("RawMessage unmarshal")
-
+			return nil, fmt.Errorf("channel []byte unmarshal")
 		}
 	case map[string]any:
 		d = v
 	}
 
-	return d
+	return d, nil
 }
 
 func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
@@ -253,7 +251,11 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 	case <-ctx.Done():
 		return ctx.Err()
 	case v := <-chData:
-		data = c.getMap(v)
+		data, err = c.getMap(v)
+		if err != nil {
+			return err
+		}
+
 		columns, input, err = c.buildProtoInput(data)
 		if err != nil {
 			return fmt.Errorf("build proto input: %w", err)
@@ -288,13 +290,14 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 				}
 			}
 
-			select {
-			case newData, ok := <-chData:
-				if !ok {
-					return io.EOF
-				}
+			newData, ok := <-chData
+			if !ok {
+				return io.EOF
+			}
 
-				data = c.getMap(newData)
+			data, err = c.getMap(newData)
+			if err != nil {
+				return err
 			}
 
 			return nil
