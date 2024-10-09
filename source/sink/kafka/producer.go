@@ -13,8 +13,8 @@ func NewProducer(cfg kcfg.Config) (*kafka.Producer, error) {
 	cfgMap := kafka.ConfigMap{
 		kcfg.OptBootstrapServers:     cfg.Brokers,
 		kcfg.OptBatchNumMessages:     cfg.BatchSize,
-		"go.batch.producer":          "true",
-		"delivery.report.only.error": "true",
+		"go.batch.producer":          true,
+		"delivery.report.only.error": true,
 	}
 
 	if cfg.SASLEnabled {
