@@ -52,6 +52,15 @@ func AppendInput(
 	return input
 }
 
+func AppendArrayInput[T any](
+	input proto.Input,
+	columnName string,
+	data *proto.ColArr[T],
+) proto.Input {
+	input = append(input, proto.InputColumn{Name: columnName, Data: data})
+	return input
+}
+
 type column struct {
 	str          *proto.ColStr
 	flt          *proto.ColFloat64
@@ -172,22 +181,22 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 			col.boolArr = new(proto.ColBool).Array()
 			input = AppendInput(input, k, col.boolArr)
 		case [][]string:
-			col.arrStrArray = new(proto.ColArr[[]string])
-			input = AppendInput(input, k, col.arrStrArray)
+			col.arrStrArray = proto.NewArray[[]string](proto.NewArray[string](new(proto.ColStr)))
+			input = AppendArrayInput(input, k, col.arrStrArray)
 		case [][]int64:
-			col.arrIntArray = new(proto.ColArr[[]int64])
-			input = AppendInput(input, k, col.arrIntArray)
+			col.arrIntArray = proto.NewArray[[]int64](proto.NewArray[int64](new(proto.ColInt64)))
+			input = AppendArrayInput(input, k, col.arrIntArray)
 		case [][]float64:
-			col.arrFltArray = new(proto.ColArr[[]float64])
-			input = AppendInput(input, k, col.arrFltArray)
+			col.arrFltArray = proto.NewArray[[]float64](proto.NewArray[float64](new(proto.ColFloat64)))
+			input = AppendArrayInput(input, k, col.arrFltArray)
 		case [][]bool:
-			col.arrBoolArray = new(proto.ColArr[[]bool])
-			input = AppendInput(input, k, col.arrBoolArray)
+			col.arrBoolArray = proto.NewArray[[]bool](proto.NewArray[bool](new(proto.ColBool)))
+			input = AppendArrayInput(input, k, col.arrBoolArray)
 		case uuid.UUID:
 			col.uid = new(proto.ColUUID)
 			input = AppendInput(input, k, col.uid)
 		case time.Time:
-			col.timestamp = new(proto.ColDateTime64)
+			col.timestamp = new(proto.ColDateTime64).WithPrecision(proto.PrecisionMicro)
 			input = AppendInput(input, k, col.timestamp)
 		default:
 			return nil, nil, fmt.Errorf("type val for column %s not found", k)
@@ -200,6 +209,7 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 }
 
 func (c *Clickhouse) write(ctx context.Context, data []map[string]any) error {
+	c.logger.Info().Msgf("%#v", data)
 	if len(data) == 0 {
 		return fmt.Errorf("empty data")
 	}
@@ -233,7 +243,7 @@ func (c *Clickhouse) write(ctx context.Context, data []map[string]any) error {
 		OnInput: func(_ context.Context) error {
 			input.Reset()
 
-			if blocks >= len(data)-1 {
+			if blocks >= len(data) {
 				return io.EOF
 			}
 			for i := range data {
