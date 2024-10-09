@@ -61,12 +61,6 @@ func NewLowLevelClickhouseClient(ctx context.Context, cfg Config) (*LowLevelClic
 			HandshakeTimeout: 10 * time.Second,
 		},
 	})
-	if cfg.AsyncInsert == "" {
-		cfg.AsyncInsert = "1"
-	}
-	if cfg.WaitForAsyncInsert == "" {
-		cfg.WaitForAsyncInsert = "1"
-	}
 	if err != nil {
 		return nil, err
 	}

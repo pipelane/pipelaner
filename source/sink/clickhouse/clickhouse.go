@@ -18,7 +18,7 @@ import (
 
 type Clickhouse struct {
 	logger      *zerolog.Logger
-	clickConfig Config
+	clickConfig *Config
 	client      *LowLevelClickhouseClient
 }
 
@@ -29,11 +29,17 @@ func init() {
 func (c *Clickhouse) Init(ctx *pipelaner.Context) error {
 	c.logger = ctx.Logger()
 
-	err := ctx.LaneItem().Config().ParseExtended(&c.clickConfig)
+	err := ctx.LaneItem().Config().ParseExtended(c.clickConfig)
 	if err != nil {
 		return err
 	}
-	cli, err := NewLowLevelClickhouseClient(ctx.Context(), c.clickConfig)
+	if c.clickConfig.AsyncInsert == "" {
+		c.clickConfig.AsyncInsert = "1"
+	}
+	if c.clickConfig.WaitForAsyncInsert == "" {
+		c.clickConfig.WaitForAsyncInsert = "1"
+	}
+	cli, err := NewLowLevelClickhouseClient(ctx.Context(), *c.clickConfig)
 	if err != nil {
 		return err
 	}
