@@ -14,6 +14,7 @@ func NewProducer(cfg kcfg.Config) (*kafka.Producer, error) {
 		kcfg.OptBootstrapServers: cfg.Brokers,
 		kcfg.OptBatchNumMessages: cfg.BatchSize,
 		"go.batch.producer":      true,
+		"linger.ms":              1000,
 	}
 
 	if cfg.SASLEnabled {
