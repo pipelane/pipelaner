@@ -308,7 +308,6 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 						return err
 					}
 				}
-				return nil
 			}
 			if isClose {
 				return io.EOF
