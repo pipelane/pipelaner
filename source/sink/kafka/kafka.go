@@ -6,6 +6,7 @@ package kafka
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/rs/zerolog"
@@ -59,12 +60,20 @@ func (k *Kafka) write(message []byte) {
 			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 			Value:          message,
 		}, nil); err != nil {
-			k.logger.Error().Err(err).Msgf("kafka produce")
-			return
+			if err.Error() == "Local: Queue full" {
+				fmt.Printf("kafka produce: %v\n", err)
+				k.flush(timeout)
+				k.write(message)
+			}
 		}
 	}
-
-	k.prod.Flush(timeout)
+}
+func (k *Kafka) flush(time int) {
+	for {
+		if k.prod.Flush(time) == 0 {
+			break
+		}
+	}
 }
 
 func (k *Kafka) Sink(_ *pipelaner.Context, val any) {
@@ -79,11 +88,13 @@ func (k *Kafka) Sink(_ *pipelaner.Context, val any) {
 		for vls := range v {
 			k.write(vls)
 		}
+		k.flush(timeout)
 		return
 	case chan string:
 		for vls := range v {
 			k.write([]byte(vls))
 		}
+		k.flush(timeout)
 		return
 	case chan any:
 		for vls := range v {
@@ -94,6 +105,7 @@ func (k *Kafka) Sink(_ *pipelaner.Context, val any) {
 			}
 			k.write(data)
 		}
+		k.flush(timeout)
 		return
 	default:
 		data, err := json.Marshal(val)
@@ -105,4 +117,5 @@ func (k *Kafka) Sink(_ *pipelaner.Context, val any) {
 	}
 
 	k.write(message)
+	k.flush(timeout)
 }

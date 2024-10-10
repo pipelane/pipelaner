@@ -11,12 +11,12 @@ import (
 
 func NewProducer(cfg kcfg.Config) (*kafka.Producer, error) {
 	cfgMap := kafka.ConfigMap{
-		kcfg.OptBootstrapServers: cfg.Brokers,
-		kcfg.OptBatchNumMessages: cfg.BatchSize,
-		"go.batch.producer":      true,
-		"linger.ms":              10000,
-		"queue.buffering.max.ms": 10000,
-		kcfg.OptAcks:             0,
+		kcfg.OptBootstrapServers:          cfg.Brokers,
+		kcfg.OptBatchNumMessages:          cfg.BatchSize,
+		"go.batch.producer":               true,
+		kcfg.OptQueueBufferingMaxMessages: cfg.QueueBufferingMaxMessages,
+		kcfg.QueueBufferingMaxMs:          cfg.QueueBufferingMaxMs,
+		kcfg.LingerMs:                     cfg.LingerMs,
 	}
 
 	if cfg.SASLEnabled {
