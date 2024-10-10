@@ -88,13 +88,11 @@ func (k *Kafka) Sink(_ *pipelaner.Context, val any) {
 		for vls := range v {
 			k.write(vls)
 		}
-		k.flush(timeout)
 		return
 	case chan string:
 		for vls := range v {
 			k.write([]byte(vls))
 		}
-		k.flush(timeout)
 		return
 	case chan any:
 		for vls := range v {
@@ -105,7 +103,6 @@ func (k *Kafka) Sink(_ *pipelaner.Context, val any) {
 			}
 			k.write(data)
 		}
-		k.flush(timeout)
 		return
 	default:
 		data, err := json.Marshal(val)
@@ -117,5 +114,4 @@ func (k *Kafka) Sink(_ *pipelaner.Context, val any) {
 	}
 
 	k.write(message)
-	k.flush(timeout)
 }
