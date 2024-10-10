@@ -6,7 +6,6 @@ package kafka
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/rs/zerolog"
@@ -61,7 +60,6 @@ func (k *Kafka) write(message []byte) {
 			Value:          message,
 		}, nil); err != nil {
 			if err.Error() == "Local: Queue full" {
-				fmt.Printf("kafka produce: %v\n", err)
 				k.flush(timeout)
 				k.write(message)
 			}
