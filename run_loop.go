@@ -124,7 +124,7 @@ func (s *runLoop) start() {
 				case reflect.Pointer, reflect.Slice, reflect.Map, reflect.Struct:
 					m, err := kamino.Clone(msg)
 					if err != nil {
-						return
+						continue
 					}
 					msg = m
 				default:
