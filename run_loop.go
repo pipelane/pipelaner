@@ -124,44 +124,46 @@ func (s *runLoop) start() {
 				case reflect.Pointer, reflect.Slice, reflect.Map, reflect.Struct:
 					m, err := kamino.Clone(msg)
 					if err != nil {
-						return
+						continue
 					}
 					msg = m
 				default:
 				}
 				semaphoreLock()
-				go func(m any) {
-					defer semaphoreUnlock()
-					if s.methods.transform != nil {
-						m = s.methods.transform(s.context, m)
-					}
-					if _, isErr := m.(error); isErr {
-						return
-					}
-					if m == nil {
-						return
-					}
-					s.mx.RLock()
-					// check message type before send to output
-					switch mVal := m.(type) {
-					case chan any: // temp contract solution
-						broadcastChannels(s.outputs, mVal)
-					default:
-						for _, c := range s.outputs {
-							c <- m
-						}
-					}
-					s.mx.RUnlock()
-					if s.methods.sink != nil {
-						s.methods.sink(s.context, m)
-					}
-				}(msg)
+				go s.produceMessages(semaphoreUnlock, msg)
 			case <-s.context.Context().Done():
 				s.stopped.Store(true)
 				return
 			}
 		}
 	}()
+}
+
+func (s *runLoop) produceMessages(unlock func(), m any) {
+	defer unlock()
+	if s.methods.transform != nil {
+		m = s.methods.transform(s.context, m)
+	}
+	if _, isErr := m.(error); isErr {
+		return
+	}
+	if m == nil {
+		return
+	}
+	s.mx.RLock()
+	// check message type before send to output
+	switch mVal := m.(type) {
+	case chan any: // temp contract solution
+		broadcastChannels(s.outputs, mVal)
+	default:
+		for _, c := range s.outputs {
+			c <- m
+		}
+	}
+	s.mx.RUnlock()
+	if s.methods.sink != nil {
+		s.methods.sink(s.context, m)
+	}
 }
 
 func (s *runLoop) createOutput(bufferSize int64) chan any {
