@@ -5,6 +5,7 @@
 package kafka
 
 import (
+	"strings"
 	"time"
 
 	"github.com/docker/go-units"
@@ -95,7 +96,8 @@ func (p *ProducerConfig) GetMaxRequestSize() (int64, error) {
 	if p.MaxRequestSize == nil {
 		return units.FromHumanSize("1MB")
 	}
-	return units.FromHumanSize(*p.MaxRequestSize)
+	str := strings.ReplaceAll(*p.MaxRequestSize, " ", "")
+	return units.FromHumanSize(str)
 }
 func (p *ProducerConfig) GetLingerMs() (int, error) {
 	if p.LingerMs == "" {
