@@ -84,9 +84,9 @@ type ProducerConfig struct {
 	Kafka
 	Config
 	MaxRequestSize            *string `pipelane:"max_request_size"`
-	LingerMs                  *int    `pipelane:"linger_ms"`
+	LingerMs                  string  `pipelane:"linger_ms"`
 	QueueBufferingMaxMessages *int    `pipelane:"queue_buffering_max_messages"`
-	QueueBufferingMaxMs       *int    `pipelane:"queue_buffering_max_ms"`
+	QueueBufferingMaxMs       string  `pipelane:"queue_buffering_max_ms"`
 	BatchSize                 *int    `pipelane:"batch_size"`
 	BatchNumMessages          *int    `pipelane:"batch_num_messages"`
 }
@@ -97,12 +97,15 @@ func (p *ProducerConfig) GetMaxRequestSize() (int64, error) {
 	}
 	return units.FromHumanSize(*p.MaxRequestSize)
 }
-func (p *ProducerConfig) GetLingerMs() int {
-	if p.LingerMs == nil {
-		return 100
+func (p *ProducerConfig) GetLingerMs() (int, error) {
+	if p.LingerMs == "" {
+		return 100, nil
 	}
-	l := *p.LingerMs
-	return l
+	l, err := time.ParseDuration(p.LingerMs)
+	if err != nil {
+		return 0, err
+	}
+	return int(l.Milliseconds()), nil
 }
 func (p *ProducerConfig) GetQueueBufferingMaxMessages() int {
 	if p.QueueBufferingMaxMessages == nil {
@@ -111,12 +114,15 @@ func (p *ProducerConfig) GetQueueBufferingMaxMessages() int {
 	l := *p.QueueBufferingMaxMessages
 	return l
 }
-func (p *ProducerConfig) GetQueueBufferingMaxMs() int {
-	if p.QueueBufferingMaxMs == nil {
-		return 1_000
+func (p *ProducerConfig) GetQueueBufferingMaxMs() (int, error) {
+	if p.QueueBufferingMaxMs == "" {
+		return 1_000, nil
 	}
-	l := *p.QueueBufferingMaxMs
-	return l
+	l, err := time.ParseDuration(p.QueueBufferingMaxMs)
+	if err != nil {
+		return 0, err
+	}
+	return int(l.Milliseconds()), nil
 }
 
 func (p *ProducerConfig) GetBatchSize() int {
