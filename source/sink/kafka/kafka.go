@@ -18,7 +18,7 @@ const timeout = 15 * 1000
 
 type Kafka struct {
 	logger *zerolog.Logger
-	cfg    kCfg.Config
+	cfg    kCfg.ProducerConfig
 	prod   *kafka.Producer
 }
 

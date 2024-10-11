@@ -9,14 +9,20 @@ import (
 	kcfg "github.com/pipelane/pipelaner/source/shared/kafka"
 )
 
-func NewProducer(cfg kcfg.Config) (*kafka.Producer, error) {
+func NewProducer(cfg kcfg.ProducerConfig) (*kafka.Producer, error) {
+	maxSize, err := cfg.GetMaxRequestSize()
+	if err != nil {
+		return nil, err
+	}
 	cfgMap := kafka.ConfigMap{
 		kcfg.OptBootstrapServers:          cfg.Brokers,
-		kcfg.OptBatchNumMessages:          cfg.BatchSize,
+		kcfg.OptBatchSize:                 cfg.GetBatchSize(),
+		kcfg.OptBatchNumMessages:          cfg.GetBatchNumMessages(),
 		"go.batch.producer":               true,
-		kcfg.OptQueueBufferingMaxMessages: cfg.QueueBufferingMaxMessages,
-		kcfg.QueueBufferingMaxMs:          cfg.QueueBufferingMaxMs,
-		kcfg.LingerMs:                     cfg.LingerMs,
+		kcfg.OptQueueBufferingMaxMessages: cfg.GetQueueBufferingMaxMessages(),
+		kcfg.OptQueueBufferingMaxMs:       cfg.GetQueueBufferingMaxMs(),
+		kcfg.OptLingerMs:                  cfg.GetLingerMs(),
+		kcfg.OptMaxRequestSize:            maxSize,
 	}
 
 	if cfg.SASLEnabled {

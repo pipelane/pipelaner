@@ -13,7 +13,7 @@ import (
 
 type Kafka struct {
 	cons   *kafka.Consumer
-	cfg    kcfg.Config
+	cfg    kcfg.ConsumerConfig
 	logger *zerolog.Logger
 }
 
