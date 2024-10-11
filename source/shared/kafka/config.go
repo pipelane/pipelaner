@@ -42,6 +42,7 @@ const (
 	OptMaxRequestSize                   = "max.request.size"
 	SecuritySaslPlainText               = "sasl_plaintext"
 	OptMaxPartitionFetchBytes           = "max.partition.fetch.bytes"
+	OptFetchMaxBytes                    = "fetch.max.bytes"
 )
 
 type Kafka struct {
@@ -55,26 +56,38 @@ type Kafka struct {
 }
 
 type Config struct {
-	SchemaRegistry string `pipelane:"schema_registry"`
-	pipelaner.Internal
+	SchemaRegistry     string `pipelane:"schema_registry"`
+	pipelaner.Internal `pipelane:",squash"`
 }
 
 type ConsumerConfig struct {
-	Kafka
-	Config
+	Kafka                  `pipelane:",squash"`
+	Config                 `pipelane:",squash"`
 	AutoCommitEnabled      bool          `pipelane:"auto_commit_enabled"`
 	ConsumerGroupID        string        `pipelane:"consumer_group_id"`
 	OffsetNewest           bool          `pipelane:"offset_newest"`
-	MaxPartitionFetchBytes *string       `pipelane:"max_partition_fetch_bytes"`
+	MaxPartitionFetchBytes string        `pipelane:"max_partition_fetch_bytes"`
 	AutoOffsetReset        string        `pipelane:"auto_offset_reset"`
 	ReadTopicTimeout       time.Duration `pipelane:"read_topic_timeout"`
+	FetchMaxBytes          string        `pipelane:"fetch_max_bytes"`
 }
 
 func (c *ConsumerConfig) GetMaxPartitionFetchBytes() (int, error) {
-	if c.MaxPartitionFetchBytes == nil {
+	if c.MaxPartitionFetchBytes == "" {
 		return 52_428_800, nil
 	}
-	v, err := units.FromHumanSize(*c.MaxPartitionFetchBytes)
+	v, err := units.FromHumanSize(c.MaxPartitionFetchBytes)
+	if err != nil {
+		return 0, err
+	}
+	return int(v), nil
+}
+
+func (c *ConsumerConfig) GetFetchMaxBytesBytes() (int, error) {
+	if c.FetchMaxBytes == "" {
+		return 104_857_600, nil
+	}
+	v, err := units.FromHumanSize(c.MaxPartitionFetchBytes)
 	if err != nil {
 		return 0, err
 	}
@@ -82,21 +95,21 @@ func (c *ConsumerConfig) GetMaxPartitionFetchBytes() (int, error) {
 }
 
 type ProducerConfig struct {
-	Kafka
-	Config
-	MaxRequestSize            *string `pipelane:"max_request_size"`
-	LingerMs                  string  `pipelane:"linger_ms"`
-	QueueBufferingMaxMessages *int    `pipelane:"queue_buffering_max_messages"`
-	QueueBufferingMaxMs       string  `pipelane:"queue_buffering_max_ms"`
-	BatchSize                 *int    `pipelane:"batch_size"`
-	BatchNumMessages          *int    `pipelane:"batch_num_messages"`
+	Kafka                     `pipelane:",squash"`
+	Config                    `pipelane:",squash"`
+	MaxRequestSize            string `pipelane:"max_request_size"`
+	LingerMs                  string `pipelane:"linger_ms"`
+	QueueBufferingMaxMessages *int   `pipelane:"queue_buffering_max_messages"`
+	QueueBufferingMaxMs       string `pipelane:"queue_buffering_max_ms"`
+	BatchSize                 *int   `pipelane:"batch_size"`
+	BatchNumMessages          *int   `pipelane:"batch_num_messages"`
 }
 
 func (p *ProducerConfig) GetMaxRequestSize() (int64, error) {
-	if p.MaxRequestSize == nil {
+	if p.MaxRequestSize == "" {
 		return units.FromHumanSize("1MB")
 	}
-	str := strings.ReplaceAll(*p.MaxRequestSize, " ", "")
+	str := strings.ReplaceAll(p.MaxRequestSize, " ", "")
 	return units.FromHumanSize(str)
 }
 func (p *ProducerConfig) GetLingerMs() (int, error) {

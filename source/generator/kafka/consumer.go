@@ -12,6 +12,10 @@ func NewConsumer(cfg kcfg.ConsumerConfig) (*kafka.Consumer, error) {
 	if err != nil {
 		return nil, err
 	}
+	maxByteFetch, err := cfg.GetFetchMaxBytesBytes()
+	if err != nil {
+		return nil, err
+	}
 	cfgMap := kafka.ConfigMap{
 		kcfg.OptBootstrapServers:       cfg.Brokers,
 		kcfg.OptGroupID:                cfg.ConsumerGroupID,
@@ -22,6 +26,7 @@ func NewConsumer(cfg kcfg.ConsumerConfig) (*kafka.Consumer, error) {
 		kcfg.OptSessionTimeoutMs:       10000,
 		kcfg.OptHeartBeatIntervalMs:    1500,
 		kcfg.OptMaxPartitionFetchBytes: v,
+		kcfg.OptFetchMaxBytes:          maxByteFetch,
 	}
 
 	if cfg.SASLEnabled {
