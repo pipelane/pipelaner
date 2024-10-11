@@ -38,7 +38,7 @@ const (
 	OptFetchMinBytes                    = "fetch.min.bytes"
 	OptQueueBufferingMaxMs              = "queue.buffering.max.ms"
 	OptLingerMs                         = "linger.ms"
-	OptMaxRequestSize                   = "max_request_size"
+	OptMaxRequestSize                   = "max.request.size"
 	SecuritySaslPlainText               = "sasl_plaintext"
 	OptMaxPartitionFetchBytes           = "max.partition.fetch.bytes"
 )
