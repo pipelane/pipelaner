@@ -103,12 +103,20 @@ type ProducerConfig struct {
 
 // GetMaxRequestSize "B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" OR "B",
 // "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB".
-func (p *ProducerConfig) GetMaxRequestSize() (int64, error) {
+func (p *ProducerConfig) GetMaxRequestSize() (int, error) {
 	if p.MaxRequestSize == "" {
-		return units.FromHumanSize("50MiB")
+		v, e := units.FromHumanSize("50MiB")
+		if e != nil {
+			return 0, e
+		}
+		return int(v), nil
 	}
 	str := strings.ReplaceAll(p.MaxRequestSize, " ", "")
-	return units.FromHumanSize(str)
+	v, e := units.FromHumanSize(str)
+	if e != nil {
+		return 0, e
+	}
+	return int(v), nil
 }
 
 // GetLingerMs "1 ms and etc".
