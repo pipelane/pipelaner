@@ -8,6 +8,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.29.0
 	github.com/LastPossum/kamino v0.0.1
 	github.com/confluentinc/confluent-kafka-go/v2 v2.5.4
+	github.com/docker/go-units v0.5.0
 	github.com/expr-lang/expr v1.16.9
 	github.com/goccy/go-json v0.10.3
 	github.com/google/uuid v1.6.0
