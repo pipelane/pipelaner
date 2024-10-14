@@ -83,7 +83,7 @@ func (c *ConsumerConfig) GetMaxPartitionFetchBytes() (int, error) {
 	return int(v), nil
 }
 
-func (c *ConsumerConfig) GetFetchMaxBytesBytes() (int, error) {
+func (c *ConsumerConfig) GetFetchMaxBytes() (int, error) {
 	if c.FetchMaxBytes == "" {
 		return 104_857_600, nil
 	}
@@ -107,7 +107,7 @@ type ProducerConfig struct {
 
 func (p *ProducerConfig) GetMaxRequestSize() (int64, error) {
 	if p.MaxRequestSize == "" {
-		return units.FromHumanSize("50MB")
+		return units.FromHumanSize("50MiB")
 	}
 	str := strings.ReplaceAll(p.MaxRequestSize, " ", "")
 	return units.FromHumanSize(str)

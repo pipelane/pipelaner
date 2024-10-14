@@ -12,7 +12,7 @@ func NewConsumer(cfg kcfg.ConsumerConfig) (*kafka.Consumer, error) {
 	if err != nil {
 		return nil, err
 	}
-	maxByteFetch, err := cfg.GetFetchMaxBytesBytes()
+	maxByteFetch, err := cfg.GetFetchMaxBytes()
 	if err != nil {
 		return nil, err
 	}
