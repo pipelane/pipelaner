@@ -107,7 +107,7 @@ type ProducerConfig struct {
 
 func (p *ProducerConfig) GetMaxRequestSize() (int64, error) {
 	if p.MaxRequestSize == "" {
-		return units.FromHumanSize("1MB")
+		return units.FromHumanSize("50MB")
 	}
 	str := strings.ReplaceAll(p.MaxRequestSize, " ", "")
 	return units.FromHumanSize(str)
