@@ -30,7 +30,7 @@ const (
 	OptQueueBufferingMaxMessages = "queue.buffering.max.messages"
 	OptQueueBufferingMaxMs       = "queue.buffering.max.ms"
 	OptLingerMs                  = "linger.ms"
-	OptMaxRequestSize            = "max.request.size"
+	OptMaxRequestSize            = "message.max.bytes" // https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md
 	SecuritySaslPlainText        = "sasl_plaintext"
 	OptMaxPartitionFetchBytes    = "max.partition.fetch.bytes"
 	OptFetchMaxBytes             = "fetch.max.bytes"
