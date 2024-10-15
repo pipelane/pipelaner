@@ -105,7 +105,7 @@ type ProducerConfig struct {
 // "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB".
 func (p *ProducerConfig) GetMaxRequestSize() (int, error) {
 	if p.MaxRequestSize == "" {
-		v, e := units.FromHumanSize("50MiB")
+		v, e := units.FromHumanSize("10MiB")
 		if e != nil {
 			return 0, e
 		}
