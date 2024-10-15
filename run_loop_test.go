@@ -220,7 +220,7 @@ func TestSubscriber_SubscribeChunks(t *testing.T) {
 				threadsCount:    1,
 				bufferSize:      100,
 			},
-			want: []int{
+			want: []any{
 				0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
 			},
 		},
@@ -231,14 +231,13 @@ func TestSubscriber_SubscribeChunks(t *testing.T) {
 				threadsCount:    100,
 				bufferSize:      100,
 			},
-			want: []int{
+			want: []any{
 				0, 1, 2,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			inc := 0
 			tCount := tt.args.threadsCount
 			input := newRunLoop(tt.args.bufferSize, &tCount)
 			transform := newRunLoop(tt.args.bufferSize, &tCount)
@@ -262,11 +261,12 @@ func TestSubscriber_SubscribeChunks(t *testing.T) {
 				},
 				generator: func(_ *Context, input chan<- any) {
 					for {
-						ch := make(chan int, tt.args.iterationsCount)
-						for i := 0; inc < tt.args.iterationsCount; i++ {
-							ch <- inc
+						ch := make(chan any, tt.args.iterationsCount)
+						for i := 0; i < tt.args.iterationsCount; i++ {
+							ch <- i
 						}
 						input <- ch
+						close(ch)
 						time.Sleep(time.Second * 10)
 						cancel()
 						return
