@@ -83,7 +83,7 @@ func (c *ConsumerConfig) GetFetchMaxBytes() (int, error) {
 	if c.FetchMaxBytes == "" {
 		return 104_857_600, nil
 	}
-	v, err := units.FromHumanSize(c.MaxPartitionFetchBytes)
+	v, err := units.FromHumanSize(c.FetchMaxBytes)
 	if err != nil {
 		return 0, err
 	}
