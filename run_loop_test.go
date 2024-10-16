@@ -16,21 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func newCfg(
-	itemType LaneTypes, //nolint:unparam
-	extended map[string]any,
-) *BaseLaneConfig {
-	c, err := NewBaseConfigWithTypeAndExtended(
-		itemType,
-		"test_maps_sinks",
-		extended,
-	)
-	if err != nil {
-		return nil
-	}
-	return c
-}
-
 func TestSubscriber_Run_Receive(t *testing.T) {
 	type args struct {
 		iterationsCount int
@@ -257,7 +242,7 @@ func TestSubscriber_SubscribeChunks(t *testing.T) {
 			gen.Generator()
 			locked := atomic.Bool{}
 			method := methods{
-				transform: func(ctx *Context, val any) any {
+				transform: func(_ *Context, val any) any {
 					gen.Input() <- val
 					if locked.Load() {
 						return nil
@@ -275,21 +260,17 @@ func TestSubscriber_SubscribeChunks(t *testing.T) {
 							res = append(res, v.(int))
 							wg.Done()
 						}
-
 					}
 				},
 				generator: func(_ *Context, input chan<- any) {
-					for {
-						ch := make(chan any, tt.args.iterationsCount)
-						for i := 0; i < tt.args.iterationsCount; i++ {
-							ch <- i
-						}
-						input <- ch
-						close(ch)
-						time.Sleep(time.Second * 10)
-						cancel()
-						return
+					ch := make(chan any, tt.args.iterationsCount)
+					for i := 0; i < tt.args.iterationsCount; i++ {
+						ch <- i
 					}
+					input <- ch
+					close(ch)
+					time.Sleep(time.Second * 10)
+					cancel()
 				},
 			}
 			input.setGenerator(method.generator)

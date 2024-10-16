@@ -8,10 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//func TestMain(m *testing.M) {
-//	goleak.VerifyTestMain(m)
-//}
-
 func TestChunks(t *testing.T) {
 	type args struct {
 		cfg Config
@@ -65,17 +61,6 @@ func TestChunksOfChunks(t *testing.T) {
 		args args
 		want any
 	}{
-		//{
-		//	name: "Test chunks fo int",
-		//	args: args{
-		//		cfg: Config{
-		//			MaxChunkSize: 3,
-		//			BufferSize:   3,
-		//			MaxIdleTime:  time.Second * 10,
-		//		},
-		//	},
-		//	want: []any{0, 1, 2},
-		//},
 		{
 			name: "Test chunks of structs",
 			args: args{
@@ -107,20 +92,17 @@ func TestChunksOfChunks(t *testing.T) {
 				chunk.Input() <- ch
 				cancel()
 				close(ch)
-				//go func() {
-				//	time.Sleep(time.Second * 10)
-				//
-				//}()
 			}()
 			buff := chunk.GetChunks()
 			output := <-buff
 			var got testStructs
+			var ok bool
 			for out := range output {
 				for v := range out {
-					got = v.(testStructs)
+					got, ok = v.(testStructs)
+					assert.True(t, ok)
 				}
 			}
-
 			assert.Equal(t, tt.want, got)
 		})
 	}
