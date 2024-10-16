@@ -17,9 +17,10 @@ import (
 const timeout = 15 * 1000
 
 type Kafka struct {
-	logger *zerolog.Logger
-	cfg    kCfg.ProducerConfig
-	prod   *kafka.Producer
+	logger       *zerolog.Logger
+	cfg          kCfg.ProducerConfig
+	prod         *kafka.Producer
+	deliveryChan chan kafka.Event
 }
 
 func init() {
@@ -39,9 +40,9 @@ func (k *Kafka) Init(ctx *pipelaner.Context) error {
 	}
 
 	k.prod = p
-
+	k.deliveryChan = make(chan kafka.Event, k.cfg.GetQueueBufferingMaxMessages())
 	go func() {
-		for e := range k.prod.Events() {
+		for e := range k.deliveryChan {
 			if ev, ok := e.(*kafka.Message); ok {
 				if ev.TopicPartition.Error != nil {
 					k.logger.Error().Err(ev.TopicPartition.Error).Msgf("delivered failed")
@@ -58,8 +59,9 @@ func (k *Kafka) write(message []byte) {
 		if err := k.prod.Produce(&kafka.Message{
 			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 			Value:          message,
-		}, nil); err != nil {
+		}, k.deliveryChan); err != nil {
 			if err.Error() == "Local: Queue full" {
+				k.logger.Error().Err(err).Msg("Requeue")
 				k.flush(timeout)
 				k.write(message)
 			}
