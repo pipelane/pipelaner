@@ -80,6 +80,9 @@ func (c *Chunks[T]) Generator() {
 				close(buffer)
 				return
 			case <-timer.C:
+				if counter.Load() == 0 {
+					continue
+				}
 				close(buffer)
 				counter.Store(0)
 				buffer = c.NewChunk()
