@@ -25,11 +25,21 @@ func (c *Console) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
-func (c *Console) Sink(_ *pipelaner.Context, val any) {
+func (c *Console) Sink(ctx *pipelaner.Context, val any) {
 	switch v := val.(type) {
 	case chan any:
 		for vals := range v {
-			c.logger.Info().Msg(fmt.Sprintf("%v", vals))
+			c.Sink(ctx, vals)
+		}
+		return
+	case chan []byte:
+		for vals := range v {
+			c.Sink(ctx, vals)
+		}
+		return
+	case chan []string:
+		for vals := range v {
+			c.Sink(ctx, vals)
 		}
 		return
 	default:

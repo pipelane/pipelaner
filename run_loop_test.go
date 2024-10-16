@@ -8,9 +8,11 @@ import (
 	"context"
 	"sort"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/pipelane/pipelaner/source/shared/chunker"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -220,7 +222,7 @@ func TestSubscriber_SubscribeChunks(t *testing.T) {
 				threadsCount:    1,
 				bufferSize:      100,
 			},
-			want: []any{
+			want: []int{
 				0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
 			},
 		},
@@ -231,7 +233,7 @@ func TestSubscriber_SubscribeChunks(t *testing.T) {
 				threadsCount:    100,
 				bufferSize:      100,
 			},
-			want: []any{
+			want: []int{
 				0, 1, 2,
 			},
 		},
@@ -242,21 +244,38 @@ func TestSubscriber_SubscribeChunks(t *testing.T) {
 			input := newRunLoop(tt.args.bufferSize, &tCount)
 			transform := newRunLoop(tt.args.bufferSize, &tCount)
 			sink := newRunLoop(tt.args.bufferSize, &tCount)
-			var res []any
+			var res []int
 			c, cancel := context.WithCancel(context.Background())
 			wg := sync.WaitGroup{}
 			mx := sync.Mutex{}
 			wg.Add(tt.args.iterationsCount)
+			gen := chunker.NewChunks[any](context.Background(), chunker.Config{
+				MaxChunkSize: tt.args.iterationsCount,
+				BufferSize:   2,
+				MaxIdleTime:  time.Second * 10,
+			})
+			gen.Generator()
+			locked := atomic.Bool{}
 			method := methods{
 				transform: func(ctx *Context, val any) any {
-					return val
+					gen.Input() <- val
+					if locked.Load() {
+						return nil
+					}
+					locked.Store(true)
+					defer locked.Store(false)
+					v := <-gen.GetChunks()
+					return v
 				},
 				sink: func(_ *Context, val any) {
 					mx.Lock()
 					defer mx.Unlock()
-					for v := range val.(chan any) {
-						res = append(res, v)
-						wg.Done()
+					for vch := range val.(chan any) {
+						for v := range vch.(chan any) {
+							res = append(res, v.(int))
+							wg.Done()
+						}
+
 					}
 				},
 				generator: func(_ *Context, input chan<- any) {
@@ -292,7 +311,7 @@ func TestSubscriber_SubscribeChunks(t *testing.T) {
 			transform.start()
 			sink.start()
 			wg.Wait()
-			//sort.Ints(res)
+			sort.Ints(res)
 			assert.Equal(t, res, tt.want)
 		})
 	}

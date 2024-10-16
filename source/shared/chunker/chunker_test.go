@@ -1,4 +1,4 @@
-package chunks
+package chunker
 
 import (
 	"context"
