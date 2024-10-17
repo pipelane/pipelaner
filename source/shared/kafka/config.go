@@ -97,7 +97,7 @@ type ProducerConfig struct {
 	LingerMs                  string `pipelane:"linger_ms"`
 	QueueBufferingMaxMessages *int   `pipelane:"queue_buffering_max_messages"`
 	QueueBufferingMaxMs       string `pipelane:"queue_buffering_max_ms"`
-	BatchSize                 *int   `pipelane:"batch_size"`
+	BatchSize                 string `pipelane:"batch_size"`
 	BatchNumMessages          *int   `pipelane:"batch_num_messages"`
 }
 
@@ -150,12 +150,20 @@ func (p *ProducerConfig) GetQueueBufferingMaxMs() (int, error) {
 	return int(l.Milliseconds()), nil
 }
 
-func (p *ProducerConfig) GetBatchSize() int {
-	if p.BatchSize == nil {
-		return 16_000_000
+func (p *ProducerConfig) GetBatchSize() (int, error) {
+	if p.BatchSize == "" {
+		v, e := units.FromHumanSize("16MiB")
+		if e != nil {
+			return 0, e
+		}
+		return int(v), nil
 	}
-	l := *p.BatchSize
-	return l
+	str := strings.ReplaceAll(p.BatchSize, " ", "")
+	v, e := units.FromHumanSize(str)
+	if e != nil {
+		return 0, e
+	}
+	return int(v), nil
 }
 
 func (p *ProducerConfig) GetBatchNumMessages() int {

@@ -22,9 +22,14 @@ func NewProducer(cfg kcfg.ProducerConfig) (*kafka.Producer, error) {
 	if err != nil {
 		return nil, err
 	}
+	bSize, err := cfg.GetBatchSize()
+	if err != nil {
+		return nil, err
+	}
+
 	cfgMap := kafka.ConfigMap{
 		kcfg.OptBootstrapServers:          cfg.Brokers,
-		kcfg.OptBatchSize:                 cfg.GetBatchSize(),
+		kcfg.OptBatchSize:                 bSize,
 		kcfg.OptBatchNumMessages:          cfg.GetBatchNumMessages(),
 		"go.batch.producer":               true,
 		kcfg.OptQueueBufferingMaxMessages: cfg.GetQueueBufferingMaxMessages(),
