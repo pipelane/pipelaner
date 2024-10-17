@@ -74,10 +74,11 @@ type Internal struct {
 }
 
 type BaseLaneConfig struct {
-	BufferSize int64    `pipelane:"buffer"`
-	Threads    *int64   `pipelane:"threads"`
-	SourceName string   `pipelane:"source_name"`
-	Inputs     []string `pipelane:"inputs"`
+	OutputBufferSize           int64    `pipelane:"output_buffer_size"`
+	Threads                    *int64   `pipelane:"threads"`
+	StartGCAfterMessageProcess bool     `pipelane:"start_gc_after_message_process"`
+	SourceName                 string   `pipelane:"source_name"`
+	Inputs                     []string `pipelane:"inputs"`
 	Internal
 }
 
@@ -132,8 +133,8 @@ func NewBaseConfigWithTypeAndExtended(
 	if itemType == InputType {
 		c.Inputs = nil
 	}
-	if c.BufferSize == 0 {
-		c.BufferSize = 1
+	if c.OutputBufferSize == 0 {
+		c.OutputBufferSize = 1
 	}
 	return &c, nil
 }

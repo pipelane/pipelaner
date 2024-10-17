@@ -80,7 +80,7 @@ func (l *LaneItem) addOutputs(output *LaneItem) {
 }
 
 func (l *LaneItem) Subscribe(output *LaneItem) {
-	outputCh := l.runLoop.createOutput(output.cfg.BufferSize)
+	outputCh := l.runLoop.createOutput(output.cfg.OutputBufferSize)
 	output.runLoop.setInputChannel(outputCh)
 	ctx := withContext(l.runLoop.context)
 	output.runLoop.setContext(ctx)
@@ -90,7 +90,7 @@ func NewLaneItem(
 	config *BaseLaneConfig,
 ) *LaneItem {
 	return &LaneItem{
-		runLoop: newRunLoop(config.BufferSize, config.Threads),
+		runLoop: newRunLoop(config.OutputBufferSize, config.Threads, config.StartGCAfterMessageProcess),
 		cfg:     config,
 	}
 }

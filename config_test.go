@@ -31,15 +31,15 @@ func Test_newConfig(t *testing.T) {
 			args: args{
 				tomlString: `
 [input.input1]
-buffer = 1
+output_buffer = 1
 source_name = "int"
 	`,
 			},
 			want: &Config{
 				Input: map[string]any{
 					"input1": map[string]any{
-						"buffer":      int64(1),
-						"source_name": "int",
+						"output_buffer": int64(1),
+						"source_name":   "int",
 					},
 				},
 				Map:  nil,
@@ -52,7 +52,7 @@ source_name = "int"
 			args: args{
 				tomlString: `
 [map.map2]
-buffer = 1
+output_buffer = 1
 source_name = "int"
 	`,
 			},
@@ -60,8 +60,8 @@ source_name = "int"
 				Input: nil,
 				Map: map[string]any{
 					"map2": map[string]any{
-						"buffer":      int64(1),
-						"source_name": "int",
+						"output_buffer": int64(1),
+						"source_name":   "int",
 					},
 				},
 				Sink: nil,
@@ -73,7 +73,7 @@ source_name = "int"
 			args: args{
 				tomlString: `
 [sink.sink3]
-buffer = 1
+output_buffer = 1
 source_name = "int"
 	`,
 			},
@@ -82,8 +82,8 @@ source_name = "int"
 				Map:   nil,
 				Sink: map[string]any{
 					"sink3": map[string]any{
-						"buffer":      int64(1),
-						"source_name": "int",
+						"output_buffer": int64(1),
+						"source_name":   "int",
 					},
 				},
 			},
@@ -94,33 +94,33 @@ source_name = "int"
 			args: args{
 				tomlString: `
 [input.input1]
-buffer = 10
+output_buffer = 10
 source_name = "input_int"
 [map.map2]
-buffer = 20
+output_buffer = 20
 source_name = "map_int"
 [sink.sink3]
-buffer = 30
+output_buffer = 30
 source_name = "sink_int"
 	`,
 			},
 			want: &Config{
 				Input: map[string]any{
 					"input1": map[string]any{
-						"buffer":      int64(10),
-						"source_name": "input_int",
+						"output_buffer": int64(10),
+						"source_name":   "input_int",
 					},
 				},
 				Map: map[string]any{
 					"map2": map[string]any{
-						"buffer":      int64(20),
-						"source_name": "map_int",
+						"output_buffer": int64(20),
+						"source_name":   "map_int",
 					},
 				},
 				Sink: map[string]any{
 					"sink3": map[string]any{
-						"buffer":      int64(30),
-						"source_name": "sink_int",
+						"output_buffer": int64(30),
+						"source_name":   "sink_int",
 					},
 				},
 			},
@@ -131,13 +131,13 @@ source_name = "sink_int"
 			args: args{
 				tomlString: `
 [input.input1
-buffer = 10
+output_buffer = 10
 source_name = "input_int"
 [map.map2]
-buffer = 20
+output_buffer = 20
 source_name = "map_int"
 [sink.sink3]
-buffer = 30
+output_buffer = 30
 source_name = "sink_int"
 	`,
 			},
@@ -179,26 +179,26 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				itemType: InputType,
 				name:     "input1",
 				extended: map[string]any{
-					"buffer":      int64(1),
-					"source_name": "int",
-					"host":        "0.0.0.0",
-					"port":        "8080",
+					"output_buffer": int64(1),
+					"source_name":   "int",
+					"host":          "0.0.0.0",
+					"port":          "8080",
 				},
 			},
 			want: &BaseLaneConfig{
-				BufferSize: 1,
-				Threads:    nil,
-				SourceName: "int",
-				Inputs:     nil,
+				OutputBufferSize: 1,
+				Threads:          nil,
+				SourceName:       "int",
+				Inputs:           nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
 					Extended: nil,
 					_extended: map[string]any{
-						"buffer":      int64(1),
-						"source_name": "int",
-						"host":        "0.0.0.0",
-						"port":        "8080",
+						"output_buffer": int64(1),
+						"source_name":   "int",
+						"host":          "0.0.0.0",
+						"port":          "8080",
 					},
 				},
 			},
@@ -215,10 +215,10 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				},
 			},
 			want: &BaseLaneConfig{
-				BufferSize: 1,
-				Threads:    nil,
-				SourceName: "int",
-				Inputs:     nil,
+				OutputBufferSize: 1,
+				Threads:          nil,
+				SourceName:       "int",
+				Inputs:           nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
@@ -238,26 +238,26 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				itemType: InputType,
 				name:     "input1",
 				extended: map[string]any{
-					"buffer":      int64(0),
-					"source_name": "int",
-					"host":        "0.0.0.0",
-					"port":        "8080",
+					"output_buffer": int64(0),
+					"source_name":   "int",
+					"host":          "0.0.0.0",
+					"port":          "8080",
 				},
 			},
 			want: &BaseLaneConfig{
-				BufferSize: 1,
-				Threads:    nil,
-				SourceName: "int",
-				Inputs:     nil,
+				OutputBufferSize: 1,
+				Threads:          nil,
+				SourceName:       "int",
+				Inputs:           nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
 					Extended: nil,
 					_extended: map[string]any{
-						"buffer":      int64(0),
-						"source_name": "int",
-						"host":        "0.0.0.0",
-						"port":        "8080",
+						"output_buffer": int64(0),
+						"source_name":   "int",
+						"host":          "0.0.0.0",
+						"port":          "8080",
 					},
 				},
 			},
@@ -275,10 +275,10 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				},
 			},
 			want: &BaseLaneConfig{
-				BufferSize: 1,
-				Threads:    nil,
-				SourceName: "int",
-				Inputs:     []string{"input_name"},
+				OutputBufferSize: 1,
+				Threads:          nil,
+				SourceName:       "int",
+				Inputs:           []string{"input_name"},
 				Internal: Internal{
 					Name:     "sink1",
 					LaneType: SinkType,
@@ -305,10 +305,10 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				},
 			},
 			want: &BaseLaneConfig{
-				BufferSize: 1,
-				Threads:    nil,
-				SourceName: "int",
-				Inputs:     []string{"input_name"},
+				OutputBufferSize: 1,
+				Threads:          nil,
+				SourceName:       "int",
+				Inputs:           []string{"input_name"},
 				Internal: Internal{
 					Name:     "map1",
 					LaneType: MapType,
@@ -351,7 +351,7 @@ func Test_NewBaseConfigWithTypeAndExtendedFromToml(t *testing.T) {
 			args: args{
 				tomlString: `
 [input.input1]
-buffer = 1
+output_buffer = 1
 source_name = "int"
 host = "0.0.0.0"
 port = "8080"
@@ -360,19 +360,19 @@ port = "8080"
 				name:     "input1",
 			},
 			want: &BaseLaneConfig{
-				BufferSize: 1,
-				Threads:    nil,
-				SourceName: "int",
-				Inputs:     nil,
+				OutputBufferSize: 1,
+				Threads:          nil,
+				SourceName:       "int",
+				Inputs:           nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
 					Extended: nil,
 					_extended: map[string]any{
-						"buffer":      int64(1),
-						"source_name": "int",
-						"host":        "0.0.0.0",
-						"port":        "8080",
+						"output_buffer": int64(1),
+						"source_name":   "int",
+						"host":          "0.0.0.0",
+						"port":          "8080",
 					},
 				},
 			},
@@ -390,10 +390,10 @@ port = "8080"
 				name:     "input1",
 			},
 			want: &BaseLaneConfig{
-				BufferSize: 1,
-				Threads:    nil,
-				SourceName: "int",
-				Inputs:     nil,
+				OutputBufferSize: 1,
+				Threads:          nil,
+				SourceName:       "int",
+				Inputs:           nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
@@ -411,7 +411,7 @@ port = "8080"
 			args: args{
 				tomlString: `
 [input.input1]
-buffer = 0
+output_buffer = 0
 source_name = "int"
 host = "0.0.0.0"
 port = "8080"
@@ -420,19 +420,19 @@ port = "8080"
 				name:     "input1",
 			},
 			want: &BaseLaneConfig{
-				BufferSize: 1,
-				Threads:    nil,
-				SourceName: "int",
-				Inputs:     nil,
+				OutputBufferSize: 1,
+				Threads:          nil,
+				SourceName:       "int",
+				Inputs:           nil,
 				Internal: Internal{
 					Name:     "input1",
 					LaneType: InputType,
 					Extended: nil,
 					_extended: map[string]any{
-						"buffer":      int64(0),
-						"source_name": "int",
-						"host":        "0.0.0.0",
-						"port":        "8080",
+						"output_buffer": int64(0),
+						"source_name":   "int",
+						"host":          "0.0.0.0",
+						"port":          "8080",
 					},
 				},
 			},
@@ -451,10 +451,10 @@ inputs = ["input_name"]
 				name:     "sink1",
 			},
 			want: &BaseLaneConfig{
-				BufferSize: 1,
-				Threads:    nil,
-				SourceName: "int",
-				Inputs:     []string{"input_name"},
+				OutputBufferSize: 1,
+				Threads:          nil,
+				SourceName:       "int",
+				Inputs:           []string{"input_name"},
 				Internal: Internal{
 					Name:     "sink1",
 					LaneType: SinkType,
@@ -482,10 +482,10 @@ inputs = ["input_name"]
 				name:     "map1",
 			},
 			want: &BaseLaneConfig{
-				BufferSize: 1,
-				Threads:    nil,
-				SourceName: "int",
-				Inputs:     []string{"input_name"},
+				OutputBufferSize: 1,
+				Threads:          nil,
+				SourceName:       "int",
+				Inputs:           []string{"input_name"},
 				Internal: Internal{
 					Name:     "map1",
 					LaneType: MapType,
@@ -547,7 +547,7 @@ func TestBaseLaneConfig_ParseExtended(t *testing.T) {
 			args: args{
 				tomlString: `
 [input.input1]
-buffer = 1
+output_buffer = 1
 source_name = "int"
 host = "0.0.0.0"
 port = "8080"
@@ -565,7 +565,7 @@ port = "8080"
 			args: args{
 				tomlString: `
 [input.input1]
-buffer = 1
+output_buffer = 1
 source_name = "int"
 host = "0.0.0.0"
 `,
@@ -630,7 +630,7 @@ func TestBaseLaneConfig_ParseExtendedArrays(t *testing.T) {
 			args: args{
 				tomlString: `
 [input.input1]
-buffer = 1
+output_buffer = 1
 source_name = "int"
 hosts = ["0.0.0.0", "1.1.1.1"]
 `,
