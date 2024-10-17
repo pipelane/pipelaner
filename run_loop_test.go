@@ -51,7 +51,7 @@ func TestSubscriber_Run_Receive(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			inc := 0
 			tCount := tt.args.threadsCount
-			s := newRunLoop(100, &tCount)
+			s := newRunLoop(100, &tCount, false)
 			var res []int
 			c, cancel := context.WithCancel(context.Background())
 			wg := sync.WaitGroup{}
@@ -132,9 +132,9 @@ func TestSubscriber_Subscribe(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			inc := 0
 			tCount := tt.args.threadsCount
-			input := newRunLoop(tt.args.bufferSize, &tCount)
-			transform := newRunLoop(tt.args.bufferSize, &tCount)
-			sink := newRunLoop(tt.args.bufferSize, &tCount)
+			input := newRunLoop(tt.args.bufferSize, &tCount, false)
+			transform := newRunLoop(tt.args.bufferSize, &tCount, false)
+			sink := newRunLoop(tt.args.bufferSize, &tCount, false)
 
 			var res []int
 			c, cancel := context.WithCancel(context.Background())
@@ -226,9 +226,9 @@ func TestSubscriber_SubscribeChunks(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tCount := tt.args.threadsCount
-			input := newRunLoop(tt.args.bufferSize, &tCount)
-			transform := newRunLoop(tt.args.bufferSize, &tCount)
-			sink := newRunLoop(tt.args.bufferSize, &tCount)
+			input := newRunLoop(tt.args.bufferSize, &tCount, false)
+			transform := newRunLoop(tt.args.bufferSize, &tCount, false)
+			sink := newRunLoop(tt.args.bufferSize, &tCount, false)
 			var res []int
 			c, cancel := context.WithCancel(context.Background())
 			wg := sync.WaitGroup{}

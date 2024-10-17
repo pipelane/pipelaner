@@ -44,7 +44,7 @@ func (c *Chunk) Init(ctx *pipelaner.Context) error {
 	}
 	c.buffer = chunker.NewChunks[any](ctx.Context(), chunker.Config{
 		MaxChunkSize: int(v.MaxChunkSize),
-		BufferSize:   int(c.cfg.BufferSize),
+		BufferSize:   int(c.cfg.OutputBufferSize),
 		MaxIdleTime:  interval,
 	})
 	c.buffer.Generator()

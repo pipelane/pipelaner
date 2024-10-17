@@ -6,6 +6,7 @@ package pipelaner
 
 import (
 	"reflect"
+	"runtime"
 	"sync"
 	"sync/atomic"
 
@@ -19,6 +20,7 @@ type MethodGenerator func(ctx *Context, input chan<- any)
 type loopCfg struct {
 	bufferSize   int64
 	threadsCount *int64
+	startGC      bool
 }
 
 type methods struct {
@@ -64,12 +66,14 @@ func (s *runLoop) setGenerator(g MethodGenerator) {
 func newRunLoop(
 	bufferSize int64,
 	threadsCount *int64,
+	startGC bool,
 ) *runLoop {
 	s := &runLoop{
 		mx: sync.RWMutex{},
 		cfg: &loopCfg{
 			bufferSize:   bufferSize,
 			threadsCount: threadsCount,
+			startGC:      startGC,
 		},
 		inputs: []chan any{make(chan any, bufferSize)},
 	}
@@ -134,6 +138,9 @@ func (s *runLoop) start() {
 			case <-s.context.Context().Done():
 				s.stopped.Store(true)
 				return
+			}
+			if s.cfg.startGC {
+				runtime.GC()
 			}
 		}
 	}()
