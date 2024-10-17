@@ -9,10 +9,15 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+var (
+	Version string // Version Provisioned by ldflags
+	Commit  string // Commit Provisioned by ldflags
+)
+
 var AppInfo = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 	Name: "app_info",
 	Help: "Application info",
-}, []string{"service_name"})
+}, []string{"version", "commit", "service_name"})
 
 type MetricsServer struct {
 	cfg metricsConfig
@@ -29,7 +34,7 @@ func NewMetricsServer(cfg Config) (*MetricsServer, error) {
 	if cfg.MetricsServiceName == "" {
 		cfg.MetricsServiceName = "pipelaner"
 	}
-	AppInfo.WithLabelValues(cfg.MetricsServiceName).Set(1)
+	AppInfo.WithLabelValues(Version, Commit, cfg.MetricsServiceName).Set(1)
 	return &MetricsServer{cfg: cfg.metricsConfig}, nil
 }
 
