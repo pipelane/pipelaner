@@ -57,7 +57,7 @@ func (c *Kafka) Generate(ctx *pipelaner.Context, input chan<- any) {
 			}
 			if err != nil {
 				c.logger.Error().Err(err).Msg("failed kafka consume")
-				return
+				continue
 			}
 			if msg != nil {
 				input <- msg.Value
