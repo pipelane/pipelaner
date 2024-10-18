@@ -246,7 +246,7 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 		columns map[string]*column
 		data    map[string]any
 	)
-	
+
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -299,7 +299,6 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 			}
 
 			return nil
-
 		},
 		Input: input,
 	}); err != nil {
