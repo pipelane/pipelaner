@@ -42,7 +42,6 @@ func (c *Exec) Generate(ctx *pipelaner.Context, input chan<- any) {
 	var args []string
 	cfg, ok := c.cfg.Extended.(*Config)
 	if !ok {
-		l := ctx.Logger()
 		l.Error().Err(errors.New("invalid config")).Msg("Exec: create stdPipe error")
 		return
 	}

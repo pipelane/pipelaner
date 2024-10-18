@@ -6,15 +6,12 @@ import (
 	kcfg "github.com/pipelane/pipelaner/source/shared/kafka"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"github.com/rs/zerolog"
-
 	"github.com/pipelane/pipelaner"
 )
 
 type Kafka struct {
-	cons   *kafka.Consumer
-	cfg    kcfg.ConsumerConfig
-	logger *zerolog.Logger
+	cons *kafka.Consumer
+	cfg  kcfg.ConsumerConfig
 }
 
 func init() {

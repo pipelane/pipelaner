@@ -47,7 +47,10 @@ func (c *Context) Value() any {
 }
 
 func (c *Context) Logger() zerolog.Logger {
-	v := c.ctx.Value(logKey).(*zerolog.Logger)
+	v, ok := c.ctx.Value(logKey).(*zerolog.Logger)
+	if !ok {
+		return zerolog.Nop()
+	}
 	ctx := v.With().
 		Str("source", c.SourceName()).
 		Str("lane_name", c.LaneName()).
