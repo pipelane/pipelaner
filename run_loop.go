@@ -19,7 +19,7 @@ type MethodGenerator func(ctx *Context, input chan<- any)
 
 type loopCfg struct {
 	bufferSize   int64
-	threadsCount *int64
+	threadsCount int64
 	startGC      bool
 }
 
@@ -65,7 +65,7 @@ func (s *runLoop) setGenerator(g MethodGenerator) {
 
 func newRunLoop(
 	bufferSize int64,
-	threadsCount *int64,
+	threadsCount int64,
 	startGC bool,
 ) *runLoop {
 	s := &runLoop{
@@ -92,8 +92,8 @@ func (s *runLoop) receive() {
 
 func (s *runLoop) start() {
 	var sema chan struct{}
-	if s.cfg.threadsCount != nil {
-		sema = make(chan struct{}, *s.cfg.threadsCount)
+	if s.cfg.threadsCount != 0 {
+		sema = make(chan struct{}, s.cfg.threadsCount)
 	}
 	semaphoreLock := func() {
 		if sema != nil {

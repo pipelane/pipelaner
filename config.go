@@ -6,6 +6,7 @@ package pipelaner
 
 import (
 	"errors"
+	"runtime"
 
 	"github.com/BurntSushi/toml"
 	"github.com/mitchellh/mapstructure"
@@ -74,8 +75,8 @@ type Internal struct {
 }
 
 type BaseLaneConfig struct {
-	OutputBufferSize           int64    `pipelane:"output_buffer_size"`
-	Threads                    *int64   `pipelane:"threads"`
+	OutputBufferSize           int64    `pipelane:"output_buffer"`
+	Threads                    int64    `pipelane:"threads"`
 	StartGCAfterMessageProcess bool     `pipelane:"start_gc_after_message_process"`
 	SourceName                 string   `pipelane:"source_name"`
 	Inputs                     []string `pipelane:"inputs"`
@@ -134,7 +135,10 @@ func NewBaseConfigWithTypeAndExtended(
 		c.Inputs = nil
 	}
 	if c.OutputBufferSize == 0 {
-		c.OutputBufferSize = 1
+		c.OutputBufferSize = int64(runtime.NumCPU())
+	}
+	if c.Threads == 0 {
+		c.Threads = int64(runtime.NumCPU())
 	}
 	return &c, nil
 }
