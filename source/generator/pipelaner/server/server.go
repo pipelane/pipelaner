@@ -6,6 +6,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"io"
 
 	"github.com/rs/zerolog"
@@ -30,11 +31,12 @@ func (s *PipelanerServer) Sink(_ context.Context, message *service.Message) (*em
 func (s *PipelanerServer) SinkStream(stream service.Pipelaner_SinkStreamServer) error {
 	for {
 		message, err := stream.Recv()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
-			return status.Errorf(codes.Unknown, "cannot receive stream request: %v", err)
+			s.logger.Error().Err(err).Msg("Error receiving stream request")
+			return status.Errorf(codes.Internal, "cannot receive stream request: %v", err)
 		}
 		s.buffer <- message
 	}
