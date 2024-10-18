@@ -40,7 +40,8 @@ func init() {
 
 func (e *Remap) Init(ctx *pipelaner.Context) error {
 	e.cfg = ctx.LaneItem().Config()
-	e.logger = ctx.Logger()
+	l := ctx.Logger()
+	e.logger = &l
 	v := &Config{}
 	err := e.cfg.ParseExtended(v)
 	if err != nil {

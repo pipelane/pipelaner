@@ -38,7 +38,8 @@ type Pipelaner struct {
 
 func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 	p.cfg = ctx.LaneItem().Config()
-	p.logger = ctx.Logger()
+	l := ctx.Logger()
+	p.logger = &l
 	v := &Config{}
 	err := p.cfg.ParseExtended(v)
 	if err != nil {

@@ -152,6 +152,9 @@ func (s *runLoop) produceMessages(unlock func(), m any) {
 		m = s.methods.transform(s.context, m)
 	}
 	if _, isErr := m.(error); isErr {
+		logger := s.context.Logger()
+		logger.Error().
+			Err(m.(error)).Msg("run loop error")
 		return
 	}
 	if m == nil {

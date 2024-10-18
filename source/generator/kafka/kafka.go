@@ -22,7 +22,6 @@ func init() {
 }
 
 func (c *Kafka) Init(ctx *pipelaner.Context) error {
-	c.logger = ctx.Logger()
 	err := ctx.LaneItem().Config().ParseExtended(&c.cfg)
 	if err != nil {
 		return err
@@ -44,6 +43,7 @@ func (c *Kafka) Init(ctx *pipelaner.Context) error {
 }
 
 func (c *Kafka) Generate(ctx *pipelaner.Context, input chan<- any) {
+	l := ctx.Logger()
 	for {
 		select {
 		case <-ctx.Context().Done():
@@ -52,11 +52,11 @@ func (c *Kafka) Generate(ctx *pipelaner.Context, input chan<- any) {
 			msg, err := c.cons.ReadMessage(c.cfg.ReadTopicTimeout)
 			var kafkaErr *kafka.Error
 			if err != nil && errors.As(err, &kafkaErr) && kafkaErr.IsTimeout() {
-				c.logger.Warn().Err(err).Msg("kafka consume timeout")
+				l.Warn().Err(err).Msg("kafka consume timeout")
 				continue
 			}
 			if err != nil {
-				c.logger.Error().Err(err).Msg("failed kafka consume")
+				l.Error().Err(err).Msg("failed kafka consume")
 				continue
 			}
 			if msg != nil {

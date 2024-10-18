@@ -28,7 +28,8 @@ func init() {
 }
 
 func (k *Kafka) Init(ctx *pipelaner.Context) error {
-	k.logger = ctx.Logger()
+	l := ctx.Logger()
+	k.logger = &l
 	err := ctx.LaneItem().Config().ParseExtended(&k.cfg)
 	if err != nil {
 		return err
