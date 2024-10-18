@@ -12,6 +12,7 @@ package pipelaner.service;
 
 service Pipelaner {
   rpc Sink (Message) returns (google.protobuf.Empty) {}
+  rpc SinkStream (stream Message) returns (google.protobuf.Empty) {}
 }
 
 message Message {

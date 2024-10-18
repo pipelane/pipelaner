@@ -6,8 +6,12 @@ package server
 
 import (
 	"context"
+	"errors"
+	"io"
 
 	"github.com/rs/zerolog"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/pipelane/pipelaner/source/shared/proto/service"
@@ -22,6 +26,21 @@ type PipelanerServer struct {
 func (s *PipelanerServer) Sink(_ context.Context, message *service.Message) (*emptypb.Empty, error) {
 	s.buffer <- message
 	return &emptypb.Empty{}, nil
+}
+
+func (s *PipelanerServer) SinkStream(stream service.Pipelaner_SinkStreamServer) error {
+	for {
+		message, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			s.logger.Error().Err(err).Msg("Error receiving stream request")
+			return status.Errorf(codes.Internal, "cannot receive stream request: %v", err)
+		}
+		s.buffer <- message
+	}
+	return nil
 }
 
 func NewServer(logger *zerolog.Logger, bufferSize int64) *PipelanerServer {
