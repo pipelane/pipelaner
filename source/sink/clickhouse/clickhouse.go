@@ -246,7 +246,7 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 		columns map[string]*column
 		data    map[string]any
 	)
-
+	
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -263,18 +263,7 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 		if err != nil {
 			return fmt.Errorf("build proto input: %w", err)
 		}
-
-		for k, val := range data {
-			col, okC := columns[k]
-			if !okC {
-				return fmt.Errorf("column %s not found", k)
-			}
-			if err = col.Append(val); err != nil {
-				return err
-			}
-		}
 	}
-
 	if err = conn.Do(ctx, ch.Query{
 		Body: input.Into(c.clickConfig.TableName),
 		Settings: []ch.Setting{
@@ -291,34 +280,31 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 		},
 		OnInput: func(_ context.Context) error {
 			input.Reset()
-			isClose := true
-
-			for newData := range chData {
-				isClose = false
-				data, err = c.getMap(newData)
-				if err != nil {
+			for k, v := range data {
+				col, okC := columns[k]
+				if !okC {
+					return fmt.Errorf("column %s not found", k)
+				}
+				if err = col.Append(v); err != nil {
 					return err
 				}
-				for k, v := range data {
-					col, okC := columns[k]
-					if !okC {
-						return fmt.Errorf("column %s not found", k)
-					}
-					if err = col.Append(v); err != nil {
-						return err
-					}
-				}
 			}
-			if isClose {
+			newData, ok := <-chData
+			if !ok {
 				return io.EOF
 			}
+			data, err = c.getMap(newData)
+			if err != nil {
+				return err
+			}
+
 			return nil
+
 		},
 		Input: input,
 	}); err != nil {
 		return fmt.Errorf("write batch: %w", err)
 	}
-
 	return nil
 }
 

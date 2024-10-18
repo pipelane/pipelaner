@@ -7,6 +7,7 @@ package pipelaner
 import (
 	"errors"
 	"fmt"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -180,6 +181,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				name:     "input1",
 				extended: map[string]any{
 					"output_buffer": int64(1),
+					"threads":       int64(1),
 					"source_name":   "int",
 					"host":          "0.0.0.0",
 					"port":          "8080",
@@ -187,7 +189,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 			},
 			want: &BaseLaneConfig{
 				OutputBufferSize: 1,
-				Threads:          nil,
+				Threads:          1,
 				SourceName:       "int",
 				Inputs:           nil,
 				Internal: Internal{
@@ -196,6 +198,7 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 					Extended: nil,
 					_extended: map[string]any{
 						"output_buffer": int64(1),
+						"threads":       int64(1),
 						"source_name":   "int",
 						"host":          "0.0.0.0",
 						"port":          "8080",
@@ -209,14 +212,16 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				itemType: InputType,
 				name:     "input1",
 				extended: map[string]any{
-					"source_name": "int",
-					"host":        "0.0.0.0",
-					"port":        "8080",
+					"output_buffer": int64(1),
+					"threads":       int64(1),
+					"source_name":   "int",
+					"host":          "0.0.0.0",
+					"port":          "8080",
 				},
 			},
 			want: &BaseLaneConfig{
 				OutputBufferSize: 1,
-				Threads:          nil,
+				Threads:          1,
 				SourceName:       "int",
 				Inputs:           nil,
 				Internal: Internal{
@@ -224,9 +229,11 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 					LaneType: InputType,
 					Extended: nil,
 					_extended: map[string]any{
-						"source_name": "int",
-						"host":        "0.0.0.0",
-						"port":        "8080",
+						"output_buffer": int64(1),
+						"threads":       int64(1),
+						"source_name":   "int",
+						"host":          "0.0.0.0",
+						"port":          "8080",
 					},
 				},
 			},
@@ -238,15 +245,16 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				itemType: InputType,
 				name:     "input1",
 				extended: map[string]any{
-					"output_buffer": int64(0),
+					"output_buffer": int64(runtime.NumCPU()),
+					"threads":       int64(1),
 					"source_name":   "int",
 					"host":          "0.0.0.0",
 					"port":          "8080",
 				},
 			},
 			want: &BaseLaneConfig{
-				OutputBufferSize: 1,
-				Threads:          nil,
+				OutputBufferSize: int64(runtime.NumCPU()),
+				Threads:          1,
 				SourceName:       "int",
 				Inputs:           nil,
 				Internal: Internal{
@@ -254,7 +262,8 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 					LaneType: InputType,
 					Extended: nil,
 					_extended: map[string]any{
-						"output_buffer": int64(0),
+						"output_buffer": int64(runtime.NumCPU()),
+						"threads":       int64(1),
 						"source_name":   "int",
 						"host":          "0.0.0.0",
 						"port":          "8080",
@@ -268,15 +277,17 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				itemType: SinkType,
 				name:     "sink1",
 				extended: map[string]any{
-					"inputs":      []string{"input_name"},
-					"source_name": "int",
-					"host":        "0.0.0.0",
-					"port":        "8080",
+					"inputs":        []string{"input_name"},
+					"source_name":   "int",
+					"host":          "0.0.0.0",
+					"port":          "8080",
+					"output_buffer": int64(1),
+					"threads":       int64(1),
 				},
 			},
 			want: &BaseLaneConfig{
 				OutputBufferSize: 1,
-				Threads:          nil,
+				Threads:          1,
 				SourceName:       "int",
 				Inputs:           []string{"input_name"},
 				Internal: Internal{
@@ -284,10 +295,12 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 					LaneType: SinkType,
 					Extended: nil,
 					_extended: map[string]any{
-						"source_name": "int",
-						"host":        "0.0.0.0",
-						"port":        "8080",
-						"inputs":      []string{"input_name"},
+						"source_name":   "int",
+						"host":          "0.0.0.0",
+						"port":          "8080",
+						"inputs":        []string{"input_name"},
+						"output_buffer": int64(1),
+						"threads":       int64(1),
 					},
 				},
 			},
@@ -298,15 +311,17 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 				itemType: MapType,
 				name:     "map1",
 				extended: map[string]any{
-					"inputs":      []string{"input_name"},
-					"source_name": "int",
-					"host":        "0.0.0.0",
-					"port":        "8080",
+					"inputs":        []string{"input_name"},
+					"source_name":   "int",
+					"host":          "0.0.0.0",
+					"port":          "8080",
+					"output_buffer": int64(1),
+					"threads":       int64(1),
 				},
 			},
 			want: &BaseLaneConfig{
 				OutputBufferSize: 1,
-				Threads:          nil,
+				Threads:          1,
 				SourceName:       "int",
 				Inputs:           []string{"input_name"},
 				Internal: Internal{
@@ -314,10 +329,12 @@ func Test_NewBaseConfigWithTypeAndExtended(t *testing.T) {
 					LaneType: MapType,
 					Extended: nil,
 					_extended: map[string]any{
-						"source_name": "int",
-						"host":        "0.0.0.0",
-						"port":        "8080",
-						"inputs":      []string{"input_name"},
+						"output_buffer": int64(1),
+						"threads":       int64(1),
+						"source_name":   "int",
+						"host":          "0.0.0.0",
+						"port":          "8080",
+						"inputs":        []string{"input_name"},
 					},
 				},
 			},
@@ -352,6 +369,7 @@ func Test_NewBaseConfigWithTypeAndExtendedFromToml(t *testing.T) {
 				tomlString: `
 [input.input1]
 output_buffer = 1
+threads = 1
 source_name = "int"
 host = "0.0.0.0"
 port = "8080"
@@ -361,7 +379,7 @@ port = "8080"
 			},
 			want: &BaseLaneConfig{
 				OutputBufferSize: 1,
-				Threads:          nil,
+				Threads:          1,
 				SourceName:       "int",
 				Inputs:           nil,
 				Internal: Internal{
@@ -370,6 +388,7 @@ port = "8080"
 					Extended: nil,
 					_extended: map[string]any{
 						"output_buffer": int64(1),
+						"threads":       int64(1),
 						"source_name":   "int",
 						"host":          "0.0.0.0",
 						"port":          "8080",
@@ -385,13 +404,15 @@ port = "8080"
 source_name = "int"
 host = "0.0.0.0"
 port = "8080"
+threads = 1
+output_buffer = 1
 `,
 				itemType: InputType,
 				name:     "input1",
 			},
 			want: &BaseLaneConfig{
 				OutputBufferSize: 1,
-				Threads:          nil,
+				Threads:          1,
 				SourceName:       "int",
 				Inputs:           nil,
 				Internal: Internal{
@@ -399,9 +420,11 @@ port = "8080"
 					LaneType: InputType,
 					Extended: nil,
 					_extended: map[string]any{
-						"source_name": "int",
-						"host":        "0.0.0.0",
-						"port":        "8080",
+						"source_name":   "int",
+						"host":          "0.0.0.0",
+						"port":          "8080",
+						"output_buffer": int64(1),
+						"threads":       int64(1),
 					},
 				},
 			},
@@ -411,7 +434,8 @@ port = "8080"
 			args: args{
 				tomlString: `
 [input.input1]
-output_buffer = 0
+output_buffer = 1
+threads = 1
 source_name = "int"
 host = "0.0.0.0"
 port = "8080"
@@ -421,7 +445,7 @@ port = "8080"
 			},
 			want: &BaseLaneConfig{
 				OutputBufferSize: 1,
-				Threads:          nil,
+				Threads:          1,
 				SourceName:       "int",
 				Inputs:           nil,
 				Internal: Internal{
@@ -429,10 +453,11 @@ port = "8080"
 					LaneType: InputType,
 					Extended: nil,
 					_extended: map[string]any{
-						"output_buffer": int64(0),
 						"source_name":   "int",
 						"host":          "0.0.0.0",
 						"port":          "8080",
+						"output_buffer": int64(1),
+						"threads":       int64(1),
 					},
 				},
 			},
@@ -446,13 +471,15 @@ source_name = "int"
 host = "0.0.0.0"
 port = "8080"
 inputs = ["input_name"]
+output_buffer = 1
+threads = 1
 `,
 				itemType: SinkType,
 				name:     "sink1",
 			},
 			want: &BaseLaneConfig{
 				OutputBufferSize: 1,
-				Threads:          nil,
+				Threads:          1,
 				SourceName:       "int",
 				Inputs:           []string{"input_name"},
 				Internal: Internal{
@@ -460,10 +487,12 @@ inputs = ["input_name"]
 					LaneType: SinkType,
 					Extended: nil,
 					_extended: map[string]any{
-						"source_name": "int",
-						"host":        "0.0.0.0",
-						"port":        "8080",
-						"inputs":      []any{"input_name"},
+						"source_name":   "int",
+						"host":          "0.0.0.0",
+						"port":          "8080",
+						"inputs":        []any{"input_name"},
+						"output_buffer": int64(1),
+						"threads":       int64(1),
 					},
 				},
 			},
@@ -477,13 +506,15 @@ source_name = "int"
 host = "0.0.0.0"
 port = "8080"
 inputs = ["input_name"]
+output_buffer = 1
+threads = 1
 `,
 				itemType: MapType,
 				name:     "map1",
 			},
 			want: &BaseLaneConfig{
 				OutputBufferSize: 1,
-				Threads:          nil,
+				Threads:          1,
 				SourceName:       "int",
 				Inputs:           []string{"input_name"},
 				Internal: Internal{
@@ -491,10 +522,12 @@ inputs = ["input_name"]
 					LaneType: MapType,
 					Extended: nil,
 					_extended: map[string]any{
-						"source_name": "int",
-						"host":        "0.0.0.0",
-						"port":        "8080",
-						"inputs":      []any{"input_name"},
+						"source_name":   "int",
+						"host":          "0.0.0.0",
+						"port":          "8080",
+						"inputs":        []any{"input_name"},
+						"output_buffer": int64(1),
+						"threads":       int64(1),
 					},
 				},
 			},
