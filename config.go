@@ -183,6 +183,7 @@ func decode(input map[string]any, output any) error {
 	dC := &mapstructure.DecoderConfig{
 		TagName: "pipelane",
 		Result:  output,
+		Squash:  true,
 	}
 	dec, err := mapstructure.NewDecoder(dC)
 	if err != nil {
