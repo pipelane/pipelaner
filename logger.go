@@ -26,13 +26,14 @@ func initLogger(cfg *Config) (*zerolog.Logger, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	zerolog.TimeFieldFormat = time.RFC3339Nano
 	if cfg.EnableConsole {
 		if cfg.LogFormat == LogFormatJSON {
 			writers = append(writers, os.Stdout)
 		} else {
 			writers = append(writers, zerolog.ConsoleWriter{
-				Out:        os.Stderr,
-				TimeFormat: time.RFC3339Nano,
+				Out: os.Stderr,
 			})
 		}
 	}
