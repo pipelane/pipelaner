@@ -7,6 +7,7 @@ package pipelaner
 import (
 	"errors"
 	"fmt"
+	"os"
 	"runtime"
 	"testing"
 
@@ -704,6 +705,136 @@ hosts = ["0.0.0.0", "1.1.1.1"]
 				return
 			}
 			assert.Equalf(t, got, tt.want, fmt.Sprintf("ParseExtended(%v)", tt.args.tomlString))
+		})
+	}
+}
+
+func Test_injectEnvs(t *testing.T) {
+	type args struct {
+		cfg string
+	}
+	tests := []struct {
+		name      string
+		args      args
+		want      string
+		wantError bool
+		setup     func()
+	}{
+		{
+			name: "test inject single string value",
+			args: args{
+				cfg: `
+# Get normalized data
+[input.kafka_consumer]
+source_name = "kafka"
+batch_size = "32KiB"
+sasl_enabled = true
+sasl_mechanism = "$KAFKA_SASL_MECHANISM$"
+sasl_password = "$KAFKA_SASL_PASSWORD$"
+sasl_username = "$KAFKA_SASL_USERNAME$"
+`,
+			},
+			want: `
+# Get normalized data
+[input.kafka_consumer]
+source_name = "kafka"
+batch_size = "32KiB"
+sasl_enabled = true
+sasl_mechanism = "PLAIN"
+sasl_password = "123"
+sasl_username = "321"
+`,
+			wantError: false,
+			setup: func() {
+				err := os.Setenv("KAFKA_SASL_MECHANISM", "PLAIN")
+				assert.NoError(t, err)
+				err = os.Setenv("KAFKA_SASL_PASSWORD", "123")
+				assert.NoError(t, err)
+				err = os.Setenv("KAFKA_SASL_USERNAME", "321")
+				assert.NoError(t, err)
+			},
+		},
+		{
+			name: "test inject array and single string value",
+			args: args{
+				cfg: `
+# Get normalized data
+[input.kafka_consumer]
+source_name = "kafka"
+batch_size = "32KiB"
+sasl_enabled = true
+sasl_mechanism = "$KAFKA_SASL_MECHANISM$"
+sasl_password = "$KAFKA_SASL_PASSWORD$"
+sasl_username = "$KAFKA_SASL_USERNAME$"
+topics = ["$KAFKA_TOPICS$"]
+`,
+			},
+			want: `
+# Get normalized data
+[input.kafka_consumer]
+source_name = "kafka"
+batch_size = "32KiB"
+sasl_enabled = true
+sasl_mechanism = "PLAIN"
+sasl_password = "123"
+sasl_username = "321"
+topics = ["1","2"]
+`,
+			wantError: false,
+			setup: func() {
+				err := os.Setenv("KAFKA_SASL_MECHANISM", "PLAIN")
+				assert.NoError(t, err)
+				err = os.Setenv("KAFKA_SASL_PASSWORD", "123")
+				assert.NoError(t, err)
+				err = os.Setenv("KAFKA_SASL_USERNAME", "321")
+				assert.NoError(t, err)
+				err = os.Setenv("KAFKA_TOPICS", "\"1\",\"2\"")
+				assert.NoError(t, err)
+			},
+		},
+		{
+			name: "test inject single string with error",
+			args: args{
+				cfg: `
+# Get normalized data
+[input.kafka_consumer]
+source_name = "kafka"
+batch_size = "32KiB"
+sasl_enabled = true
+sasl_mechanism = "$KAFKA_SASL_MECHANISM$"
+sasl_password = "$KAFKA_SASL_PASSWORD$"
+sasl_username = "$KAFKA_SASL_USERNAME$"
+`,
+			},
+			want: `
+# Get normalized data
+[input.kafka_consumer]
+source_name = "kafka"
+batch_size = "32KiB"
+sasl_enabled = true
+sasl_mechanism = "PLAIN"
+sasl_password = "123"
+sasl_username = "321"
+`,
+			wantError: true,
+			setup: func() {
+				err := os.Setenv("KAFKA_SASL_MECHANISM", "PLAIN")
+				assert.NoError(t, err)
+				err = os.Setenv("KAFKA_SASL_PASSWORD", "123")
+				assert.NoError(t, err)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setup()
+			got, err := injectEnvs([]byte(tt.args.cfg))
+			if tt.wantError && err != nil {
+				assert.Error(t, err, "injectEnvs() error = %v, wantErr %v", err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equalf(t, tt.want, got, "injectEnvs(%v)", tt.args.cfg)
 		})
 	}
 }

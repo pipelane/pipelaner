@@ -6,7 +6,11 @@ package pipelaner
 
 import (
 	"errors"
+	"fmt"
+	"os"
+	"regexp"
 	"runtime"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/mitchellh/mapstructure"
@@ -14,6 +18,7 @@ import (
 
 var (
 	ErrNameNotBeEmptyString = errors.New("ErrNameNotBeEmptyString")
+	ErrEnvNotFound          = errors.New("ErrEnvNotFound")
 )
 
 type LaneTypes string
@@ -142,10 +147,42 @@ func NewBaseConfigWithTypeAndExtended(
 	}
 	return &c, nil
 }
+func readCfg(file string) (string, error) {
+	bytes, err := os.ReadFile(file)
+	if err != nil {
+		return "", err
+	}
+	return injectEnvs(bytes)
+}
+
+func injectEnvs(cfg []byte) (string, error) {
+	newCfg := string(cfg)
+	var re = regexp.MustCompile(`(?m)("\$)\S*(\$")`)
+	for _, match := range re.FindAllString(string(cfg), -1) {
+		envName := strings.ReplaceAll(match, "\"$", "")
+		envName = strings.ReplaceAll(envName, "$\"", "")
+		envName = strings.ReplaceAll(envName, " ", "")
+		envValue := os.Getenv(envName)
+		if envValue == "" {
+			return "", fmt.Errorf("env var %s not set", match)
+		}
+
+		if len(strings.Split(envValue, ",")) > 1 {
+			newCfg = strings.ReplaceAll(newCfg, match, envValue)
+		} else {
+			newCfg = strings.ReplaceAll(newCfg, match, fmt.Sprintf("\"%s\"", envValue))
+		}
+	}
+	return newCfg, nil
+}
 
 func ReadToml(file string) (map[string]any, error) {
 	var c map[string]any
-	_, err := toml.DecodeFile(file, &c)
+	cfg, err := readCfg(file)
+	if err != nil {
+		return nil, err
+	}
+	_, err = toml.Decode(cfg, &c)
 	if err != nil {
 		return nil, err
 	}
