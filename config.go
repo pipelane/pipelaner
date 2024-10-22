@@ -162,7 +162,7 @@ func injectEnvs(cfg []byte) (string, error) {
 		envName := strings.ReplaceAll(match, "\"$", "")
 		envName = strings.ReplaceAll(envName, "$\"", "")
 		envName = strings.ReplaceAll(envName, " ", "")
-		envValue := os.Getenv(envName)
+		envValue := os.Getenv(strings.ToUpper(envName))
 		if envValue == "" {
 			return "", fmt.Errorf("env var %s not set", match)
 		}

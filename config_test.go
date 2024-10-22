@@ -755,6 +755,40 @@ sasl_username = "321"
 			},
 		},
 		{
+			name: "test inject single lowercased string value",
+			args: args{
+				cfg: `
+# Get normalized data
+[input.kafka_consumer]
+source_name = "kafka"
+batch_size = "32KiB"
+sasl_enabled = true
+sasl_mechanism = "$kafka_sasl_mechanism$"
+sasl_password = "$kafka_sasl_password$"
+sasl_username = "$kafka_sasl_username$"
+`,
+			},
+			want: `
+# Get normalized data
+[input.kafka_consumer]
+source_name = "kafka"
+batch_size = "32KiB"
+sasl_enabled = true
+sasl_mechanism = "PLAIN"
+sasl_password = "123"
+sasl_username = "321"
+`,
+			wantError: false,
+			setup: func() {
+				err := os.Setenv("KAFKA_SASL_MECHANISM", "PLAIN")
+				assert.NoError(t, err)
+				err = os.Setenv("KAFKA_SASL_PASSWORD", "123")
+				assert.NoError(t, err)
+				err = os.Setenv("KAFKA_SASL_USERNAME", "321")
+				assert.NoError(t, err)
+			},
+		},
+		{
 			name: "test inject array and single string value",
 			args: args{
 				cfg: `
