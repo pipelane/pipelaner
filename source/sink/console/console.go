@@ -21,7 +21,8 @@ func init() {
 }
 
 func (c *Console) Init(ctx *pipelaner.Context) error {
-	c.logger = ctx.Logger()
+	l := ctx.Logger()
+	c.logger = &l
 	return nil
 }
 

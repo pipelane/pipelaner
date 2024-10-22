@@ -26,6 +26,16 @@ func NewContext(ctx context.Context, laneItem *LaneItem) *Context {
 	c, cancel := context.WithCancel(ctx)
 	return &Context{ctx: c, laneItem: laneItem, cancel: cancel}
 }
+func (c *Context) LaneName() string {
+	return c.laneItem.cfg.Name
+}
+
+func (c *Context) LaneType() LaneTypes {
+	return c.laneItem.cfg.LaneType
+}
+func (c *Context) SourceName() string {
+	return c.laneItem.cfg.SourceName
+}
 
 func withContext(parent *Context) *Context {
 	c, cancel := context.WithCancel(parent.ctx)
@@ -36,12 +46,16 @@ func (c *Context) Value() any {
 	return c.value
 }
 
-func (c *Context) Logger() *zerolog.Logger {
+func (c *Context) Logger() zerolog.Logger {
 	v, ok := c.ctx.Value(logKey).(*zerolog.Logger)
 	if !ok {
-		return nil
+		return zerolog.Nop()
 	}
-	return v
+	ctx := v.With().
+		Str("source", c.SourceName()).
+		Str("lane_name", c.LaneName()).
+		Str("type", string(c.LaneType()))
+	return ctx.Logger()
 }
 
 func (c *Context) ReturnValue(value any) error {

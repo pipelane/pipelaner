@@ -9,7 +9,6 @@ import (
 	"github.com/pipelane/pipelaner/source/generator/pipelaner/server"
 	grpc_server "github.com/pipelane/pipelaner/source/shared/grpc_server"
 
-	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
@@ -28,9 +27,8 @@ type Config struct {
 }
 
 type Pipelaner struct {
-	logger *zerolog.Logger
-	cfg    *pipelaner.BaseLaneConfig
-	srv    *server.PipelanerServer
+	cfg *pipelaner.BaseLaneConfig
+	srv *server.PipelanerServer
 }
 
 func init() {
@@ -39,7 +37,6 @@ func init() {
 
 func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 	p.cfg = ctx.LaneItem().Config()
-	p.logger = ctx.Logger()
 
 	v := &Config{}
 	err := p.cfg.ParseExtended(v)
@@ -51,11 +48,12 @@ func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 		host = *v.Host
 	}
 
+	l := ctx.Logger()
 	var opts []grpc.ServerOption
 	if v.TLS {
 		cred, errs := credentials.NewServerTLSFromFile(v.CertFile, v.KeyFile)
 		if errs != nil {
-			p.logger.Fatal().Err(errs).Msg("Failed to generate credentials")
+			l.Fatal().Err(errs).Msg("Failed to generate credentials")
 		}
 		opts = []grpc.ServerOption{grpc.Creds(cred)}
 	}
@@ -66,9 +64,8 @@ func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 		ConnectionType: v.ConnectionType,
 		UnixSocketPath: v.UnixSocketPath,
 		Opts:           opts,
-	}, p.logger)
-
-	p.srv = server.NewServer(p.logger, p.cfg.OutputBufferSize)
+	}, &l)
+	p.srv = server.NewServer(&l, p.cfg.OutputBufferSize)
 	serv.Serve(func(s *grpc.Server) {
 		service.RegisterPipelanerServer(s, p.srv)
 	})
@@ -77,6 +74,7 @@ func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
 }
 
 func (p *Pipelaner) Generate(ctx *pipelaner.Context, input chan<- any) {
+	l := ctx.Logger()
 	for m := range p.srv.Recv() {
 		select {
 		case <-ctx.Context().Done():
@@ -91,7 +89,7 @@ func (p *Pipelaner) Generate(ctx *pipelaner.Context, input chan<- any) {
 				var v map[string]any
 				err := json.Unmarshal(m.GetJsonValue(), &v)
 				if err != nil {
-					p.logger.Error().Err(err).Msg("Error invalid unmarshal json data")
+					l.Error().Err(err).Msg("Error invalid unmarshal json data")
 					continue
 				}
 				input <- v
