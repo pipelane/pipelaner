@@ -97,6 +97,7 @@ func (l *LaneItem) Subscribe(output *LaneItem) {
 	outputCh := l.runLoop.createOutput(output.cfg.OutputBufferSize)
 	output.runLoop.setInputChannel(outputCh)
 	ctx := withContext(l.runLoop.context)
+	ctx.laneItem = output
 	output.runLoop.setContext(ctx)
 }
 
