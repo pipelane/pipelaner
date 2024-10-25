@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/BurntSushi/toml"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -716,7 +717,7 @@ func Test_injectEnvs(t *testing.T) {
 	tests := []struct {
 		name      string
 		args      args
-		want      string
+		want      map[string]any
 		wantError bool
 		setup     func()
 	}{
@@ -734,16 +735,18 @@ sasl_password = "$KAFKA_SASL_PASSWORD$"
 sasl_username = "$KAFKA_SASL_USERNAME$"
 `,
 			},
-			want: `
-# Get normalized data
-[input.kafka_consumer]
-source_name = "kafka"
-batch_size = "32KiB"
-sasl_enabled = true
-sasl_mechanism = "PLAIN"
-sasl_password = "123"
-sasl_username = "321"
-`,
+			want: map[string]any{
+				"input": map[string]any{
+					"kafka_consumer": map[string]any{
+						"source_name":    "kafka",
+						"batch_size":     "32KiB",
+						"sasl_enabled":   true,
+						"sasl_mechanism": "PLAIN",
+						"sasl_password":  "123",
+						"sasl_username":  "321",
+					},
+				},
+			},
 			wantError: false,
 			setup: func() {
 				err := os.Setenv("KAFKA_SASL_MECHANISM", "PLAIN")
@@ -768,16 +771,18 @@ sasl_password = "$kafka_sasl_password$"
 sasl_username = "$kafka_sasl_username$"
 `,
 			},
-			want: `
-# Get normalized data
-[input.kafka_consumer]
-source_name = "kafka"
-batch_size = "32KiB"
-sasl_enabled = true
-sasl_mechanism = "PLAIN"
-sasl_password = "123"
-sasl_username = "321"
-`,
+			want: map[string]any{
+				"input": map[string]any{
+					"kafka_consumer": map[string]any{
+						"source_name":    "kafka",
+						"batch_size":     "32KiB",
+						"sasl_enabled":   true,
+						"sasl_mechanism": "PLAIN",
+						"sasl_password":  "123",
+						"sasl_username":  "321",
+					},
+				},
+			},
 			wantError: false,
 			setup: func() {
 				err := os.Setenv("KAFKA_SASL_MECHANISM", "PLAIN")
@@ -803,17 +808,19 @@ sasl_username = "$KAFKA_SASL_USERNAME$"
 topics = ["$KAFKA_TOPICS$"]
 `,
 			},
-			want: `
-# Get normalized data
-[input.kafka_consumer]
-source_name = "kafka"
-batch_size = "32KiB"
-sasl_enabled = true
-sasl_mechanism = "PLAIN"
-sasl_password = "123"
-sasl_username = "321"
-topics = ["1","2"]
-`,
+			want: map[string]any{
+				"input": map[string]any{
+					"kafka_consumer": map[string]any{
+						"source_name":    "kafka",
+						"batch_size":     "32KiB",
+						"sasl_enabled":   true,
+						"sasl_mechanism": "PLAIN",
+						"sasl_password":  "123",
+						"sasl_username":  "321",
+						"topics":         []string{"1", "2"},
+					},
+				},
+			},
 			wantError: false,
 			setup: func() {
 				err := os.Setenv("KAFKA_SASL_MECHANISM", "PLAIN")
@@ -822,7 +829,7 @@ topics = ["1","2"]
 				assert.NoError(t, err)
 				err = os.Setenv("KAFKA_SASL_USERNAME", "321")
 				assert.NoError(t, err)
-				err = os.Setenv("KAFKA_TOPICS", "\"1\",\"2\"")
+				err = os.Setenv("KAFKA_TOPICS", "1,2")
 				assert.NoError(t, err)
 			},
 		},
@@ -840,16 +847,18 @@ sasl_password = "$KAFKA_SASL_PASSWORD$"
 sasl_username = "$KAFKA_SASL_USERNAME$"
 `,
 			},
-			want: `
-# Get normalized data
-[input.kafka_consumer]
-source_name = "kafka"
-batch_size = "32KiB"
-sasl_enabled = true
-sasl_mechanism = "PLAIN"
-sasl_password = "123"
-sasl_username = "321"
-`,
+			want: map[string]any{
+				"input": map[string]any{
+					"kafka_consumer": map[string]any{
+						"source_name":    "kafka",
+						"batch_size":     "32KiB",
+						"sasl_enabled":   true,
+						"sasl_mechanism": "PLAIN",
+						"sasl_password":  "123",
+						"sasl_username":  "321",
+					},
+				},
+			},
 			wantError: true,
 			setup: func() {
 				err := os.Setenv("KAFKA_SASL_MECHANISM", "PLAIN")
@@ -862,7 +871,10 @@ sasl_username = "321"
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setup()
-			got, err := injectEnvs([]byte(tt.args.cfg))
+			var got map[string]any
+			_, err := toml.Decode(tt.args.cfg, &got)
+			assert.NoError(t, err)
+			err = recursiveReplace(got)
 			if tt.wantError && err != nil {
 				assert.Error(t, err, "injectEnvs() error = %v, wantErr %v", err)
 				return
