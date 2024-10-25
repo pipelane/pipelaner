@@ -164,7 +164,12 @@ func recursiveReplace(cfg map[string]any) error {
 	for k, v := range cfg {
 		switch val := v.(type) {
 		case map[string]any:
-			return recursiveReplace(val)
+			err := recursiveReplace(val)
+			if err != nil {
+				return err
+			}
+			cfg[k] = val
+			continue
 		case string:
 			e, err := findEnvValue(val)
 			if err != nil {
@@ -172,10 +177,14 @@ func recursiveReplace(cfg map[string]any) error {
 			}
 			cfg[k] = e
 		case []any:
-			if len(val) == 0 || len(val) > 1 {
+			if len(val) == 0 {
 				return fmt.Errorf("invalid env var %s array", k)
 			}
-			e, err := findEnvValue(val[0].(string))
+			vals, ok := val[0].(string)
+			if !ok {
+				return nil
+			}
+			e, err := findEnvValue(vals)
 			if err != nil {
 				return err
 			}

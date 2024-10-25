@@ -867,6 +867,44 @@ sasl_username = "$KAFKA_SASL_USERNAME$"
 				assert.NoError(t, err)
 			},
 		},
+		{
+			name: "test inject array of int",
+			args: args{
+				cfg: `
+# Get normalized data
+[input.kafka_consumer]
+source_name = "kafka"
+batch_size = "32KiB"
+sasl_enabled = true
+sasl_mechanism = "$KAFKA_SASL_MECHANISM$"
+sasl_password = "$KAFKA_SASL_PASSWORD$"
+sasl_username = "$KAFKA_SASL_USERNAME$"
+slice_array = [1, 2, 3] 
+`,
+			},
+			want: map[string]any{
+				"input": map[string]any{
+					"kafka_consumer": map[string]any{
+						"source_name":    "kafka",
+						"batch_size":     "32KiB",
+						"sasl_enabled":   true,
+						"sasl_mechanism": "PLAIN",
+						"sasl_password":  "123",
+						"sasl_username":  "321",
+						"slice_array":    []any{int64(1), int64(2), int64(3)},
+					},
+				},
+			},
+			wantError: false,
+			setup: func() {
+				err := os.Setenv("KAFKA_SASL_MECHANISM", "PLAIN")
+				assert.NoError(t, err)
+				err = os.Setenv("KAFKA_SASL_PASSWORD", "123")
+				assert.NoError(t, err)
+				err = os.Setenv("KAFKA_SASL_USERNAME", "321")
+				assert.NoError(t, err)
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
