@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"regexp"
 	"runtime"
 	"strings"
 
@@ -147,46 +146,57 @@ func NewBaseConfigWithTypeAndExtended(
 	}
 	return &c, nil
 }
-func readCfg(file string) (string, error) {
-	bytes, err := os.ReadFile(file)
-	if err != nil {
-		return "", err
-	}
-	return injectEnvs(bytes)
-}
-
-func injectEnvs(cfg []byte) (string, error) {
-	newCfg := string(cfg)
-	var re = regexp.MustCompile(`(?m)("\$)\S*(\$")`)
-	for _, match := range re.FindAllString(string(cfg), -1) {
-		envName := strings.ReplaceAll(match, "\"$", "")
-		envName = strings.ReplaceAll(envName, "$\"", "")
-		envName = strings.ReplaceAll(envName, " ", "")
-		envValue := os.Getenv(strings.ToUpper(envName))
-		if envValue == "" {
-			return "", fmt.Errorf("env var %s not set", match)
-		}
-
-		if len(strings.Split(envValue, ",")) > 1 {
-			newCfg = strings.ReplaceAll(newCfg, match, envValue)
-		} else {
-			newCfg = strings.ReplaceAll(newCfg, match, fmt.Sprintf("\"%s\"", envValue))
-		}
-	}
-	return newCfg, nil
-}
 
 func ReadToml(file string) (map[string]any, error) {
 	var c map[string]any
-	cfg, err := readCfg(file)
+	_, err := toml.DecodeFile(file, &c)
 	if err != nil {
 		return nil, err
 	}
-	_, err = toml.Decode(cfg, &c)
+	err = recursiveReplace(c)
 	if err != nil {
 		return nil, err
 	}
 	return c, nil
+}
+
+func recursiveReplace(cfg map[string]any) error {
+	for k, v := range cfg {
+		switch val := v.(type) {
+		case map[string]any:
+			return recursiveReplace(val)
+		case string:
+			e, err := findEnvValue(val)
+			if err != nil {
+				return err
+			}
+			cfg[k] = e
+		case []any:
+			if len(val) == 0 || len(val) > 1 {
+				return fmt.Errorf("invalid env var %s array", k)
+			}
+			e, err := findEnvValue(val[0].(string))
+			if err != nil {
+				return err
+			}
+			cfg[k] = strings.Split(e, ",")
+		}
+	}
+	return nil
+}
+
+func findEnvValue(val string) (string, error) {
+	if strings.HasSuffix(val, "$") && strings.HasPrefix(val, "$") {
+		envName := strings.ReplaceAll(val, "$", "")
+		envName = strings.ReplaceAll(envName, "$", "")
+		envName = strings.ReplaceAll(envName, " ", "")
+		envValue := os.Getenv(strings.ToUpper(envName))
+		if envValue == "" {
+			return "", fmt.Errorf("env var %s not set", envValue)
+		}
+		return envValue, nil
+	}
+	return val, nil
 }
 
 func decodeTomlString(str string) (map[string]any, error) {
