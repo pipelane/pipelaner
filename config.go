@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"regexp"
 	"runtime"
 	"strings"
 
@@ -146,34 +145,6 @@ func NewBaseConfigWithTypeAndExtended(
 		c.Threads = int64(runtime.NumCPU())
 	}
 	return &c, nil
-}
-func readCfg(file string) (string, error) {
-	bytes, err := os.ReadFile(file)
-	if err != nil {
-		return "", err
-	}
-	return injectEnvs(bytes)
-}
-
-func injectEnvs(cfg []byte) (string, error) {
-	newCfg := string(cfg)
-	var re = regexp.MustCompile(`(?m)("\$)\S*(\$")`)
-	for _, match := range re.FindAllString(string(cfg), -1) {
-		envName := strings.ReplaceAll(match, "\"$", "")
-		envName = strings.ReplaceAll(envName, "$\"", "")
-		envName = strings.ReplaceAll(envName, " ", "")
-		envValue := os.Getenv(strings.ToUpper(envName))
-		if envValue == "" {
-			return "", fmt.Errorf("env var %s not set", match)
-		}
-
-		if len(strings.Split(envValue, ",")) > 1 {
-			newCfg = strings.ReplaceAll(newCfg, match, envValue)
-		} else {
-			newCfg = strings.ReplaceAll(newCfg, match, fmt.Sprintf("\"%s\"", envValue))
-		}
-	}
-	return newCfg, nil
 }
 
 func ReadToml(file string) (map[string]any, error) {
