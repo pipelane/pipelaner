@@ -201,7 +201,7 @@ func findEnvValue(val string) (string, error) {
 		envName = strings.ReplaceAll(envName, " ", "")
 		envValue := os.Getenv(strings.ToUpper(envName))
 		if envValue == "" {
-			return "", fmt.Errorf("env var %s not set", envValue)
+			return "", fmt.Errorf("env var %s not set", envName)
 		}
 		return envValue, nil
 	}
