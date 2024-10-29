@@ -68,7 +68,7 @@ type ConsumerConfig struct {
 // OR "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB".
 func (c *ConsumerConfig) GetMaxPartitionFetchBytes() (int, error) {
 	if c.MaxPartitionFetchBytes == "" {
-		return 52_428_800, nil
+		c.MaxPartitionFetchBytes = "50MiB"
 	}
 	v, err := units.FromHumanSize(c.MaxPartitionFetchBytes)
 	if err != nil {
@@ -81,7 +81,7 @@ func (c *ConsumerConfig) GetMaxPartitionFetchBytes() (int, error) {
 // "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB".
 func (c *ConsumerConfig) GetFetchMaxBytes() (int, error) {
 	if c.FetchMaxBytes == "" {
-		return 104_857_600, nil
+		c.FetchMaxBytes = "10MiB"
 	}
 	v, err := units.FromHumanSize(c.FetchMaxBytes)
 	if err != nil {
