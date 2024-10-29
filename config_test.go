@@ -922,7 +922,6 @@ slice_array = [1, 2, 3]
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("injectEnvs()\n got = %v,\n want %v", got, tt.want)
 			}
-
 		})
 	}
 }
