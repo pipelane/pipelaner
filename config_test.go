@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"reflect"
 	"runtime"
 	"testing"
 
@@ -912,13 +913,15 @@ slice_array = [1, 2, 3]
 			var got map[string]any
 			_, err := toml.Decode(tt.args.cfg, &got)
 			assert.NoError(t, err)
-			err = recursiveReplace(got)
+			got, err = recursiveReplace(got)
 			if tt.wantError && err != nil {
 				assert.Error(t, err, "injectEnvs() error = %v, wantErr %v", err)
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equalf(t, tt.want, got, "injectEnvs(%v)", tt.args.cfg)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("injectEnvs()\n got = %v,\n want %v", got, tt.want)
+			}
 		})
 	}
 }

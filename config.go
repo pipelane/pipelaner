@@ -153,45 +153,49 @@ func ReadToml(file string) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = recursiveReplace(c)
+	c, err = recursiveReplace(c)
 	if err != nil {
 		return nil, err
 	}
 	return c, nil
 }
 
-func recursiveReplace(cfg map[string]any) error {
+func recursiveReplace(cfg map[string]any) (map[string]any, error) {
+	newMap := map[string]any{}
 	for k, v := range cfg {
 		switch val := v.(type) {
 		case map[string]any:
-			err := recursiveReplace(val)
+			maps, err := recursiveReplace(val)
 			if err != nil {
-				return err
+				return nil, err
 			}
-			cfg[k] = val
-			continue
+			newMap[k] = maps
 		case string:
 			e, err := findEnvValue(val)
 			if err != nil {
-				return err
+				return nil, err
 			}
-			cfg[k] = e
+			newMap[k] = e
 		case []any:
 			if len(val) == 0 {
-				return fmt.Errorf("invalid env var %s array", k)
+				return nil, fmt.Errorf("invalid env var %s array", k)
 			}
 			vals, ok := val[0].(string)
 			if !ok {
-				return nil
+				newMap[k] = val
+				continue
 			}
 			e, err := findEnvValue(vals)
 			if err != nil {
-				return err
+				return nil, err
 			}
-			cfg[k] = strings.Split(e, ",")
+			e = strings.ReplaceAll(e, " ", "")
+			newMap[k] = strings.Split(e, ",")
+		default:
+			newMap[k] = val
 		}
 	}
-	return nil
+	return newMap, nil
 }
 
 func findEnvValue(val string) (string, error) {
