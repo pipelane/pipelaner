@@ -12,10 +12,14 @@ import (
 	"github.com/twmb/franz-go/plugin/kzerolog"
 )
 
+type Producer struct {
+	*kgo.Client
+}
+
 func NewProducer(
 	cfg kcfg.ProducerConfig,
 	logger *zerolog.Logger,
-) (*kgo.Client, error) {
+) (*Producer, error) {
 	lms, err := cfg.GetLingerDurationMs()
 	if err != nil {
 		return nil, err
@@ -55,5 +59,5 @@ func NewProducer(
 	if err != nil {
 		return nil, err
 	}
-	return cl, nil
+	return &Producer{Client: cl}, nil
 }

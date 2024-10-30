@@ -18,7 +18,7 @@ import (
 type Kafka struct {
 	logger *zerolog.Logger
 	cfg    kCfg.ProducerConfig
-	prod   *kgo.Client
+	prod   *Producer
 }
 
 func init() {
