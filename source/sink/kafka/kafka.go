@@ -49,6 +49,9 @@ func (k *Kafka) Init(ctx *pipelaner.Context) error {
 					k.logger.Error().Err(ev.TopicPartition.Error).Msgf("delivered failed")
 				}
 			}
+			if errs, ok := e.(*kafka.Error); ok {
+				k.logger.Error().Err(errs).Msgf("delivered failed")
+			}
 		}
 	}()
 

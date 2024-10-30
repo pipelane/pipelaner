@@ -130,6 +130,17 @@ func (p *ProducerConfig) GetLingerMs() (int, error) {
 	}
 	return int(l.Milliseconds()), nil
 }
+func (p *ProducerConfig) GetLingerDurationMs() (time.Duration, error) {
+	if p.LingerMs == "" {
+		return 100, nil
+	}
+	l, err := time.ParseDuration(p.LingerMs)
+	if err != nil {
+		return 0, err
+	}
+	return l, nil
+}
+
 func (p *ProducerConfig) GetQueueBufferingMaxMessages() int {
 	if p.QueueBufferingMaxMessages == nil {
 		return 1_000_000
