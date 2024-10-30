@@ -5,50 +5,59 @@
 package kafka
 
 import (
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	kcfg "github.com/pipelane/pipelaner/source/shared/kafka"
+	"github.com/rs/zerolog"
+	"github.com/twmb/franz-go/pkg/kgo"
+	"github.com/twmb/franz-go/pkg/sasl/scram"
+	"github.com/twmb/franz-go/plugin/kzerolog"
 )
 
-func NewProducer(cfg kcfg.ProducerConfig) (*kafka.Producer, error) {
-	maxSize, err := cfg.GetMaxRequestSize()
-	if err != nil {
-		return nil, err
-	}
-	qms, err := cfg.GetQueueBufferingMaxMs()
-	if err != nil {
-		return nil, err
-	}
-	lms, err := cfg.GetLingerMs()
-	if err != nil {
-		return nil, err
-	}
-	bSize, err := cfg.GetBatchSize()
-	if err != nil {
-		return nil, err
-	}
+type Producer struct {
+	*kgo.Client
+}
 
-	cfgMap := kafka.ConfigMap{
-		kcfg.OptBootstrapServers:          cfg.Brokers,
-		kcfg.OptBatchSize:                 bSize,
-		kcfg.OptBatchNumMessages:          cfg.GetBatchNumMessages(),
-		"go.batch.producer":               true,
-		kcfg.OptQueueBufferingMaxMessages: cfg.GetQueueBufferingMaxMessages(),
-		kcfg.OptQueueBufferingMaxMs:       qms,
-		kcfg.OptLingerMs:                  lms,
-		kcfg.OptMaxRequestSize:            maxSize,
+func NewProducer(
+	cfg kcfg.ProducerConfig,
+	logger *zerolog.Logger,
+) (*Producer, error) {
+	lms, err := cfg.GetLingerDurationMs()
+	if err != nil {
+		return nil, err
+	}
+	mSize := cfg.GetBatchNumMessages()
+	opts := []kgo.Opt{
+		kgo.SeedBrokers(cfg.Brokers),
+		kgo.WithLogger(kzerolog.New(logger)),
+		kgo.ProducerLinger(lms),
+		kgo.MaxBufferedRecords(mSize),
 	}
 
 	if cfg.SASLEnabled {
-		cfgMap[kcfg.OptSaslMechanism] = cfg.SASLMechanism
-		cfgMap[kcfg.OptSaslUserName] = cfg.SASLUsername
-		cfgMap[kcfg.OptSaslPassword] = cfg.SASLPassword
-		cfgMap[kcfg.OptSecurityProtocol] = kcfg.SecuritySaslPlainText
+		switch cfg.SASLMechanism {
+		case "SCRAM-SHA-512":
+			opts = append(opts,
+				kgo.SASL(
+					scram.Auth{
+						User: cfg.SASLUsername,
+						Pass: cfg.SASLPassword,
+					}.AsSha512Mechanism(),
+				),
+			)
+		case "SCRAM-SHA-256":
+			opts = append(opts,
+				kgo.SASL(
+					scram.Auth{
+						User: cfg.SASLUsername,
+						Pass: cfg.SASLPassword,
+					}.AsSha256Mechanism(),
+				),
+			)
+		}
 	}
 
-	cons, err := kafka.NewProducer(&cfgMap)
-
+	cl, err := kgo.NewClient(opts...)
 	if err != nil {
 		return nil, err
 	}
-	return cons, nil
+	return &Producer{Client: cl}, nil
 }
