@@ -34,8 +34,8 @@ func NewConsumer(
 		kgo.WithLogger(kzerolog.New(logger)),
 		kgo.ConsumerGroup(cfg.ConsumerGroupID),
 		kgo.ConsumeTopics(cfg.Topics...),
-		kgo.FetchMaxBytes(int32(maxByteFetch)),
-		kgo.FetchMaxPartitionBytes(int32(v)),
+		kgo.FetchMaxBytes(int32(maxByteFetch)), //nolint: gosec
+		kgo.FetchMaxPartitionBytes(int32(v)),   //nolint: gosec
 		kgo.HeartbeatInterval(time.Second),
 	}
 

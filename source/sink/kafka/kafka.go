@@ -51,7 +51,7 @@ func (k *Kafka) write(ctx context.Context, message []byte) {
 		}, func(record *kgo.Record, err error) {
 			if err != nil {
 				k.logger.Error().Err(err).Msg("failed to produce message")
-				k.write(ctx, message)
+				k.write(ctx, record.Value)
 			}
 		})
 	}
