@@ -56,12 +56,10 @@ type ConsumerConfig struct {
 	Config            `pipelane:",squash"`
 	AutoCommitEnabled bool   `pipelane:"auto_commit_enabled"`
 	ConsumerGroupID   string `pipelane:"consumer_group_id"`
-	OffsetNewest      bool   `pipelane:"offset_newest"`
 
-	MaxPartitionFetchBytes string        `pipelane:"max_partition_fetch_bytes"`
-	AutoOffsetReset        string        `pipelane:"auto_offset_reset"`
-	ReadTopicTimeout       time.Duration `pipelane:"read_topic_timeout"`
-	FetchMaxBytes          string        `pipelane:"fetch_max_bytes"`
+	MaxPartitionFetchBytes string `pipelane:"max_partition_fetch_bytes"`
+	AutoOffsetReset        string `pipelane:"auto_offset_reset"`
+	FetchMaxBytes          string `pipelane:"fetch_max_bytes"`
 }
 
 // GetMaxPartitionFetchBytes "B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"
@@ -75,6 +73,10 @@ func (c *ConsumerConfig) GetMaxPartitionFetchBytes() (int, error) {
 		return 0, err
 	}
 	return int(v), nil
+}
+
+func (c *ConsumerConfig) Get() {
+
 }
 
 // GetFetchMaxBytes "B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" OR "B",
@@ -91,14 +93,11 @@ func (c *ConsumerConfig) GetFetchMaxBytes() (int, error) {
 }
 
 type ProducerConfig struct {
-	Kafka                     `pipelane:",squash"`
-	Config                    `pipelane:",squash"`
-	MaxRequestSize            string `pipelane:"max_request_size"`
-	LingerMs                  string `pipelane:"linger_ms"`
-	QueueBufferingMaxMessages *int   `pipelane:"queue_buffering_max_messages"`
-	QueueBufferingMaxMs       string `pipelane:"queue_buffering_max_ms"`
-	BatchSize                 string `pipelane:"batch_size"`
-	BatchNumMessages          *int   `pipelane:"batch_num_messages"`
+	Kafka            `pipelane:",squash"`
+	Config           `pipelane:",squash"`
+	MaxRequestSize   string `pipelane:"max_request_size"`
+	LingerMs         string `pipelane:"linger_ms"`
+	BatchNumMessages *int   `pipelane:"batch_num_messages"`
 }
 
 // GetMaxRequestSize "B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" OR "B",
@@ -139,42 +138,6 @@ func (p *ProducerConfig) GetLingerDurationMs() (time.Duration, error) {
 		return 0, err
 	}
 	return l, nil
-}
-
-func (p *ProducerConfig) GetQueueBufferingMaxMessages() int {
-	if p.QueueBufferingMaxMessages == nil {
-		return 1_000_000
-	}
-	l := *p.QueueBufferingMaxMessages
-	return l
-}
-
-// GetQueueBufferingMaxMs "1 ms and etc".
-func (p *ProducerConfig) GetQueueBufferingMaxMs() (int, error) {
-	if p.QueueBufferingMaxMs == "" {
-		return 1_000, nil
-	}
-	l, err := time.ParseDuration(p.QueueBufferingMaxMs)
-	if err != nil {
-		return 0, err
-	}
-	return int(l.Milliseconds()), nil
-}
-
-func (p *ProducerConfig) GetBatchSize() (int, error) {
-	if p.BatchSize == "" {
-		v, e := units.FromHumanSize("16MiB")
-		if e != nil {
-			return 0, e
-		}
-		return int(v), nil
-	}
-	str := strings.ReplaceAll(p.BatchSize, " ", "")
-	v, e := units.FromHumanSize(str)
-	if e != nil {
-		return 0, e
-	}
-	return int(v), nil
 }
 
 func (p *ProducerConfig) GetBatchNumMessages() int {

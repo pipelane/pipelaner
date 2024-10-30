@@ -1,16 +1,14 @@
 package kafka
 
 import (
-	"errors"
-
 	kcfg "github.com/pipelane/pipelaner/source/shared/kafka"
+	"github.com/twmb/franz-go/pkg/kgo"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/pipelane/pipelaner"
 )
 
 type Kafka struct {
-	cons *kafka.Consumer
+	cons *Consumer
 	cfg  kcfg.ConsumerConfig
 }
 
@@ -23,15 +21,8 @@ func (c *Kafka) Init(ctx *pipelaner.Context) error {
 	if err != nil {
 		return err
 	}
-	if c.cfg.ReadTopicTimeout == 0 {
-		c.cfg.ReadTopicTimeout = -1
-	}
-	c.cons, err = NewConsumer(c.cfg)
-	if err != nil {
-		return err
-	}
-
-	err = c.cons.SubscribeTopics(c.cfg.Topics, nil)
+	l := ctx.Logger()
+	c.cons, err = NewConsumer(c.cfg, &l)
 	if err != nil {
 		return err
 	}
@@ -42,23 +33,12 @@ func (c *Kafka) Init(ctx *pipelaner.Context) error {
 func (c *Kafka) Generate(ctx *pipelaner.Context, input chan<- any) {
 	l := ctx.Logger()
 	for {
-		select {
-		case <-ctx.Context().Done():
-			return
-		default:
-			msg, err := c.cons.ReadMessage(c.cfg.ReadTopicTimeout)
-			var kafkaErr *kafka.Error
-			if err != nil && errors.As(err, &kafkaErr) && kafkaErr.IsTimeout() {
-				l.Warn().Err(err).Msg("kafka consume timeout")
-				continue
-			}
-			if err != nil {
-				l.Error().Err(err).Msg("failed kafka consume")
-				continue
-			}
-			if msg != nil {
-				input <- msg.Value
-			}
+		err := c.cons.Consume(ctx.Context(), func(record *kgo.Record) error {
+			input <- record.Value
+			return nil
+		})
+		if err != nil {
+			l.Log().Err(err).Msg("consume error")
 		}
 	}
 }

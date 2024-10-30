@@ -5,22 +5,20 @@
 package kafka
 
 import (
+	"context"
 	"encoding/json"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/rs/zerolog"
+	"github.com/twmb/franz-go/pkg/kgo"
 
 	"github.com/pipelane/pipelaner"
 	kCfg "github.com/pipelane/pipelaner/source/shared/kafka"
 )
 
-const timeout = 15 * 1000
-
 type Kafka struct {
-	logger       *zerolog.Logger
-	cfg          kCfg.ProducerConfig
-	prod         *kafka.Producer
-	deliveryChan chan kafka.Event
+	logger *zerolog.Logger
+	cfg    kCfg.ProducerConfig
+	prod   *kgo.Client
 }
 
 func init() {
@@ -35,48 +33,27 @@ func (k *Kafka) Init(ctx *pipelaner.Context) error {
 		return err
 	}
 
-	p, err := NewProducer(k.cfg)
+	kafkaLogger := ctx.Logger()
+	p, err := NewProducer(k.cfg, &kafkaLogger)
 	if err != nil {
 		return err
 	}
 
 	k.prod = p
-	k.deliveryChan = make(chan kafka.Event, k.cfg.GetQueueBufferingMaxMessages())
-	go func() {
-		for e := range k.deliveryChan {
-			if ev, ok := e.(*kafka.Message); ok {
-				if ev.TopicPartition.Error != nil {
-					k.logger.Error().Err(ev.TopicPartition.Error).Msgf("delivered failed")
-				}
-			}
-			if errs, ok := e.(*kafka.Error); ok {
-				k.logger.Error().Err(errs).Msgf("delivered failed")
-			}
-		}
-	}()
-
 	return nil
 }
 
-func (k *Kafka) write(message []byte) {
+func (k *Kafka) write(ctx context.Context, message []byte) {
 	for _, topic := range k.cfg.Topics {
-		if err := k.prod.Produce(&kafka.Message{
-			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-			Value:          message,
-		}, k.deliveryChan); err != nil {
-			if err.Error() == "Local: Queue full" {
-				k.logger.Error().Err(err).Msg("Requeue")
-				k.flush(timeout)
-				k.write(message)
+		k.prod.Produce(ctx, &kgo.Record{
+			Value: message,
+			Topic: topic,
+		}, func(record *kgo.Record, err error) {
+			if err != nil {
+				k.logger.Error().Err(err).Msg("failed to produce message")
+				k.write(ctx, message)
 			}
-		}
-	}
-}
-func (k *Kafka) flush(time int) {
-	for {
-		if k.prod.Flush(time) == 0 {
-			break
-		}
+		})
 	}
 }
 
@@ -112,5 +89,5 @@ func (k *Kafka) Sink(ctx *pipelaner.Context, val any) {
 		message = data
 	}
 
-	k.write(message)
+	k.write(ctx.Context(), message)
 }
