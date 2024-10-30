@@ -4,10 +4,9 @@ go 1.22
 
 require (
 	github.com/BurntSushi/toml v1.4.0
-	github.com/ClickHouse/ch-go v0.62.0
+	github.com/ClickHouse/ch-go v0.63.1
 	github.com/ClickHouse/clickhouse-go/v2 v2.30.0
 	github.com/LastPossum/kamino v0.0.1
-	github.com/confluentinc/confluent-kafka-go/v2 v2.6.0
 	github.com/docker/go-units v0.5.0
 	github.com/expr-lang/expr v1.16.9
 	github.com/goccy/go-json v0.10.3
@@ -28,16 +27,16 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dmarkham/enumer v1.5.9 // indirect
+	github.com/dmarkham/enumer v1.5.10 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
-	github.com/jackc/puddle/v2 v2.2.1 // indirect
-	github.com/klauspost/compress v1.17.9 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/pascaldekloe/name v1.0.1 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
