@@ -49,7 +49,7 @@ func NewConsumer(
 			balancers = append(balancers, kgo.RangeBalancer())
 		}
 	}
-	if len(balancers) > 0 {
+	if len(balancers) == 0 {
 		balancers = append(balancers, kgo.RoundRobinBalancer())
 	}
 	opts = append(opts, kgo.Balancers(balancers...))
