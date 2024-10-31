@@ -63,7 +63,7 @@ func NewConsumer(
 	} else if cfg.AutoOffsetReset == "latest" {
 		opts = append(opts, kgo.ConsumeResetOffset(kgo.NewOffset().AtEnd()))
 	}
-	kgo.Balancers()
+
 	if cfg.SASLEnabled {
 		switch cfg.SASLMechanism {
 		case "SCRAM-SHA-512":
