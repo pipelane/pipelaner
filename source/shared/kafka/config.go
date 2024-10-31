@@ -12,30 +12,6 @@ import (
 	"github.com/pipelane/pipelaner"
 )
 
-const (
-	OptBootstrapServers          = "bootstrap.servers"
-	OptGroupID                   = "group.id"
-	OptEnableAutoCommit          = "enable.auto.commit"
-	OptCommitIntervalMs          = "auto.commit.interval.ms"
-	OptAutoOffsetReset           = "auto.offset.reset"
-	OptGoEventsChannelEnable     = "go.events.channel.enable"
-	OptSessionTimeoutMs          = "session.timeout.ms"
-	OptHeartBeatIntervalMs       = "heartbeat.interval.ms"
-	OptBatchNumMessages          = "batch.num.messages"
-	OptSaslMechanism             = "sasl.mechanism"
-	OptSaslUserName              = "sasl.username"
-	OptSaslPassword              = "sasl.password"
-	OptSecurityProtocol          = "security.protocol"
-	OptBatchSize                 = "batch.size"
-	OptQueueBufferingMaxMessages = "queue.buffering.max.messages"
-	OptQueueBufferingMaxMs       = "queue.buffering.max.ms"
-	OptLingerMs                  = "linger.ms"
-	OptMaxRequestSize            = "message.max.bytes" // https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md
-	SecuritySaslPlainText        = "sasl_plaintext"
-	OptMaxPartitionFetchBytes    = "max.partition.fetch.bytes"
-	OptFetchMaxBytes             = "fetch.max.bytes"
-)
-
 type Kafka struct {
 	SASLEnabled   bool     `pipelane:"sasl_enabled"`
 	SASLMechanism string   `pipelane:"sasl_mechanism"`
@@ -51,15 +27,22 @@ type Config struct {
 	pipelaner.Internal `pipelane:",squash"`
 }
 
+const (
+	ConsumerRoundRobinStrategy        = "round-robin"
+	ConsumerCooperativeStickyStrategy = "cooperative-sticky"
+	ConsumerRangeStrategy             = "range"
+)
+
 type ConsumerConfig struct {
 	Kafka             `pipelane:",squash"`
 	Config            `pipelane:",squash"`
 	AutoCommitEnabled bool   `pipelane:"auto_commit_enabled"`
 	ConsumerGroupID   string `pipelane:"consumer_group_id"`
 
-	MaxPartitionFetchBytes string `pipelane:"max_partition_fetch_bytes"`
-	AutoOffsetReset        string `pipelane:"auto_offset_reset"`
-	FetchMaxBytes          string `pipelane:"fetch_max_bytes"`
+	MaxPartitionFetchBytes string   `pipelane:"max_partition_fetch_bytes"`
+	AutoOffsetReset        string   `pipelane:"auto_offset_reset"`
+	FetchMaxBytes          string   `pipelane:"fetch_max_bytes"`
+	BalancerStrategy       []string `pipelane:"balancer_strategy"`
 }
 
 // GetMaxPartitionFetchBytes "B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"

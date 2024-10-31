@@ -38,6 +38,21 @@ func NewConsumer(
 		kgo.FetchMaxPartitionBytes(int32(v)),   //nolint: gosec
 		kgo.HeartbeatInterval(time.Second),
 	}
+	var balancers []kgo.GroupBalancer
+	for _, s := range cfg.BalancerStrategy {
+		switch s {
+		case kcfg.ConsumerRangeStrategy:
+			balancers = append(balancers, kgo.RangeBalancer())
+		case kcfg.ConsumerRoundRobinStrategy:
+			balancers = append(balancers, kgo.RoundRobinBalancer())
+		case kcfg.ConsumerCooperativeStickyStrategy:
+			balancers = append(balancers, kgo.RangeBalancer())
+		}
+	}
+	if len(balancers) == 0 {
+		balancers = append(balancers, kgo.RoundRobinBalancer())
+	}
+	opts = append(opts, kgo.Balancers(balancers...))
 
 	if !cfg.AutoCommitEnabled {
 		opts = append(opts, kgo.DisableAutoCommit())
@@ -48,6 +63,7 @@ func NewConsumer(
 	} else if cfg.AutoOffsetReset == "latest" {
 		opts = append(opts, kgo.ConsumeResetOffset(kgo.NewOffset().AtEnd()))
 	}
+	kgo.Balancers()
 	if cfg.SASLEnabled {
 		switch cfg.SASLMechanism {
 		case "SCRAM-SHA-512":
