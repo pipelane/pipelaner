@@ -11,7 +11,29 @@ import (
 	"sync/atomic"
 
 	"github.com/LastPossum/kamino"
+	"github.com/prometheus/client_golang/prometheus"
 )
+
+var totalMessagesCount = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "message_total",
+		Help: "Total number of messages.",
+	},
+	[]string{"type", "name"},
+)
+
+var totalTransformationError = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "transformations_error_total",
+		Help: "Total number of errors.",
+	},
+	[]string{"type", "name"},
+)
+
+func init() {
+	prometheus.MustRegister(totalMessagesCount)
+	prometheus.MustRegister(totalTransformationError)
+}
 
 type MethodMap func(ctx *Context, val any) any
 type MethodSink func(ctx *Context, val any)
@@ -30,10 +52,11 @@ type methods struct {
 }
 
 type runLoop struct {
-	cfg     *loopCfg
-	stopped atomic.Bool
-	methods methods
-	context *Context
+	cfg           *loopCfg
+	stopped       atomic.Bool
+	methods       methods
+	context       *Context
+	metricsEnable bool
 
 	mx            sync.RWMutex
 	overrideInput bool
@@ -67,6 +90,7 @@ func newRunLoop(
 	bufferSize int64,
 	threadsCount int64,
 	startGC bool,
+	isMetricsEnabled bool,
 ) *runLoop {
 	s := &runLoop{
 		mx: sync.RWMutex{},
@@ -75,7 +99,8 @@ func newRunLoop(
 			threadsCount: threadsCount,
 			startGC:      startGC,
 		},
-		inputs: []chan any{make(chan any, bufferSize)},
+		inputs:        []chan any{make(chan any, bufferSize)},
+		metricsEnable: isMetricsEnabled,
 	}
 	return s
 }
@@ -117,6 +142,13 @@ func (s *runLoop) start() {
 		for {
 			select {
 			case msg, ok := <-input:
+				if s.metricsEnable && s.context.LaneType() == InputType {
+					totalMessagesCount.
+						WithLabelValues(
+							string(s.context.LaneType()),
+							s.context.LaneName(),
+						).Inc()
+				}
 				if !ok {
 					return
 				}
@@ -151,7 +183,14 @@ func (s *runLoop) produceMessages(unlock func(), m any) {
 	if s.methods.transform != nil {
 		m = s.methods.transform(s.context, m)
 	}
-	if _, isErr := m.(error); isErr {
+	_, isErr := m.(error)
+	if isErr && s.metricsEnable {
+		totalTransformationError.
+			WithLabelValues(
+				string(s.context.LaneType()),
+				s.context.LaneName(),
+			).
+			Inc()
 		logger := s.context.Logger()
 		logger.Error().
 			Err(m.(error)).Msg("run loop error")
@@ -173,6 +212,13 @@ func (s *runLoop) produceMessages(unlock func(), m any) {
 	s.mx.RUnlock()
 	if s.methods.sink != nil {
 		s.methods.sink(s.context, m)
+	}
+	if s.metricsEnable {
+		totalMessagesCount.
+			WithLabelValues(
+				string(s.context.LaneType()),
+				s.context.LaneName(),
+			).Inc()
 	}
 }
 

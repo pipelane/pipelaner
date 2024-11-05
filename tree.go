@@ -133,17 +133,17 @@ func newPipelinesTreeMapWith(
 	if len(cfg.Input) == 0 {
 		return nil, ErrInputsNotFound
 	}
-	err := flat(InputType, cfg.Input, lanes)
+	err := flat(InputType, cfg.Input, lanes, cfg.MetricsEnable)
 	if err != nil {
 		return nil, err
 	}
 
-	err = flat(MapType, cfg.Map, lanes)
+	err = flat(MapType, cfg.Map, lanes, cfg.MetricsEnable)
 	if err != nil {
 		return nil, err
 	}
 
-	err = flat(SinkType, cfg.Sink, lanes)
+	err = flat(SinkType, cfg.Sink, lanes, cfg.MetricsEnable)
 	if err != nil {
 		return nil, err
 	}
@@ -169,6 +169,7 @@ func flat(
 	types LaneTypes,
 	input map[string]any,
 	output *TreeLanes,
+	metrics bool,
 ) error {
 	for k, v := range input {
 		val, ok := v.(map[string]any)
@@ -181,6 +182,7 @@ func flat(
 		}
 		p := NewLaneItem(
 			cfg,
+			metrics,
 		)
 		output.append(p)
 	}
