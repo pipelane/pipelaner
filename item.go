@@ -103,9 +103,15 @@ func (l *LaneItem) Subscribe(output *LaneItem) {
 
 func NewLaneItem(
 	config *BaseLaneConfig,
+	metrics bool,
 ) *LaneItem {
 	return &LaneItem{
-		runLoop: newRunLoop(config.OutputBufferSize, config.Threads, config.StartGCAfterMessageProcess),
-		cfg:     config,
+		runLoop: newRunLoop(
+			config.OutputBufferSize,
+			config.Threads,
+			config.StartGCAfterMessageProcess,
+			metrics,
+		),
+		cfg: config,
 	}
 }
