@@ -37,7 +37,7 @@ func TestThrottling_Map(t *testing.T) {
 						map[string]any{
 							"interval": "300ms",
 						},
-					))),
+					), true)),
 			},
 			want: nil,
 		},
@@ -88,7 +88,7 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 						map[string]any{
 							"interval": "300ms",
 						},
-					))),
+					), true)),
 			},
 			want: nil,
 		},

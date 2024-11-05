@@ -16,21 +16,23 @@ import (
 
 var totalMessagesCount = prometheus.NewCounterVec(
 	prometheus.CounterOpts{
-		Name: "total_message_count",
+		Name: "message_total",
+		Help: "Total number of messages.",
 	},
 	[]string{"type", "name"},
 )
 
-var transformationError = prometheus.NewCounterVec(
+var totalTransformationError = prometheus.NewCounterVec(
 	prometheus.CounterOpts{
-		Name: "transformation_error",
+		Name: "transformations_error_total",
+		Help: "Total number of errors.",
 	},
 	[]string{"type", "name"},
 )
 
 func init() {
 	prometheus.MustRegister(totalMessagesCount)
-	prometheus.MustRegister(transformationError)
+	prometheus.MustRegister(totalTransformationError)
 }
 
 type MethodMap func(ctx *Context, val any) any
@@ -183,7 +185,7 @@ func (s *runLoop) produceMessages(unlock func(), m any) {
 	}
 	_, isErr := m.(error)
 	if isErr && s.metricsEnable {
-		transformationError.
+		totalTransformationError.
 			WithLabelValues(
 				string(s.context.LaneType()),
 				s.context.LaneName(),

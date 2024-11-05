@@ -47,8 +47,7 @@ func TestExprLanguage_Map(t *testing.T) {
 					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						map[string]any{
 							"code": "{ \"value_name\": Data.name, \"value_price\": Data.price}",
-						}),
-					),
+						}), true),
 				),
 				val: map[string]any{
 					"id":       1,
@@ -94,8 +93,7 @@ func TestExprLanguage_String(t *testing.T) {
 					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						map[string]any{
 							"code": "{ \"value_name\": Data.name, \"value_price\": Data.price}",
-						}),
-					),
+						}), true),
 				),
 				val: "  {\"id\": 1,\"name\": \"iPhone 12\",\"price\": \"999\",\"quantity\": 1}",
 			},
@@ -136,8 +134,7 @@ func TestExprLanguage_StringArray(t *testing.T) {
 					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						map[string]any{
 							"code": "{ \"value_name\": Data[0].name, \"value_price\": Data[0].price}",
-						}),
-					),
+						}), true),
 				),
 				val: "[{\"id\": 1,\"name\": \"iPhone 12\",\"price\": \"999\",\"quantity\": 1}, {\"id\": 2,\"name\": \"iPhone 13\",\"price\": \"999\",\"quantity\": 1}]",
 			},
@@ -178,8 +175,7 @@ func TestExprLanguage_Bytes(t *testing.T) {
 					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						map[string]any{
 							"code": "{ \"value_name\": Data.name, \"value_price\": Data.price}",
-						}),
-					),
+						}), true),
 				),
 				val: []byte("{\"id\": 1,\"name\": \"iPhone 12\",\"price\": \"999\",\"quantity\": 1}"),
 			},

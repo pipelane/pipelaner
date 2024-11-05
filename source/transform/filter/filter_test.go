@@ -47,8 +47,7 @@ func TestExprLanguage_Map(t *testing.T) {
 					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						map[string]any{
 							"code": "Data.count > 5",
-						}),
-					),
+						}), true),
 				),
 				val: map[string]any{
 					"count": 1,
@@ -63,8 +62,7 @@ func TestExprLanguage_Map(t *testing.T) {
 					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						map[string]any{
 							"code": "Data.count > 5",
-						}),
-					),
+						}), true),
 				),
 				val: map[string]any{
 					"count": 10,
@@ -106,8 +104,7 @@ func TestExprLanguage_String(t *testing.T) {
 					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						map[string]any{
 							"code": "Data.count > 5",
-						}),
-					),
+						}), true),
 				),
 				val: "{\"count\":1}",
 			},
@@ -120,8 +117,7 @@ func TestExprLanguage_String(t *testing.T) {
 					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						map[string]any{
 							"code": "Data.count > 5",
-						}),
-					),
+						}), true),
 				),
 				val: "{\"count\":10}",
 			},
@@ -159,8 +155,7 @@ func TestExprLanguage_Bytes(t *testing.T) {
 					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						map[string]any{
 							"code": "Data.count > 5",
-						}),
-					),
+						}), true),
 				),
 				val: []byte("{\"count\":1}"),
 			},
@@ -173,8 +168,7 @@ func TestExprLanguage_Bytes(t *testing.T) {
 					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
 						map[string]any{
 							"code": "Data.count > 5",
-						}),
-					),
+						}), true),
 				),
 				val: []byte("{\"count\":10}"),
 			},

@@ -48,12 +48,9 @@ func TestDebounce_Map(t *testing.T) {
 				iterations: 10,
 				ctx: pipelaner.NewContext(
 					context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
-						"test_maps",
-						map[string]any{
-							"interval": "300ms",
-						},
-					))),
+					pipelaner.NewLaneItem(newCfg(pipelaner.MapType, "test_maps", map[string]any{
+						"interval": "300ms",
+					}), true)),
 			},
 			want: nil,
 		},
@@ -99,12 +96,9 @@ func TestDebounceConcurrent_Map(t *testing.T) {
 				iterations: 10,
 				ctx: pipelaner.NewContext(
 					context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
-						"test_maps",
-						map[string]any{
-							"interval": "300ms",
-						},
-					))),
+					pipelaner.NewLaneItem(newCfg(pipelaner.MapType, "test_maps", map[string]any{
+						"interval": "300ms",
+					}), true)),
 			},
 			want: nil,
 		},
