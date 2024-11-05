@@ -140,7 +140,7 @@ func (s *runLoop) start() {
 		for {
 			select {
 			case msg, ok := <-input:
-				if s.context.LaneType() == InputType && s.metricsEnable {
+				if s.metricsEnable && s.context.LaneType() == InputType {
 					totalMessagesCount.
 						WithLabelValues(
 							string(s.context.LaneType()),
@@ -182,7 +182,7 @@ func (s *runLoop) produceMessages(unlock func(), m any) {
 		m = s.methods.transform(s.context, m)
 	}
 	_, isErr := m.(error)
-	if isErr {
+	if isErr && s.metricsEnable {
 		transformationError.
 			WithLabelValues(
 				string(s.context.LaneType()),
