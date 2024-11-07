@@ -281,10 +281,10 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 			},
 		},
 		OnInput: func(_ context.Context) error {
+			input.Reset()
 			if shouldEnd {
 				return io.EOF
 			}
-			input.Reset()
 			for k, v := range data {
 				col, okC := columns[k]
 				if !okC {
