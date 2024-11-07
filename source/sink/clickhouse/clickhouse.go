@@ -277,7 +277,7 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 		}
 
 		newData, ok := <-chData
-		if !ok && newData != nil {
+		if !ok && newData == nil {
 			break
 		}
 
