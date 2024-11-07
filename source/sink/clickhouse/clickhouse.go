@@ -265,6 +265,7 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 			return fmt.Errorf("build proto input: %w", err)
 		}
 	}
+	shouldEnd := false
 	if err = conn.Do(ctx, ch.Query{
 		Body: input.Into(c.clickConfig.TableName),
 		Settings: []ch.Setting{
@@ -280,6 +281,9 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 			},
 		},
 		OnInput: func(_ context.Context) error {
+			if shouldEnd {
+				return io.EOF
+			}
 			input.Reset()
 			for k, v := range data {
 				col, okC := columns[k]
@@ -292,7 +296,8 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 			}
 			newData, ok := <-chData
 			if !ok && newData == nil {
-				return io.EOF
+				shouldEnd = true
+				return nil
 			}
 			data, err = c.getMap(newData)
 			if err != nil {
