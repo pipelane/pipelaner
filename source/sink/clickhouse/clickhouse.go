@@ -291,7 +291,7 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 				}
 			}
 			newData, ok := <-chData
-			if !ok {
+			if !ok && newData == nil {
 				return io.EOF
 			}
 			data, err = c.getMap(newData)
