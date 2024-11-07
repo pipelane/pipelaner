@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/ClickHouse/ch-go"
@@ -265,6 +264,29 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 			return fmt.Errorf("build proto input: %w", err)
 		}
 	}
+
+	for {
+		for k, v := range data {
+			col, okC := columns[k]
+			if !okC {
+				return fmt.Errorf("column %s not found", k)
+			}
+			if err = col.Append(v); err != nil {
+				return err
+			}
+		}
+
+		newData, ok := <-chData
+		if !ok && newData != nil {
+			break
+		}
+
+		data, err = c.getMap(newData)
+		if err != nil {
+			return err
+		}
+	}
+
 	if err = conn.Do(ctx, ch.Query{
 		Body: input.Into(c.clickConfig.TableName),
 		Settings: []ch.Setting{
@@ -279,32 +301,11 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 				Important: true,
 			},
 		},
-		OnInput: func(_ context.Context) error {
-			input.Reset()
-			for k, v := range data {
-				col, okC := columns[k]
-				if !okC {
-					return fmt.Errorf("column %s not found", k)
-				}
-				if err = col.Append(v); err != nil {
-					return err
-				}
-			}
-			newData, ok := <-chData
-			if !ok {
-				return io.EOF
-			}
-			data, err = c.getMap(newData)
-			if err != nil {
-				return err
-			}
-
-			return nil
-		},
 		Input: input,
 	}); err != nil {
 		return fmt.Errorf("write batch: %w", err)
 	}
+
 	return nil
 }
 
