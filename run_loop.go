@@ -30,9 +30,27 @@ var totalTransformationError = prometheus.NewCounterVec(
 	[]string{"type", "name"},
 )
 
+var bufferCapacity = prometheus.NewGaugeVec(
+	prometheus.GaugeOpts{
+		Name: "buffer_capacity",
+		Help: "Buffer capacity.",
+	},
+	[]string{"type", "name"},
+)
+
+var bufferLength = prometheus.NewGaugeVec(
+	prometheus.GaugeOpts{
+		Name: "buffer_length",
+		Help: "Buffer length.",
+	},
+	[]string{"type", "name"},
+)
+
 func init() {
 	prometheus.MustRegister(totalMessagesCount)
 	prometheus.MustRegister(totalTransformationError)
+	prometheus.MustRegister(bufferCapacity)
+	prometheus.MustRegister(bufferLength)
 }
 
 type MethodMap func(ctx *Context, val any) any
@@ -148,6 +166,14 @@ func (s *runLoop) start() {
 							string(s.context.LaneType()),
 							s.context.LaneName(),
 						).Inc()
+				}
+				if s.metricsEnable {
+					bufferLength.WithLabelValues(
+						string(s.context.LaneType()),
+						s.context.LaneName()).Set(float64(len(input)))
+					bufferCapacity.WithLabelValues(
+						string(s.context.LaneType()),
+						s.context.LaneName()).Set(float64(cap(input)))
 				}
 				if !ok {
 					return
