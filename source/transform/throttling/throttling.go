@@ -4,7 +4,7 @@
 
 package throttling
 
-import (
+/*import (
 	"sync"
 	"sync/atomic"
 	"time"
@@ -80,3 +80,4 @@ func (d *Throttling) reset() {
 func (d *Throttling) Interval() (time.Duration, error) {
 	return time.ParseDuration(d.cfg.Extended.(*Config).Interval)
 }
+*/

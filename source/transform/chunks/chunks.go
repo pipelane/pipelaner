@@ -4,7 +4,7 @@
 
 package chunks
 
-import (
+/*import (
 	"sync/atomic"
 	"time"
 
@@ -60,4 +60,4 @@ func (c *Chunk) Map(_ *pipelaner.Context, val any) any {
 	defer c.locked.Store(false)
 	v := <-c.buffer.GetChunks()
 	return v
-}
+}*/

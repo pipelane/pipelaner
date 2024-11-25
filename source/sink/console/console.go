@@ -4,7 +4,7 @@
 
 package console
 
-import (
+/*import (
 	"fmt"
 
 	"github.com/rs/zerolog"
@@ -47,3 +47,4 @@ func (c *Console) Sink(ctx *pipelaner.Context, val any) {
 		c.logger.Info().Msg(fmt.Sprintf("%v", val))
 	}
 }
+*/

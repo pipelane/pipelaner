@@ -1,22 +1,6 @@
 package clickhouse
 
-import (
-	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
-	"time"
-
-	"github.com/ClickHouse/ch-go"
-	"github.com/ClickHouse/ch-go/proto"
-	"github.com/google/uuid"
-	"github.com/rs/zerolog"
-
-	"github.com/pipelane/pipelaner"
-)
-
-type Clickhouse struct {
+/*type Clickhouse struct {
 	logger      *zerolog.Logger
 	clickConfig Config
 	client      *LowLevelClickhouseClient
@@ -153,8 +137,8 @@ func (c *column) Append(v any) error {
 	return nil
 }
 
-// buildProtoInput returns column map and input where column field
-// is a pointer to input.Data, map key column name(input.Name)
+// buildProtoInput returns column transform and input where column field
+// is a pointer to input.Data, transform key column name(input.Name)
 
 func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, proto.Input, error) {
 	input := proto.Input{}
@@ -346,4 +330,4 @@ func (c *Clickhouse) Sink(ctx *pipelaner.Context, val any) {
 	if err := c.write(ctx.Context(), chData); err != nil {
 		c.logger.Error().Err(err).Msg("write")
 	}
-}
+}*/

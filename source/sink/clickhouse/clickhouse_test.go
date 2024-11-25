@@ -135,7 +135,7 @@ loop:
 func EqualNotNilKeys(t *testing.T, a, b map[string]*column) bool {
 	t.Helper()
 	if len(a) != len(b) {
-		assert.Fail(t, "length map not equal")
+		assert.Fail(t, "length transform not equal")
 	}
 
 	for k, v := range a {

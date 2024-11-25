@@ -4,18 +4,7 @@
 
 package cmd
 
-import (
-	"bufio"
-	"context"
-	"errors"
-	"io"
-	"os/exec"
-	"strings"
-
-	"github.com/pipelane/pipelaner"
-)
-
-type Config struct {
+/*type Config struct {
 	Exec []string `pipelane:"exec"`
 }
 
@@ -83,4 +72,4 @@ func (c *Exec) readPipe(ctx context.Context, pipe io.Reader, input chan<- any) {
 			input <- m
 		}
 	}
-}
+}*/

@@ -1,6 +1,6 @@
 package clickhouse
 
-import (
+/*import (
 	"context"
 	"errors"
 	"fmt"
@@ -132,4 +132,4 @@ func NewClickhouseClient(ctx context.Context, cfg Config) (*ClientClickhouse, er
 
 func (c *ClientClickhouse) Conn() driver.Conn {
 	return c.conn
-}
+}*/

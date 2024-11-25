@@ -1,0 +1,22 @@
+@go.Package {name = "github.com/pipelane/pipelaner/gen/source/transform"}
+module pipelaner.source.transforms
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+
+abstract class Transform {
+  name: String
+  fixed sourceName: String
+  inputs: Listing<String>
+  threads: Int = 1
+  outputBufferSize: Int = 10
+}
+
+class Throttling extends Transform {
+  fixed sourceName = "throttling"
+  interval: Duration?
+}
+
+class Mul extends Transform {
+  fixed sourceName = "mul"
+  mul: Int
+}

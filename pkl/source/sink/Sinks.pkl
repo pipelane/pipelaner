@@ -1,0 +1,25 @@
+@go.Package {name = "github.com/pipelane/pipelaner/gen/source/sink"}
+module pipelaner.source.sinks
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+
+abstract class Sink {
+  name: String
+  fixed sourceName: String
+  inputs: Listing<String>
+  threads: Int = 1
+}
+
+class Console extends Sink {
+  fixed sourceName = "console"
+}
+
+class Clickhouse extends Sink {
+  fixed sourceName = "clickhouse"
+  address: String
+  password: String
+  database: String
+  migrationEngine: String
+  migrationsPathClickhouse: String
+  maxExecutionTime: String
+}

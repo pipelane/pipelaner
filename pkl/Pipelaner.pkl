@@ -1,0 +1,9 @@
+@go.Package {name = "github.com/pipelane/pipelaner/gen/pipelaner"}
+module pipelaner.Pipelaner
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+import "settings/Settings.pkl"
+import "source/Components.pkl"
+
+pipelines: Listing<Components.Pipeline>
+settings: Settings

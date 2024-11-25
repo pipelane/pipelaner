@@ -1,0 +1,13 @@
+@go.Package {name = "github.com/pipelane/pipelaner/gen/settings/metrics"}
+module com.pipelaner.settings.metrics.MetricsConfig
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+
+host: String = "localhost"
+
+port: Int
+
+// non empty only if metrics enable
+serviceName: String?
+
+enable: Boolean = false

@@ -1,13 +1,6 @@
 package kafka
 
-import (
-	kcfg "github.com/pipelane/pipelaner/source/shared/kafka"
-	"github.com/twmb/franz-go/pkg/kgo"
-
-	"github.com/pipelane/pipelaner"
-)
-
-type Kafka struct {
+/*type Kafka struct {
 	cons *Consumer
 	cfg  kcfg.ConsumerConfig
 }
@@ -42,3 +35,4 @@ func (c *Kafka) Generate(ctx *pipelaner.Context, input chan<- any) {
 		}
 	}
 }
+*/

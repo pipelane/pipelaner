@@ -4,7 +4,7 @@
 
 package pipelaner
 
-import (
+/*import (
 	"fmt"
 
 	"github.com/goccy/go-json"
@@ -100,4 +100,4 @@ func (p *Pipelaner) Sink(ctx *pipelaner.Context, val any) {
 	if err != nil {
 		p.logger.Error().Err(err).Msg("Grpc sing failed")
 	}
-}
+}*/

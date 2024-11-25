@@ -4,7 +4,8 @@
 
 package batch
 
-import (
+/*import (
+	"context"
 	"sync"
 
 	"github.com/pipelane/pipelaner"
@@ -35,11 +36,11 @@ func (b *Batch) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
-func (b *Batch) Map(ctx *pipelaner.Context, val any) any {
+func (b *Batch) Map(ctx context.Context, val any) any {
 	b.mx.Lock()
 	defer b.mx.Unlock()
 	select {
-	case <-ctx.Context().Done():
+	case <-ctx.Done():
 		return nil
 	case b.ch <- val:
 		return nil
@@ -49,4 +50,4 @@ func (b *Batch) Map(ctx *pipelaner.Context, val any) any {
 		close(ch)
 		return ch
 	}
-}
+}*/

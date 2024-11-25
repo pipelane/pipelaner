@@ -4,7 +4,7 @@
 
 package kafka
 
-import (
+/*import (
 	"context"
 	"encoding/json"
 
@@ -90,4 +90,4 @@ func (k *Kafka) Sink(ctx *pipelaner.Context, val any) {
 	}
 
 	k.write(ctx.Context(), message)
-}
+}*/

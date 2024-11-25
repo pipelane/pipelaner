@@ -4,7 +4,7 @@
 
 package remap
 
-import (
+/*import (
 	"encoding/json"
 	"errors"
 
@@ -85,3 +85,4 @@ func (e *Filter) Map(_ *pipelaner.Context, val any) any {
 	}
 	return val
 }
+*/

@@ -1,6 +1,8 @@
 module github.com/pipelane/pipelaner
 
-go 1.22
+go 1.22.1
+
+toolchain go1.23.3
 
 require (
 	github.com/BurntSushi/toml v1.4.0
@@ -24,6 +26,7 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.1.1 // indirect
+	github.com/apple/pkl-go v0.8.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -49,6 +52,8 @@ require (
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/twmb/franz-go/pkg/kmsg v1.9.0 // indirect
+	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	go.opentelemetry.io/otel v1.26.0 // indirect
 	go.opentelemetry.io/otel/metric v1.26.0 // indirect
 	go.opentelemetry.io/otel/trace v1.26.0 // indirect

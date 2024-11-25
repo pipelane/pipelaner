@@ -1,0 +1,42 @@
+@go.Package {name = "github.com/pipelane/pipelaner/gen/source/input" }
+module pipelaner.source.inputs
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+
+abstract class Input {
+  name: String
+  fixed sourceName: String
+  threads: Int = 1
+  outputBufferSize: Int = 10
+}
+
+class Cmd extends Input {
+  fixed sourceName = "cmd"
+  exec: Listing<String>
+}
+
+class GenInt extends Input {
+  fixed sourceName = "test_gen"
+  count: Int
+}
+
+class KafkaConfig {
+  saslEnabled: Boolean?
+  saslMechanism: Boolean?
+  saslUsername: String?
+  saslPassword: String?
+  brokers: String
+  version: String
+  topics: Listing<String>
+  schemaRegistry: String
+}
+
+class KafkaConsumer extends Input {
+  fixed sourceName = "kafka"
+  kafka: KafkaConfig
+  autoCommitEnabled: Boolean
+  consumerGroupID: String
+  maxPartitionFetchBytes: String
+  fetchMaxBytes: String
+  balancerStrategy: Listing<String>
+}

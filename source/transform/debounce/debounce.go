@@ -4,7 +4,7 @@
 
 package debounce
 
-import (
+/*import (
 	"sync"
 	"sync/atomic"
 	"time"
@@ -79,3 +79,4 @@ func (d *Debounce) reset() {
 func (d *Debounce) Interval() (time.Duration, error) {
 	return time.ParseDuration(d.cfg.Extended.(*Config).Interval)
 }
+*/

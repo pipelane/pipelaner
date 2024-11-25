@@ -7,72 +7,98 @@ package pipelaner
 import (
 	"context"
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
+	"log"
+
+	config "github.com/pipelane/pipelaner/gen/pipelaner"
+	"github.com/pipelane/pipelaner/internal/health"
+	"github.com/pipelane/pipelaner/internal/pipelaner"
+	"golang.org/x/sync/errgroup"
 )
 
 type Agent struct {
-	cfg     *Config
-	tree    *TreeLanes
-	hc      *HealthCheck
+	pipelaner *pipelaner.Pipelaner
+
+	hc      *health.HealthCheck
 	metrics *MetricsServer
-	ctx     context.Context
-	cancel  context.CancelFunc
 }
 
-func NewAgent(
-	file string,
-) (*Agent, error) {
-	ctx, stop := signal.NotifyContext(
-		context.Background(),
-		os.Interrupt,
-		syscall.SIGTERM,
-	)
-
-	cfg, err := NewConfigFromFile(file)
+func NewAgent(file string) (*Agent, error) {
+	ctx := context.Background()
+	cfg, err := config.LoadFromPath(ctx, file)
 	if err != nil {
 		return nil, fmt.Errorf("read config: %w", err)
 	}
 
-	hc, err := NewHealthCheck(*cfg)
-	if err != nil {
-		return nil, fmt.Errorf("init healthcheck server: %w", err)
-	}
-	m, err := NewMetricsServer(*cfg)
-	if err != nil {
-		return nil, fmt.Errorf("init metrics server: %w", err)
-	}
-	return &Agent{
-		tree:    nil,
-		ctx:     ctx,
-		hc:      hc,
-		metrics: m,
-		cancel:  stop,
-		cfg:     cfg,
-	}, err
-}
+	a := &Agent{}
 
-func (a *Agent) Serve() {
-	if a.hc != nil {
-		a.hc.Serve()
+	inits := []func(cfg *config.Pipelaner) error{
+		a.initHealthCheck,
+		a.initMetricsServer,
+		a.initPipelaner,
 	}
-	go func() {
-		if a.metrics != nil {
-			err := a.metrics.Serve()
-			if err != nil {
-				panic(err)
-			}
+
+	for _, init := range inits {
+		if err := init(cfg); err != nil {
+			return nil, err
 		}
-	}()
-	t, err := NewTreeFromConfig(a.ctx, a.cfg)
-	if err != nil {
-		panic(fmt.Errorf("init tree from config: %w", err))
 	}
-	a.tree = t
-	<-a.ctx.Done()
+
+	return a, nil
 }
 
-func (a *Agent) Stop() {
-	a.cancel()
+func (a *Agent) initHealthCheck(cfg *config.Pipelaner) error {
+	hcCfg := cfg.Settings.HealthCheck
+	if hcCfg.Enable {
+		hc, err := health.NewHealthCheck(hcCfg)
+		if err != nil {
+			return fmt.Errorf("init health check: %w", err)
+		}
+		a.hc = hc
+	}
+	return nil
+}
+
+func (a *Agent) initMetricsServer(cfg *config.Pipelaner) error {
+	metricsCfg := cfg.Settings.Metrics
+	if metricsCfg.Enable {
+		m, err := NewMetricsServer(metricsCfg)
+		if err != nil {
+			return fmt.Errorf("init metrics server: %w", err)
+		}
+		a.metrics = m
+	}
+	return nil
+}
+
+func (a *Agent) initPipelaner(cfg *config.Pipelaner) error {
+	pipelanerCfg := cfg.Pipelines
+	p, err := pipelaner.NewPipelaner(pipelanerCfg)
+	if err != nil {
+		return fmt.Errorf("init pipeliner: %w", err)
+	}
+	a.pipelaner = p
+	return nil
+}
+
+func (a *Agent) Serve(ctx context.Context) error {
+	g, ctx := errgroup.WithContext(ctx)
+	if a.hc != nil {
+		g.Go(func() error {
+			return a.hc.Serve(ctx)
+		})
+	}
+	if a.metrics != nil {
+		g.Go(func() error {
+			return a.metrics.Serve(ctx)
+		})
+	}
+	g.Go(func() error {
+		return a.pipelaner.Run(ctx)
+	})
+
+	if err := g.Wait(); err != nil {
+		return fmt.Errorf("run agent: %w", err)
+	}
+	log.Println("agent finished")
+	return nil
 }

@@ -24,6 +24,8 @@ type ServerConfig struct {
 }
 
 type Server struct {
+	grpcServer *grpc.Server
+
 	config *ServerConfig
 	logger *zerolog.Logger
 }
@@ -35,21 +37,16 @@ func NewServer(config *ServerConfig, logger *zerolog.Logger) *Server {
 	}
 }
 
-func (s *Server) Serve(use ...func(grpc *grpc.Server)) {
-	grpcServer := grpc.NewServer(s.config.Opts...)
+func (s *Server) Serve(use ...func(grpc *grpc.Server)) error {
+	s.grpcServer = grpc.NewServer(s.config.Opts...)
 
 	lis := s.createListener()
 
 	for _, u := range use {
-		u(grpcServer)
+		u(s.grpcServer)
 	}
 
-	go func() {
-		err := grpcServer.Serve(lis)
-		if err != nil {
-			s.logger.Fatal().Err(err).Msg("Failed run server")
-		}
-	}()
+	return s.grpcServer.Serve(lis)
 }
 
 func (s *Server) createListener() net.Listener {
@@ -70,4 +67,12 @@ func (s *Server) createListener() net.Listener {
 		s.logger.Fatal().Err(err).Msgf("Failed to listen on TCP %s:%d", s.config.Host, s.config.Port)
 	}
 	return tcpListener
+}
+
+func (s *Server) Stop() error {
+	if s.grpcServer == nil {
+		return fmt.Errorf("grpc server not initialized")
+	}
+	s.grpcServer.GracefulStop()
+	return nil
 }
