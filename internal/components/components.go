@@ -16,6 +16,10 @@ type Input interface {
 type Transform interface {
 	Init(cfg transform.Transform) error
 	Transform(val any) any
+	// возможно есть смысл добавить метод close, который будет вызываться после закрытия всех
+	// входящих в transform каналов
+	// Может быть полезен, как для Transform, так и для Sink компонентов
+	// Close() error
 }
 
 type Sink interface {

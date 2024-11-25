@@ -4,80 +4,62 @@
 
 package throttling
 
-/*import (
+import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"github.com/pipelane/pipelaner"
+	"github.com/pipelane/pipelaner/gen/source/transform"
+	"github.com/pipelane/pipelaner/internal/pipeline/source"
 )
 
-type Config struct {
-	Interval string `pipelane:"interval"`
+func init() {
+	source.RegisterTransform("throttling", &Throttling{})
 }
 
 type Throttling struct {
-	mx     sync.Mutex
-	cfg    *pipelaner.BaseLaneConfig
-	val    atomic.Value
-	locked atomic.Bool
-	timer  *time.Timer
+	interval time.Duration
+	val      atomic.Value
+	locked   atomic.Bool
+
+	mx    sync.Mutex
+	timer *time.Timer
 }
 
-func (d *Throttling) Init(ctx *pipelaner.Context) error {
-	d.cfg = ctx.LaneItem().Config()
-	v := &Config{}
-	err := d.cfg.ParseExtended(v)
-	if err != nil {
-		return err
+func (t *Throttling) Init(cfg transform.Transform) error {
+	tCfg, ok := cfg.(transform.Throttling)
+	if !ok {
+		return fmt.Errorf("invalid transform config type: %T", cfg)
 	}
-	i, err := d.Interval()
-	if err != nil {
-		return err
-	}
-	d.timer = time.NewTimer(i)
+	t.interval = tCfg.GetInterval().GoDuration()
+	t.timer = time.NewTimer(tCfg.GetInterval().GoDuration())
 	return nil
 }
 
-func init() {
-	pipelaner.RegisterMap("throttling", &Throttling{})
-}
-
-func (d *Throttling) Map(ctx *pipelaner.Context, val any) any {
-	d.storeValue(val)
-	lock := d.locked.Load()
+func (t *Throttling) Transform(val any) any {
+	t.storeValue(val)
+	lock := t.locked.Load()
 	if lock {
 		return nil
 	}
-	d.locked.Store(true)
-	d.reset()
+	t.locked.Store(true)
+	t.reset()
 	select {
-	case <-ctx.Context().Done():
-		d.timer.Stop()
-		return nil
-	case <-d.timer.C:
-		v := d.val.Load()
-		d.locked.Store(false)
-		d.val = atomic.Value{}
+	case <-t.timer.C:
+		v := t.val.Load()
+		t.locked.Store(false)
+		t.val = atomic.Value{}
 		return v
 	}
 }
 
-func (d *Throttling) storeValue(val any) {
-	d.val.Store(val)
+func (t *Throttling) storeValue(val any) {
+	t.val.Store(val)
 }
 
-func (d *Throttling) reset() {
-	d.mx.Lock()
-	defer d.mx.Unlock()
-	i, err := d.Interval()
-	if err != nil {
-		return
-	}
-	d.timer.Reset(i)
+func (t *Throttling) reset() {
+	t.mx.Lock()
+	defer t.mx.Unlock()
+	t.timer.Reset(t.interval)
 }
-
-func (d *Throttling) Interval() (time.Duration, error) {
-	return time.ParseDuration(d.cfg.Extended.(*Config).Interval)
-}
-*/

@@ -125,14 +125,12 @@ func (i *Input) Run(ctx context.Context) error {
 
 					channel <- msg
 				}
-
 			}
 		}
 	}()
 
 	go func() {
 		defer close(input)
-		// start generate messages
 		i.impl.Generate(ctx, input)
 	}()
 	return nil

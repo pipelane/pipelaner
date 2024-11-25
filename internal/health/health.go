@@ -14,11 +14,11 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
-type HealthCheck struct {
+type Server struct {
 	serv *grpc_server.Server
 }
 
-func NewHealthCheck(cfg *healthcheck.HealthcheckConfig) (*HealthCheck, error) {
+func NewHealthCheck(cfg *healthcheck.HealthcheckConfig) (*Server, error) {
 	logger := logger.NewLogger()
 
 	if cfg == nil {
@@ -34,7 +34,7 @@ func NewHealthCheck(cfg *healthcheck.HealthcheckConfig) (*HealthCheck, error) {
 		Port: cfg.Port,
 	}, &logger)
 
-	return &HealthCheck{
+	return &Server{
 		serv: serv,
 	}, nil
 }
@@ -43,7 +43,7 @@ var (
 	healthcheckNotInitialized = errors.New("healthcheck server not initialized")
 )
 
-func (p *HealthCheck) Serve(ctx context.Context) error {
+func (p *Server) Serve(ctx context.Context) error {
 	if p.serv == nil {
 		return healthcheckNotInitialized
 	}

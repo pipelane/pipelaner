@@ -12,11 +12,38 @@ import (
 	"github.com/pipelane/pipelaner/internal/pipeline/node"
 )
 
+type (
+	inputNode interface {
+		Run(ctx context.Context) error
+		AddOutputChannel(ch chan any)
+
+		GetName() string
+		GetOutputBufferSize() int
+	}
+
+	transformNode interface {
+		Run() error
+		AddInputChannel(ch chan any)
+		AddOutputChannel(ch chan any)
+
+		GetName() string
+		GetInputs() []string
+		GetOutputBufferSize() int
+	}
+
+	sinkNode interface {
+		Run() error
+		AddInputChannel(ch chan any)
+
+		GetInputs() []string
+	}
+)
+
 type Pipeline struct {
 	name       string
-	inputs     []*node.Input
-	transforms []*node.Transform
-	sinks      []*node.Sink
+	inputs     []inputNode
+	transforms []transformNode
+	sinks      []sinkNode
 }
 
 func NewPipeline(cfg *config.Pipeline) (*Pipeline, error) {
@@ -80,9 +107,9 @@ func (p *Pipeline) connectNodes() error {
 	return nil
 }
 
-func (p *Pipeline) initSinkNodes(sinks []sink.Sink) error {
-	sinkNodes := make([]*node.Sink, 0, len(sinks))
-	for _, cfg := range sinks {
+func (p *Pipeline) initSinkNodes(sinkConfigs []sink.Sink) error {
+	sinkNodes := make([]sinkNode, 0, len(sinkConfigs))
+	for _, cfg := range sinkConfigs {
 		// todo add logger and options
 		sinkNode, err := node.NewSink(cfg, nil)
 		if err != nil {
@@ -94,9 +121,9 @@ func (p *Pipeline) initSinkNodes(sinks []sink.Sink) error {
 	return nil
 }
 
-func (p *Pipeline) initTransformNodes(transforms []transform.Transform) error {
-	transformNodes := make([]*node.Transform, 0, len(transforms))
-	for _, cfg := range transforms {
+func (p *Pipeline) initTransformNodes(transformConfigs []transform.Transform) error {
+	transformNodes := make([]transformNode, 0, len(transformConfigs))
+	for _, cfg := range transformConfigs {
 		// todo add logger and options
 		transformNode, err := node.NewTransform(cfg, nil)
 		if err != nil {
@@ -109,7 +136,7 @@ func (p *Pipeline) initTransformNodes(transforms []transform.Transform) error {
 }
 
 func (p *Pipeline) initInputNodes(inputs []input.Input) error {
-	inputNodes := make([]*node.Input, 0, len(inputs))
+	inputNodes := make([]inputNode, 0, len(inputs))
 	for _, cfg := range inputs {
 		inputNode, err := node.NewInput(cfg, nil)
 		if err != nil {

@@ -7,7 +7,6 @@ package pipelaner
 import (
 	"context"
 	"fmt"
-	"log"
 
 	config "github.com/pipelane/pipelaner/gen/pipelaner"
 	"github.com/pipelane/pipelaner/internal/health"
@@ -19,8 +18,8 @@ import (
 type Agent struct {
 	pipelaner *pipelaner.Pipelaner
 
-	hc      *health.HealthCheck
-	metrics *metrics.MetricsServer
+	hc      *health.Server
+	metrics *metrics.Server
 }
 
 func NewAgent(file string) (*Agent, error) {
@@ -100,6 +99,5 @@ func (a *Agent) Serve(ctx context.Context) error {
 	if err := g.Wait(); err != nil {
 		return fmt.Errorf("run agent: %w", err)
 	}
-	log.Println("agent finished")
 	return nil
 }

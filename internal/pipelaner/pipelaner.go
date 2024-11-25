@@ -5,18 +5,22 @@ import (
 	"fmt"
 
 	"github.com/pipelane/pipelaner/gen/components"
-	"github.com/pipelane/pipelaner/internal/pipeline"
+	pipelineimpl "github.com/pipelane/pipelaner/internal/pipeline"
 )
 
+type pipeline interface {
+	Run(ctx context.Context) error
+}
+
 type Pipelaner struct {
-	Pipelines []*pipeline.Pipeline
+	Pipelines []pipeline
 }
 
 func NewPipelaner(configs []*components.Pipeline) (*Pipelaner, error) {
-	pipelines := make([]*pipeline.Pipeline, 0, len(configs))
+	pipelines := make([]pipeline, 0, len(configs))
 
 	for _, cfg := range configs {
-		p, err := pipeline.NewPipeline(cfg)
+		p, err := pipelineimpl.NewPipeline(cfg)
 		if err != nil {
 			return nil, fmt.Errorf("create pipeline '%s': %w", cfg.Name, err)
 		}

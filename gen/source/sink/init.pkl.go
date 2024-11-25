@@ -6,4 +6,5 @@ import "github.com/apple/pkl-go/pkl"
 func init() {
 	pkl.RegisterMapping("pipelaner.source.sinks", Sinks{})
 	pkl.RegisterMapping("pipelaner.source.sinks#Console", ConsoleImpl{})
+	pkl.RegisterMapping("pipelaner.source.sinks#Clickhouse", ClickhouseImpl{})
 }

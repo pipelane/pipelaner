@@ -16,11 +16,11 @@ var (
 	metricsNotInitializedErr = errors.New("metrics server not initialized")
 )
 
-type MetricsServer struct {
+type Server struct {
 	server *http.Server
 }
 
-func NewMetricsServer(cfg *metrics.MetricsConfig) (*MetricsServer, error) {
+func NewMetricsServer(cfg *metrics.MetricsConfig) (*Server, error) {
 	if cfg == nil {
 		return nil, errors.New("config is required")
 	}
@@ -33,12 +33,12 @@ func NewMetricsServer(cfg *metrics.MetricsConfig) (*MetricsServer, error) {
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
-	return &MetricsServer{
+	return &Server{
 		server: server,
 	}, nil
 }
 
-func (m *MetricsServer) Serve(ctx context.Context) error {
+func (m *Server) Serve(ctx context.Context) error {
 	go func() {
 		<-ctx.Done()
 		if cErr := m.server.Shutdown(context.Background()); cErr != nil {
@@ -48,6 +48,6 @@ func (m *MetricsServer) Serve(ctx context.Context) error {
 	return m.server.ListenAndServe()
 }
 
-func (m *MetricsServer) Close() error {
+func (m *Server) Close() error {
 	return m.server.Close()
 }

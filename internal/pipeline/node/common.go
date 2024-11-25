@@ -3,14 +3,6 @@ package node
 type Type string
 
 type nodeCfg struct {
-	name             string
-	sourceName       string
-	threadsCount     int
-	outputBufferSize int
-
-	inputs  []string
-	outputs []string
-
 	enableMetrics bool
 }
 

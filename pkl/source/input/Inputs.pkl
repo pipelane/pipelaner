@@ -10,11 +10,6 @@ abstract class Input {
   outputBufferSize: Int = 10
 }
 
-class Cmd extends Input {
-  fixed sourceName = "cmd"
-  exec: Listing<String>
-}
-
 class GenInt extends Input {
   fixed sourceName = "test_gen"
   count: Int

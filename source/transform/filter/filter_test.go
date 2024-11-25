@@ -5,35 +5,17 @@
 package remap
 
 import (
-	"context"
 	"testing"
 
-	"github.com/rs/zerolog"
+	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/pipelane/pipelaner"
 )
-
-func newCfg(
-	itemType pipelaner.LaneTypes, //nolint:unparam
-	extended map[string]any,
-) *pipelaner.BaseLaneConfig {
-	c, err := pipelaner.NewBaseConfigWithTypeAndExtended(
-		itemType,
-		"test_maps_sinks",
-		extended,
-	)
-	if err != nil {
-		return nil
-	}
-	return c
-}
 
 func TestExprLanguage_Map(t *testing.T) {
 	type args struct {
-		val any
-		ctx *pipelaner.Context
+		val  any
+		code string
 	}
 	tests := []struct {
 		name string
@@ -43,12 +25,7 @@ func TestExprLanguage_Map(t *testing.T) {
 		{
 			name: "test filtering maps return nil",
 			args: args{
-				ctx: pipelaner.NewContext(context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
-						map[string]any{
-							"code": "Data.count > 5",
-						}), true),
-				),
+				code: "Data.count > 5",
 				val: map[string]any{
 					"count": 1,
 				},
@@ -58,12 +35,7 @@ func TestExprLanguage_Map(t *testing.T) {
 		{
 			name: "test filtering maps return 10",
 			args: args{
-				ctx: pipelaner.NewContext(context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
-						map[string]any{
-							"code": "Data.count > 5",
-						}), true),
-				),
+				code: "Data.count > 5",
 				val: map[string]any{
 					"count": 10,
 				},
@@ -75,13 +47,12 @@ func TestExprLanguage_Map(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			logger := zerolog.Nop()
-			e := &Filter{
-				logger: &logger,
-			}
-			err := e.Init(tt.args.ctx)
+			e := &Filter{}
+			err := e.Init(&transform.FilterImpl{
+				Code: tt.args.code,
+			})
 			require.Nil(t, err)
-			got := e.Map(tt.args.ctx, tt.args.val)
+			got := e.Transform(tt.args.val)
 			assert.Equal(t, got, tt.want)
 		})
 	}
@@ -89,8 +60,8 @@ func TestExprLanguage_Map(t *testing.T) {
 
 func TestExprLanguage_String(t *testing.T) {
 	type args struct {
-		val any
-		ctx *pipelaner.Context
+		val  any
+		code string
 	}
 	tests := []struct {
 		name string
@@ -100,39 +71,28 @@ func TestExprLanguage_String(t *testing.T) {
 		{
 			name: "test filtering string return nil",
 			args: args{
-				ctx: pipelaner.NewContext(context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
-						map[string]any{
-							"code": "Data.count > 5",
-						}), true),
-				),
-				val: "{\"count\":1}",
+				code: "Data.count > 5",
+				val:  "{\"count\":1}",
 			},
 			want: nil,
 		},
 		{
 			name: "test filtering string return 10",
 			args: args{
-				ctx: pipelaner.NewContext(context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
-						map[string]any{
-							"code": "Data.count > 5",
-						}), true),
-				),
-				val: "{\"count\":10}",
+				code: "Data.count > 5",
+				val:  "{\"count\":10}",
 			},
 			want: "{\"count\":10}",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			logger := zerolog.Nop()
-			e := &Filter{
-				logger: &logger,
-			}
-			err := e.Init(tt.args.ctx)
+			e := &Filter{}
+			err := e.Init(&transform.FilterImpl{
+				Code: tt.args.code,
+			})
 			require.Nil(t, err)
-			got := e.Map(tt.args.ctx, tt.args.val)
+			got := e.Transform(tt.args.val)
 			assert.Equal(t, got, tt.want)
 		})
 	}
@@ -140,8 +100,8 @@ func TestExprLanguage_String(t *testing.T) {
 
 func TestExprLanguage_Bytes(t *testing.T) {
 	type args struct {
-		val any
-		ctx *pipelaner.Context
+		val  any
+		code string
 	}
 	tests := []struct {
 		name string
@@ -151,39 +111,28 @@ func TestExprLanguage_Bytes(t *testing.T) {
 		{
 			name: "test filtering string return nil",
 			args: args{
-				ctx: pipelaner.NewContext(context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
-						map[string]any{
-							"code": "Data.count > 5",
-						}), true),
-				),
-				val: []byte("{\"count\":1}"),
+				code: "Data.count > 5",
+				val:  []byte("{\"count\":1}"),
 			},
 			want: nil,
 		},
 		{
 			name: "test filtering string return 10",
 			args: args{
-				ctx: pipelaner.NewContext(context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
-						map[string]any{
-							"code": "Data.count > 5",
-						}), true),
-				),
-				val: []byte("{\"count\":10}"),
+				code: "Data.count > 5",
+				val:  []byte("{\"count\":10}"),
 			},
 			want: []byte("{\"count\":10}"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			logger := zerolog.Nop()
-			e := &Filter{
-				logger: &logger,
-			}
-			err := e.Init(tt.args.ctx)
+			e := &Filter{}
+			err := e.Init(&transform.FilterImpl{
+				Code: tt.args.code,
+			})
 			require.Nil(t, err)
-			got := e.Map(tt.args.ctx, tt.args.val)
+			got := e.Transform(tt.args.val)
 			assert.Equal(t, got, tt.want)
 		})
 	}

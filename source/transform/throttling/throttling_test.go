@@ -5,21 +5,47 @@
 package throttling
 
 import (
-	"context"
+	"regexp"
+	"strconv"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/apple/pkl-go/pkl"
+	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/pipelane/pipelaner"
 )
+
+func newConfig(
+	t *testing.T,
+	duration time.Duration,
+) transform.Transform {
+	durationStr := duration.String()
+
+	re := regexp.MustCompile(`^(\d+)([a-z]+)$`)
+	matches := re.FindStringSubmatch(durationStr)
+	if len(matches) == 3 {
+		value, err := strconv.ParseFloat(matches[1], 64)
+		assert.NoError(t, err)
+		unit, err := pkl.ToDurationUnit(matches[2])
+		assert.NoError(t, err)
+		return &transform.ThrottlingImpl{
+			Interval: &pkl.Duration{
+				Value: value,
+				Unit:  unit,
+			},
+		}
+	} else {
+		t.Fatal("invalid input string")
+		return nil
+	}
+}
 
 func TestThrottling_Map(t *testing.T) {
 	type args struct {
-		ctx        *pipelaner.Context
 		iterations int
+		duration   time.Duration
 	}
 	tests := []struct {
 		name string
@@ -30,14 +56,7 @@ func TestThrottling_Map(t *testing.T) {
 			name: "Test throttling 300 ms",
 			args: args{
 				iterations: 10,
-				ctx: pipelaner.NewContext(
-					context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
-						"test_maps",
-						map[string]any{
-							"interval": "300ms",
-						},
-					), true)),
+				duration:   300 * time.Millisecond,
 			},
 			want: nil,
 		},
@@ -46,17 +65,16 @@ func TestThrottling_Map(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			maps := &Throttling{
 				mx:  sync.Mutex{},
-				cfg: tt.args.ctx.LaneItem().Config(),
 				val: atomic.Value{},
 			}
-			e := maps.Init(tt.args.ctx)
+			e := maps.Init(newConfig(t, tt.args.duration))
 			if e != nil {
 				t.Error(e)
 				return
 			}
 			var val *int
 			for i := 0; i < tt.args.iterations; i++ {
-				v := maps.Map(tt.args.ctx, i)
+				v := maps.Transform(i)
 				if v != nil {
 					assert.Equal(t, v, i)
 					continue
@@ -69,8 +87,8 @@ func TestThrottling_Map(t *testing.T) {
 
 func TestThrottlingConcurrent_Map(t *testing.T) {
 	type args struct {
-		ctx        *pipelaner.Context
 		iterations int
+		duration   time.Duration
 	}
 	tests := []struct {
 		name string
@@ -81,14 +99,7 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 			name: "Test concurrent throttling 300 ms",
 			args: args{
 				iterations: 10,
-				ctx: pipelaner.NewContext(
-					context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType,
-						"test_maps",
-						map[string]any{
-							"interval": "300ms",
-						},
-					), true)),
+				duration:   300 * time.Millisecond,
 			},
 			want: nil,
 		},
@@ -97,10 +108,9 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			maps := &Throttling{
 				mx:  sync.Mutex{},
-				cfg: tt.args.ctx.LaneItem().Config(),
 				val: atomic.Value{},
 			}
-			e := maps.Init(tt.args.ctx)
+			e := maps.Init(newConfig(t, tt.args.duration))
 			if e != nil {
 				t.Error(e)
 				return
@@ -111,7 +121,7 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 				wg.Add(1)
 				go func(j int) {
 					defer wg.Done()
-					v := maps.Map(tt.args.ctx, j)
+					v := maps.Transform(j)
 					if v != nil {
 						_v, ok := v.(int)
 						if !ok {
@@ -122,26 +132,8 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 				}(i)
 			}
 			wg.Wait()
-			i, err := maps.Interval()
-			assert.NoError(t, err)
-			time.Sleep(i + time.Second)
+			time.Sleep(tt.args.duration)
 			assert.NotNil(t, val)
 		})
 	}
-}
-
-func newCfg(
-	itemType pipelaner.LaneTypes,
-	name string,
-	extended map[string]any,
-) *pipelaner.BaseLaneConfig {
-	c, err := pipelaner.NewBaseConfigWithTypeAndExtended(
-		itemType,
-		name,
-		extended,
-	)
-	if err != nil {
-		return nil
-	}
-	return c
 }

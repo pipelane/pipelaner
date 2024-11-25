@@ -5,36 +5,36 @@
 package debounce
 
 import (
-	"context"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/apple/pkl-go/pkl"
+	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/pipelane/pipelaner"
 )
 
 func newCfg(
-	itemType pipelaner.LaneTypes,
-	name string,
-	extended map[string]any,
-) *pipelaner.BaseLaneConfig {
-	c, err := pipelaner.NewBaseConfigWithTypeAndExtended(
-		itemType,
-		name,
-		extended,
-	)
+	t *testing.T,
+	duration float64,
+	durationUnit string,
+) transform.Transform {
+	t.Helper()
+	uni, err := pkl.ToDurationUnit(durationUnit)
 	if err != nil {
-		return nil
+		t.Fatal(err)
 	}
-	return c
+	return &transform.DebounceImpl{
+		Interval: &pkl.Duration{
+			Unit:  uni,
+			Value: duration,
+		},
+	}
 }
 
 func TestDebounce_Map(t *testing.T) {
 	type args struct {
-		ctx        *pipelaner.Context
 		iterations int
 	}
 	tests := []struct {
@@ -46,11 +46,6 @@ func TestDebounce_Map(t *testing.T) {
 			name: "Test debounce 300 ms",
 			args: args{
 				iterations: 10,
-				ctx: pipelaner.NewContext(
-					context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType, "test_maps", map[string]any{
-						"interval": "300ms",
-					}), true)),
 			},
 			want: nil,
 		},
@@ -59,17 +54,16 @@ func TestDebounce_Map(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			maps := &Debounce{
 				mx:  sync.Mutex{},
-				cfg: tt.args.ctx.LaneItem().Config(),
 				val: atomic.Value{},
 			}
-			e := maps.Init(tt.args.ctx)
+			e := maps.Init(newCfg(t, 300, "ms"))
 			if e != nil {
 				t.Error(e)
 				return
 			}
 			var val *int
 			for i := 0; i < tt.args.iterations; i++ {
-				v := maps.Map(tt.args.ctx, i)
+				v := maps.Transform(i)
 				if v != nil {
 					assert.Equal(t, v, i)
 					continue
@@ -82,7 +76,6 @@ func TestDebounce_Map(t *testing.T) {
 
 func TestDebounceConcurrent_Map(t *testing.T) {
 	type args struct {
-		ctx        *pipelaner.Context
 		iterations int
 	}
 	tests := []struct {
@@ -94,11 +87,6 @@ func TestDebounceConcurrent_Map(t *testing.T) {
 			name: "Test concurrent debounce 300 ms",
 			args: args{
 				iterations: 10,
-				ctx: pipelaner.NewContext(
-					context.Background(),
-					pipelaner.NewLaneItem(newCfg(pipelaner.MapType, "test_maps", map[string]any{
-						"interval": "300ms",
-					}), true)),
 			},
 			want: nil,
 		},
@@ -107,10 +95,9 @@ func TestDebounceConcurrent_Map(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			maps := &Debounce{
 				mx:  sync.Mutex{},
-				cfg: tt.args.ctx.LaneItem().Config(),
 				val: atomic.Value{},
 			}
-			e := maps.Init(tt.args.ctx)
+			e := maps.Init(newCfg(t, 300, "ms"))
 			if e != nil {
 				t.Error(e)
 				return
@@ -121,7 +108,7 @@ func TestDebounceConcurrent_Map(t *testing.T) {
 				wg.Add(1)
 				go func(j int) {
 					defer wg.Done()
-					v := maps.Map(tt.args.ctx, j)
+					v := maps.Transform(j)
 					if v != nil {
 						_v, ok := v.(int)
 						if !ok {
@@ -132,9 +119,7 @@ func TestDebounceConcurrent_Map(t *testing.T) {
 				}(i)
 			}
 			wg.Wait()
-			i, err := maps.Interval()
-			assert.NotNil(t, err)
-			time.Sleep(i + time.Second)
+			time.Sleep(300 * time.Millisecond)
 			assert.NotNil(t, val)
 		})
 	}

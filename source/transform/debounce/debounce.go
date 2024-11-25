@@ -4,46 +4,41 @@
 
 package debounce
 
-/*import (
+import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"github.com/pipelane/pipelaner"
+	"github.com/pipelane/pipelaner/gen/source/transform"
+	"github.com/pipelane/pipelaner/internal/pipeline/source"
 )
 
-type Config struct {
-	Interval string `pipelane:"interval"`
+func init() {
+	source.RegisterTransform("debounce", &Debounce{})
 }
 
 type Debounce struct {
-	mx     sync.Mutex
-	cfg    *pipelaner.BaseLaneConfig
-	val    atomic.Value
-	locked atomic.Bool
-	timer  *time.Timer
+	interval time.Duration
+	val      atomic.Value
+	locked   atomic.Bool
+
+	mx    sync.Mutex
+	timer *time.Timer
 }
 
-func (d *Debounce) Init(ctx *pipelaner.Context) error {
-	d.cfg = ctx.LaneItem().Config()
-	v := &Config{}
-	err := d.cfg.ParseExtended(v)
-	if err != nil {
-		return err
+func (d *Debounce) Init(cfg transform.Transform) error {
+	dConfig, ok := cfg.(transform.Debounce)
+	if !ok {
+		return fmt.Errorf("invalid debounce config type: %T", cfg)
 	}
-	interval, err := d.Interval()
-	if err != nil {
-		return err
-	}
-	d.timer = time.NewTimer(interval)
+
+	d.interval = dConfig.GetInterval().GoDuration()
+	d.timer = time.NewTimer(dConfig.GetInterval().GoDuration())
 	return nil
 }
 
-func init() {
-	pipelaner.RegisterMap("debounce", &Debounce{})
-}
-
-func (d *Debounce) Map(ctx *pipelaner.Context, val any) any {
+func (d *Debounce) Transform(val any) any {
 	d.storeValue(val)
 	lock := d.locked.Load()
 	if lock {
@@ -51,8 +46,6 @@ func (d *Debounce) Map(ctx *pipelaner.Context, val any) any {
 	}
 	d.locked.Store(true)
 	select {
-	case <-ctx.Context().Done():
-		return nil
 	case <-d.timer.C:
 		v := d.val.Load()
 		d.locked.Store(false)
@@ -69,14 +62,5 @@ func (d *Debounce) storeValue(val any) {
 func (d *Debounce) reset() {
 	d.mx.Lock()
 	defer d.mx.Unlock()
-	i, err := d.Interval()
-	if err != nil {
-		return
-	}
-	d.timer.Reset(i)
+	d.timer.Reset(d.interval)
 }
-
-func (d *Debounce) Interval() (time.Duration, error) {
-	return time.ParseDuration(d.cfg.Extended.(*Config).Interval)
-}
-*/

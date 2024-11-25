@@ -1,3 +1,5 @@
+LOCAL_BIN:=$(CURDIR)/bin
+
 .PHONY: install-linter
 install-linter:
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
@@ -17,3 +19,15 @@ proto:
 	@docker run -v $(PWD):/defs namely/protoc-all:1.51_2 -i proto -d proto -o go -l go && \
     mv go/github.com/pipelane/pipelaner/source/shared/proto source/shared  && \
     rm -rf go
+
+.PHONY: install-pkl-go
+install-pkl-go:
+	GOBIN=$(LOCAL_BIN) go install github.com/apple/pkl-go/cmd/pkl-gen-go@v0.8.1
+
+.PHONY: pkl-generate-go
+pkl-generate-go:
+	${LOCAL_BIN}/pkl-gen-go pkl/Pipelaner.pkl
+
+.PHONY: pkl-project
+pkl-project:
+	pkl project package pkl

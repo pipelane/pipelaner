@@ -4,17 +4,20 @@
 
 package remap
 
-/*import (
+import (
 	"encoding/json"
 	"errors"
-
-	"github.com/expr-lang/expr/vm"
-	"github.com/rs/zerolog"
+	"fmt"
 
 	"github.com/expr-lang/expr"
-
-	"github.com/pipelane/pipelaner"
+	"github.com/expr-lang/expr/vm"
+	"github.com/pipelane/pipelaner/gen/source/transform"
+	"github.com/pipelane/pipelaner/internal/pipeline/source"
 )
+
+func init() {
+	source.RegisterTransform("remap", &Remap{})
+}
 
 var (
 	ErrInvalidDataType = errors.New("error invalid data type")
@@ -29,26 +32,15 @@ type Config struct {
 }
 
 type Remap struct {
-	cfg     *pipelaner.BaseLaneConfig
-	logger  *zerolog.Logger
 	program *vm.Program
 }
 
-func init() {
-	pipelaner.RegisterMap("remap", &Remap{})
-}
-
-func (e *Remap) Init(ctx *pipelaner.Context) error {
-	e.cfg = ctx.LaneItem().Config()
-	l := ctx.Logger()
-	e.logger = &l
-	v := &Config{}
-	err := e.cfg.ParseExtended(v)
-	if err != nil {
-		return err
+func (e *Remap) Init(cfg transform.Transform) error {
+	rCfg, ok := cfg.(transform.Remap)
+	if !ok {
+		return fmt.Errorf("invalid remap config type: %T", cfg)
 	}
-
-	program, err := expr.Compile(v.Code, expr.Env(EnvMap{}))
+	program, err := expr.Compile(rCfg.GetCode(), expr.Env(EnvMap{}))
 	if err != nil {
 		return err
 	}
@@ -56,7 +48,7 @@ func (e *Remap) Init(ctx *pipelaner.Context) error {
 	return nil
 }
 
-func (e *Remap) Map(_ *pipelaner.Context, val any) any {
+func (e *Remap) Transform(val any) any {
 	var v any
 	switch value := val.(type) {
 	case map[string]any:
@@ -79,8 +71,7 @@ func (e *Remap) Map(_ *pipelaner.Context, val any) any {
 	}
 	output, err := expr.Run(e.program, EnvMap{Data: v})
 	if err != nil {
-		e.logger.Err(err).Msg("Expr: output error")
 		return err
 	}
 	return output
-}*/
+}

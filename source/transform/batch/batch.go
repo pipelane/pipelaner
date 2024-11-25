@@ -4,50 +4,49 @@
 
 package batch
 
-/*import (
-	"context"
+import (
+	"fmt"
 	"sync"
 
-	"github.com/pipelane/pipelaner"
+	"github.com/pipelane/pipelaner/gen/source/transform"
+	"github.com/pipelane/pipelaner/internal/pipeline/source"
 )
+
+func init() {
+	source.RegisterTransform("batch", &Batch{})
+}
 
 type Config struct {
 	Size int64 `pipelane:"size"`
 }
 
 type Batch struct {
-	cfg *pipelaner.BaseLaneConfig
-	mx  sync.Mutex
-	ch  chan any
+	mx sync.Mutex
+	ch chan any
+
+	size uint32
 }
 
-func init() {
-	pipelaner.RegisterMap("batch", &Batch{})
-}
-
-func (b *Batch) Init(ctx *pipelaner.Context) error {
-	b.cfg = ctx.LaneItem().Config()
-	v := &Config{}
-	err := b.cfg.ParseExtended(v)
-	if err != nil {
-		return err
+func (b *Batch) Init(cfg transform.Transform) error {
+	bCfg, ok := cfg.(transform.Batch)
+	if !ok {
+		return fmt.Errorf("invalid batch config type: %T", cfg)
 	}
-	b.ch = make(chan any, b.cfg.Extended.(*Config).Size)
+	b.size = bCfg.GetSize()
+	b.ch = make(chan any, bCfg.GetSize())
 	return nil
 }
 
-func (b *Batch) Map(ctx context.Context, val any) any {
+func (b *Batch) Transform(val any) any {
 	b.mx.Lock()
 	defer b.mx.Unlock()
 	select {
-	case <-ctx.Done():
-		return nil
 	case b.ch <- val:
 		return nil
 	default:
 		ch := b.ch
-		b.ch = make(chan any, b.cfg.Extended.(*Config).Size)
+		b.ch = make(chan any, b.size)
 		close(ch)
 		return ch
 	}
-}*/
+}
