@@ -1,4 +1,4 @@
-package pipelaner
+package metrics
 
 import (
 	"context"

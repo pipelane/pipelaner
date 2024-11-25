@@ -11,6 +11,7 @@ import (
 
 	config "github.com/pipelane/pipelaner/gen/pipelaner"
 	"github.com/pipelane/pipelaner/internal/health"
+	"github.com/pipelane/pipelaner/internal/metrics"
 	"github.com/pipelane/pipelaner/internal/pipelaner"
 	"golang.org/x/sync/errgroup"
 )
@@ -19,7 +20,7 @@ type Agent struct {
 	pipelaner *pipelaner.Pipelaner
 
 	hc      *health.HealthCheck
-	metrics *MetricsServer
+	metrics *metrics.MetricsServer
 }
 
 func NewAgent(file string) (*Agent, error) {
@@ -61,7 +62,7 @@ func (a *Agent) initHealthCheck(cfg *config.Pipelaner) error {
 func (a *Agent) initMetricsServer(cfg *config.Pipelaner) error {
 	metricsCfg := cfg.Settings.Metrics
 	if metricsCfg.Enable {
-		m, err := NewMetricsServer(metricsCfg)
+		m, err := metrics.NewMetricsServer(metricsCfg)
 		if err != nil {
 			return fmt.Errorf("init metrics server: %w", err)
 		}

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/pipelane/pipelaner"
 	"github.com/pipelane/pipelaner/gen/settings/healthcheck"
+	"github.com/pipelane/pipelaner/internal/logger"
 	"github.com/pipelane/pipelaner/source/shared/grpc_server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -19,7 +19,7 @@ type HealthCheck struct {
 }
 
 func NewHealthCheck(cfg *healthcheck.HealthcheckConfig) (*HealthCheck, error) {
-	logger := pipelaner.NewLogger()
+	logger := logger.NewLogger()
 
 	if cfg == nil {
 		return nil, errors.New("config is required")
