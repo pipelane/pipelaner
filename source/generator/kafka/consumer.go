@@ -46,11 +46,13 @@ func NewConsumer(
 		case kcfg.ConsumerRoundRobinStrategy:
 			balancers = append(balancers, kgo.RoundRobinBalancer())
 		case kcfg.ConsumerCooperativeStickyStrategy:
+			balancers = append(balancers, kgo.CooperativeStickyBalancer())
+		case kcfg.ConsumerStickyStrategy:
 			balancers = append(balancers, kgo.StickyBalancer())
 		}
 	}
 	if len(balancers) == 0 {
-		balancers = append(balancers, kgo.RoundRobinBalancer())
+		balancers = append(balancers, kgo.CooperativeStickyBalancer())
 	}
 	opts = append(opts, kgo.Balancers(balancers...))
 

@@ -31,6 +31,7 @@ const (
 	ConsumerRoundRobinStrategy        = "round-robin"
 	ConsumerCooperativeStickyStrategy = "cooperative-sticky"
 	ConsumerRangeStrategy             = "range"
+	ConsumerStickyStrategy            = "sticky"
 )
 
 type ConsumerConfig struct {
