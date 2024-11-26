@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/docker/go-units"
-	"github.com/pipelane/pipelaner"
 )
 
 type Kafka struct {
@@ -23,8 +22,7 @@ type Kafka struct {
 }
 
 type Config struct {
-	SchemaRegistry     string `pipelane:"schema_registry"`
-	pipelaner.Internal `pipelane:",squash"`
+	SchemaRegistry string `pipelane:"schema_registry"`
 }
 
 const (

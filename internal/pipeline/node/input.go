@@ -23,14 +23,13 @@ type inputNodeCfg struct {
 	name          string
 	outBufferSize int
 
-	metricsEnabled bool
-	startGC        bool
+	*nodeCfg
 }
 
 type Input struct {
-	impl           components.Input
-	outputChannels []chan any
-	cfg            *inputNodeCfg
+	impl        components.Input
+	outChannels []chan any
+	cfg         *inputNodeCfg
 
 	logger zerolog.Logger
 }
@@ -68,16 +67,16 @@ func NewInput(cfg configinput.Input, logger *zerolog.Logger, opts ...Option) (*I
 	return &Input{
 		impl: inputImpl,
 		cfg: &inputNodeCfg{
-			name:           cfg.GetName(),
-			outBufferSize:  cfg.GetOutputBufferSize(),
-			metricsEnabled: false,
+			name:          cfg.GetName(),
+			outBufferSize: cfg.GetOutputBufferSize(),
+			nodeCfg:       buildOptions(opts...),
 		},
 		logger: l,
 	}, nil
 }
 
 func (i *Input) AddOutputChannel(ch chan any) {
-	i.outputChannels = append(i.outputChannels, ch)
+	i.outChannels = append(i.outChannels, ch)
 }
 
 func (i *Input) GetName() string {
@@ -89,44 +88,35 @@ func (i *Input) GetOutputBufferSize() int {
 }
 
 func (i *Input) Run(ctx context.Context) error {
-	if len(i.outputChannels) == 0 {
+	if len(i.outChannels) == 0 {
 		return errors.New("no output channels configured")
 	}
 
-	input := make(chan any, i.cfg.outBufferSize*len(i.outputChannels))
+	input := make(chan any, i.cfg.outBufferSize*len(i.outChannels))
 	go func() {
-		// close output channels on exit
 		defer func() {
-			for _, channel := range i.outputChannels {
+			for _, channel := range i.outChannels {
 				close(channel)
 			}
 		}()
 
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case msg, ok := <-input:
-				if !ok {
-					i.logger.Debug().Msg("input channel closed")
-					return
+		for msg := range input {
+			for _, ch := range i.outChannels {
+				msg, err := i.prepareMessage(msg)
+				if err != nil {
+					i.logger.Error().Err(err).Msg("prepare message failed")
+					continue
 				}
-				for _, channel := range i.outputChannels {
-					msg, err := i.prepareMessage(msg)
-					if err != nil {
-						i.logger.Error().Err(err).Msg("prepare message to send")
-						continue
-					}
 
-					if err := i.preSendMessageAction(len(channel), cap(channel)); err != nil {
-						i.logger.Error().Err(err).Msg("pre-send message action")
-						continue
-					}
-
-					channel <- msg
+				if err := i.preSendMessageAction(len(input), len(input)); err != nil {
+					i.logger.Error().Err(err).Msg("pre-send message action")
+					continue
 				}
+
+				ch <- msg
 			}
 		}
+		i.logger.Debug().Msg("input channel closed")
 	}()
 
 	go func() {
@@ -142,14 +132,14 @@ func (i *Input) prepareMessage(msg any) (any, error) {
 	}
 	switch m := msg.(type) {
 	case error:
-		//todo: так в итоге и не понял как должны обрабатываться ошибки
-		// так как в run_loop ошибки input'a (generator'a не обрабатываются и прокидываются в transform)
-		// я решил просто логгировать ошибку и не прокидывать ее дальше
-		// - Предложение -
-		// 1) сделать флаг, которым регулируется проброс ошибок.
-		//   Флаг может конфигурироваться, как на уровне компонента (ноды),
-		//   так и на уровне всего пайплайна
+		if i.cfg.enableMetrics {
+			metrics.TotalTransformationError.WithLabelValues(inputNodeType, i.cfg.name).Inc()
+		}
 		return nil, fmt.Errorf("received error: %w", m)
+	/*case chan any:
+	go func() {
+		utils.BroadcastChannels(i.outChannels, m)
+	}()*/
 	default:
 		kind := reflect.TypeOf(msg).Kind()
 		switch kind {
@@ -159,9 +149,6 @@ func (i *Input) prepareMessage(msg any) (any, error) {
 				return nil, err
 			}
 			return msg, nil
-		case reflect.Chan:
-			// todo: broadcast channel
-			return nil, nil
 		default:
 			return msg, nil
 		}
@@ -169,17 +156,12 @@ func (i *Input) prepareMessage(msg any) (any, error) {
 }
 
 func (i *Input) preSendMessageAction(length, capacity int) error {
-	//todo: не особо мне понятен как таковой смысл BufferLength и BufferCapacity метрик
-	// особенно неизменяемое значение cap
-	// + вопрос как данная метрика будет жить с несколькими выходными каналами для одной ноды?
-	if i.cfg.metricsEnabled {
-		metrics.TotalMessagesCount.WithLabelValues(inputNodeType, i.cfg.name)
+	if i.cfg.enableMetrics {
+		metrics.TotalMessagesCount.WithLabelValues(inputNodeType, i.cfg.name).Inc()
 		metrics.BufferLength.WithLabelValues(inputNodeType, i.cfg.name).Set(float64(length))
 		metrics.BufferCapacity.WithLabelValues(inputNodeType, i.cfg.name).Set(float64(capacity))
 	}
-	//todo: в run_loop есть функционал, который вызывает runtime.GC(), перед отправкой сообщения
-	// оставил здесь тоже, но не знаю насколько это понадобиться
-	if i.cfg.startGC {
+	if i.cfg.callGC {
 		runtime.GC()
 	}
 	return nil

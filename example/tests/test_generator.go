@@ -4,12 +4,7 @@
 
 package tests
 
-import (
-	"time"
-
-	"github.com/pipelane/pipelaner"
-)
-
+/*
 type IntStruct struct {
 	Counter uint64
 }
@@ -87,4 +82,4 @@ func (i *IntTransformEmpty) Map(_ *pipelaner.Context, val any) any {
 
 func (i *IntTransformEmpty) Init(_ *pipelaner.Context) error {
 	return nil
-}
+}*/

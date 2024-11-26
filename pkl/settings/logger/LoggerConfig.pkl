@@ -7,9 +7,9 @@ typealias LogLevel = "error"|"warn"|"info"|"debug"
 
 logLevel: LogLevel = "info"
 
-enableFile: Boolean = false
-
 enableConsole: Boolean = true
+
+enableFile: Boolean = false
 
 fileDirectory: String?
 
@@ -17,13 +17,13 @@ fileName: String?
 
 fileMaxSize: Int?
 
-fileMaxBackups: Int?
+fileMaxBackups: Int? = 5
 
-fileMaxAge: Int?
+fileMaxAge: Int? = 7
 
-fileCompress: Boolean?
+fileCompress: Boolean? = false
 
-fileLocalFormat: Boolean?
+fileLocalFormat: Boolean? = false
 
 typealias LogFormat = "plain"|"json"
 

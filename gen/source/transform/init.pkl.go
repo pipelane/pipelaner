@@ -11,5 +11,4 @@ func init() {
 	pkl.RegisterMapping("pipelaner.source.transforms#Throttling", ThrottlingImpl{})
 	pkl.RegisterMapping("pipelaner.source.transforms#Filter", FilterImpl{})
 	pkl.RegisterMapping("pipelaner.source.transforms#Remap", RemapImpl{})
-	pkl.RegisterMapping("pipelaner.source.transforms#Mul", MulImpl{})
 }

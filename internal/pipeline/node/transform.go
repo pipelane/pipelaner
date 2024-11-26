@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"runtime"
 	"sync"
 
 	"github.com/LastPossum/kamino"
@@ -20,11 +21,12 @@ const (
 )
 
 type transformNodeCfg struct {
-	name           string
-	inputs         []string
-	threadsCount   int
-	outBufferSize  int
-	metricsEnabled bool
+	name          string
+	inputs        []string
+	threadsCount  int
+	outBufferSize int
+
+	*nodeCfg
 }
 
 type Transform struct {
@@ -33,7 +35,7 @@ type Transform struct {
 	inputChannels []chan any
 	outChannels   []chan any
 
-	logger zerolog.Logger
+	logger *zerolog.Logger
 }
 
 func NewTransform(
@@ -68,7 +70,7 @@ func NewTransform(
 		return nil, fmt.Errorf("init transform implementation: %w", err)
 	}
 
-	l := logger.With().
+	log := logger.With().
 		Str("source", cfg.GetSourceName()).
 		Str("type", transformNodeType).
 		Str("lane_name", cfg.GetName()).
@@ -80,8 +82,9 @@ func NewTransform(
 			threadsCount:  cfg.GetThreads(),
 			outBufferSize: cfg.GetOutputBufferSize(),
 			inputs:        cfg.GetInputs(),
+			nodeCfg:       buildOptions(opts...),
 		},
-		logger: l,
+		logger: &log,
 	}, nil
 }
 
@@ -105,6 +108,7 @@ func (t *Transform) GetOutputBufferSize() int {
 	return t.cfg.outBufferSize
 }
 
+// Run non-blocking call that start Transform node action in separated goroutine
 func (t *Transform) Run() error {
 	if len(t.inputChannels) == 0 {
 		return fmt.Errorf("no input channels configured for '%s'", t.cfg.name)
@@ -117,12 +121,6 @@ func (t *Transform) Run() error {
 	inChannel := utils.MergeChannels(t.inputChannels)
 
 	go func() {
-		// используем WaitGroup для синхронизации чтения и записи
-		// может произойти ситуация в которой закрывается входной канал (inChannel)
-		// но значения в нем еще были обработаны, при этом метод impl.Transform может не успеть
-		// отработать, однако поток горутины попытается закрыть выходные каналы, для того,
-		// чтобы этого избежать необходимо дождаться когда все обработчики завершаться,
-		// после чего закрывать выходные каналы
 		var wg sync.WaitGroup
 
 		for msg := range inChannel {
@@ -140,10 +138,16 @@ func (t *Transform) Run() error {
 						t.logger.Error().Err(err).Msg("prepare message to send")
 						continue
 					}
+
+					if err := t.preSendMessageAction(len(ch), cap(ch)); err != nil {
+						t.logger.Error().Err(err).Msg("pre-send message action")
+					}
+					// send message
 					ch <- msg
 				}
 			}()
 		}
+		t.logger.Debug().Msg("input channels processed")
 		// Wait until all Transform goroutines finished
 		wg.Wait()
 		for _, ch := range t.outChannels {
@@ -159,7 +163,7 @@ func (t *Transform) prepareMessage(msg any) (any, error) {
 	}
 	switch m := msg.(type) {
 	case error:
-		if t.cfg.metricsEnabled {
+		if t.cfg.enableMetrics {
 			metrics.TotalTransformationError.WithLabelValues(transformNodeType, t.cfg.name).Inc()
 		}
 		return nil, fmt.Errorf("received error: %w", m)
@@ -179,4 +183,16 @@ func (t *Transform) prepareMessage(msg any) (any, error) {
 			return msg, nil
 		}
 	}
+}
+
+func (t *Transform) preSendMessageAction(length, capacity int) error {
+	if t.cfg.enableMetrics {
+		metrics.TotalMessagesCount.WithLabelValues(transformNodeType, t.cfg.name)
+		metrics.BufferLength.WithLabelValues(transformNodeType, t.cfg.name).Set(float64(length))
+		metrics.BufferCapacity.WithLabelValues(transformNodeType, t.cfg.name).Set(float64(capacity))
+	}
+	if t.cfg.callGC {
+		runtime.GC()
+	}
+	return nil
 }

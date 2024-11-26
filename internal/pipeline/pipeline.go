@@ -10,6 +10,7 @@ import (
 	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/internal/pipeline/node"
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -46,12 +47,24 @@ type Pipeline struct {
 	sinks      []sinkNode
 }
 
-func NewPipeline(cfg *config.Pipeline) (*Pipeline, error) {
+func NewPipeline(
+	cfg *config.Pipeline,
+	logger *zerolog.Logger,
+	enableMetrics, startGCAfterProcess bool,
+) (*Pipeline, error) {
 	p := &Pipeline{
 		name: cfg.Name,
 	}
 
-	if err := p.initNodes(cfg); err != nil {
+	var opts []node.Option
+	if enableMetrics {
+		opts = append(opts, node.WithMetrics())
+	}
+	if startGCAfterProcess {
+		opts = append(opts, node.WithCallGC())
+	}
+
+	if err := p.initNodes(cfg, logger); err != nil {
 		return nil, err
 	}
 
@@ -84,14 +97,14 @@ func (p *Pipeline) Run(ctx context.Context) error {
 	return nil
 }
 
-func (p *Pipeline) initNodes(cfg *config.Pipeline) error {
-	if err := p.initSinkNodes(cfg.Sinks); err != nil {
+func (p *Pipeline) initNodes(cfg *config.Pipeline, logger *zerolog.Logger, opts ...node.Option) error {
+	if err := p.initSinkNodes(cfg.Sinks, logger, opts...); err != nil {
 		return fmt.Errorf("init sink nodes: %w", err)
 	}
-	if err := p.initTransformNodes(cfg.Maps); err != nil {
+	if err := p.initTransformNodes(cfg.Maps, logger, opts...); err != nil {
 		return fmt.Errorf("init transform nodes: %w", err)
 	}
-	if err := p.initInputNodes(cfg.Inputs); err != nil {
+	if err := p.initInputNodes(cfg.Inputs, logger, opts...); err != nil {
 		return fmt.Errorf("init input nodes: %w", err)
 	}
 	return nil
@@ -107,11 +120,14 @@ func (p *Pipeline) connectNodes() error {
 	return nil
 }
 
-func (p *Pipeline) initSinkNodes(sinkConfigs []sink.Sink) error {
+func (p *Pipeline) initSinkNodes(
+	sinkConfigs []sink.Sink,
+	logger *zerolog.Logger,
+	opts ...node.Option,
+) error {
 	sinkNodes := make([]sinkNode, 0, len(sinkConfigs))
 	for _, cfg := range sinkConfigs {
-		// todo add logger and options
-		sinkNode, err := node.NewSink(cfg, nil)
+		sinkNode, err := node.NewSink(cfg, logger, opts...)
 		if err != nil {
 			return fmt.Errorf("new sink node: %w", err)
 		}
@@ -121,11 +137,14 @@ func (p *Pipeline) initSinkNodes(sinkConfigs []sink.Sink) error {
 	return nil
 }
 
-func (p *Pipeline) initTransformNodes(transformConfigs []transform.Transform) error {
+func (p *Pipeline) initTransformNodes(
+	transformConfigs []transform.Transform,
+	logger *zerolog.Logger,
+	opts ...node.Option,
+) error {
 	transformNodes := make([]transformNode, 0, len(transformConfigs))
 	for _, cfg := range transformConfigs {
-		// todo add logger and options
-		transformNode, err := node.NewTransform(cfg, nil)
+		transformNode, err := node.NewTransform(cfg, logger, opts...)
 		if err != nil {
 			return fmt.Errorf("new transform node: %w", err)
 		}
@@ -135,10 +154,14 @@ func (p *Pipeline) initTransformNodes(transformConfigs []transform.Transform) er
 	return nil
 }
 
-func (p *Pipeline) initInputNodes(inputs []input.Input) error {
+func (p *Pipeline) initInputNodes(
+	inputs []input.Input,
+	logger *zerolog.Logger,
+	opts ...node.Option,
+) error {
 	inputNodes := make([]inputNode, 0, len(inputs))
 	for _, cfg := range inputs {
-		inputNode, err := node.NewInput(cfg, nil)
+		inputNode, err := node.NewInput(cfg, logger, opts...)
 		if err != nil {
 			return fmt.Errorf("new input node: %w", err)
 		}

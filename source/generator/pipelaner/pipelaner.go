@@ -7,7 +7,7 @@ package pipelaner
 /*import (
 	"github.com/goccy/go-json"
 	"github.com/pipelane/pipelaner/source/generator/pipelaner/server"
-	grpc_server "github.com/pipelane/pipelaner/source/shared/grpc_server"
+	grpc_server "github.com/pipelane/pipelaner/source/shared/grыpc_server"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

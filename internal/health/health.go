@@ -19,8 +19,6 @@ type Server struct {
 }
 
 func NewHealthCheck(cfg *healthcheck.HealthcheckConfig) (*Server, error) {
-	logger := logger.NewLogger()
-
 	if cfg == nil {
 		return nil, errors.New("config is required")
 	}
@@ -29,10 +27,11 @@ func NewHealthCheck(cfg *healthcheck.HealthcheckConfig) (*Server, error) {
 		return nil, fmt.Errorf("health check port is required")
 	}
 
+	l := logger.NewLogger()
 	serv := grpc_server.NewServer(&grpc_server.ServerConfig{
 		Host: cfg.Host,
 		Port: cfg.Port,
-	}, &logger)
+	}, &l)
 
 	return &Server{
 		serv: serv,

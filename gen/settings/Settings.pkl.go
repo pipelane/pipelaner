@@ -16,6 +16,8 @@ type Settings struct {
 	HealthCheck *healthcheck.HealthcheckConfig `pkl:"healthCheck"`
 
 	Metrics *metrics.MetricsConfig `pkl:"metrics"`
+
+	StartGCAfterMessageProcess bool `pkl:"startGCAfterMessageProcess"`
 }
 
 // LoadFromPath loads the pkl module at the given path and evaluates it into a Settings

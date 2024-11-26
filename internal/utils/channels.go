@@ -33,7 +33,7 @@ func MergeChannels(channels []chan any) chan any {
 	return out
 }
 
-func broadcastChannels(outputs []chan any, ch chan any) {
+func BroadcastChannels(outputs []chan any, ch chan any) {
 	if len(outputs) == 0 {
 		return
 	}

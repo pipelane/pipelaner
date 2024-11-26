@@ -4,6 +4,7 @@ type Type string
 
 type nodeCfg struct {
 	enableMetrics bool
+	callGC        bool
 }
 
 type Option func(*nodeCfg)
@@ -11,6 +12,12 @@ type Option func(*nodeCfg)
 func WithMetrics() Option {
 	return func(cfg *nodeCfg) {
 		cfg.enableMetrics = true
+	}
+}
+
+func WithCallGC() Option {
+	return func(cfg *nodeCfg) {
+		cfg.callGC = true
 	}
 }
 

@@ -12,9 +12,9 @@ import (
 type LoggerConfig struct {
 	LogLevel loglevel.LogLevel `pkl:"logLevel"`
 
-	EnableFile bool `pkl:"enableFile"`
-
 	EnableConsole bool `pkl:"enableConsole"`
+
+	EnableFile bool `pkl:"enableFile"`
 
 	FileDirectory *string `pkl:"fileDirectory"`
 

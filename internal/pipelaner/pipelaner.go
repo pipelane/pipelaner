@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/pipelane/pipelaner/gen/components"
+	logCfg "github.com/pipelane/pipelaner/gen/settings/logger"
+	"github.com/pipelane/pipelaner/internal/logger"
 	pipelineimpl "github.com/pipelane/pipelaner/internal/pipeline"
 )
 
@@ -16,11 +18,19 @@ type Pipelaner struct {
 	Pipelines []pipeline
 }
 
-func NewPipelaner(configs []*components.Pipeline) (*Pipelaner, error) {
+func NewPipelaner(
+	configs []*components.Pipeline,
+	loggerCfg *logCfg.LoggerConfig,
+	metricsEnabled, gcAfterProcess bool,
+) (*Pipelaner, error) {
 	pipelines := make([]pipeline, 0, len(configs))
+	l, err := logger.NewLoggerWithCfg(loggerCfg)
+	if err != nil {
+		return nil, fmt.Errorf("init logger: %w", err)
+	}
 
 	for _, cfg := range configs {
-		p, err := pipelineimpl.NewPipeline(cfg)
+		p, err := pipelineimpl.NewPipeline(cfg, l, metricsEnabled, gcAfterProcess)
 		if err != nil {
 			return nil, fmt.Errorf("create pipeline '%s': %w", cfg.Name, err)
 		}

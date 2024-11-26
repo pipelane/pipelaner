@@ -10,28 +10,50 @@ abstract class Input {
   outputBufferSize: Int = 10
 }
 
-class GenInt extends Input {
-  fixed sourceName = "test_gen"
-  count: Int
-}
-
-class KafkaConfig {
-  saslEnabled: Boolean?
-  saslMechanism: Boolean?
-  saslUsername: String?
-  saslPassword: String?
-  brokers: String
-  version: String
-  topics: Listing<String>
-  schemaRegistry: String
-}
+typealias SASLMechanism = "SCRAM-SHA-512" | "SCRAM-SHA-256"
+typealias AutoOffsetReset = "earliest" | "latest"
+typealias Strategy = "range" | "round-robin" | "cooperative-sticky"
 
 class KafkaConsumer extends Input {
   fixed sourceName = "kafka"
-  kafka: KafkaConfig
-  autoCommitEnabled: Boolean
+  saslEnabled: Boolean(enableSaslRequiresMechanism)?
+
+  hidden enableSaslRequiresMechanism = (_) ->
+    if (saslMechanism == null)
+      throw("Enable 'saslEnabled' requires set 'saslMechanism'")
+    else true
+  saslMechanism: SASLMechanism?
+
+  saslUsername: String?
+  saslPassword: String?
+  brokers: String
+  version: String?
+  topics: Listing<String>
+  schemaRegistry: String?
+  autoCommitEnabled: Boolean? = false
   consumerGroupID: String
-  maxPartitionFetchBytes: String
-  fetchMaxBytes: String
-  balancerStrategy: Listing<String>
+  // fetchMaxBytes > maxPartitionFetchBytes, можно добавить функцию проверки
+  maxPartitionFetchBytes: DataSize = 50.mib
+  fetchMaxBytes: DataSize = 10.mib
+  autoOffsetReset: AutoOffsetReset = "earliest"
+  balancerStrategy: Listing<Strategy>?
+}
+
+typealias ConnectionType = "unix"
+
+class Pipelaner extends Input {
+  fixed sourceName = "pipelaner"
+
+  host: String?
+  port: Int
+  tls: Boolean(tlsEnabled)? = false
+
+  hidden tlsEnabled = (_) ->
+    if (keyFile == "" || certFile == "")
+      throw("key and cert files required with enabled tls")
+    else true
+  certFile: String?
+  keyFile: String?
+  connectionType: ConnectionType?
+  unixSocketPasth: String
 }

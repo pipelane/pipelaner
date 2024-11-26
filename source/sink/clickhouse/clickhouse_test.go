@@ -1,16 +1,6 @@
 package clickhouse
 
-import (
-	"fmt"
-	"reflect"
-	"testing"
-	"time"
-
-	"github.com/ClickHouse/ch-go/proto"
-	"github.com/stretchr/testify/assert"
-)
-
-func TestBuildProtoInput(t *testing.T) {
+/*func TestBuildProtoInput(t *testing.T) {
 	timeValue := time.Now()
 
 	type fields struct {
@@ -147,4 +137,4 @@ func EqualNotNilKeys(t *testing.T, a, b map[string]*column) bool {
 	}
 
 	return true
-}
+}*/

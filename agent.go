@@ -72,7 +72,14 @@ func (a *Agent) initMetricsServer(cfg *config.Pipelaner) error {
 
 func (a *Agent) initPipelaner(cfg *config.Pipelaner) error {
 	pipelanerCfg := cfg.Pipelines
-	p, err := pipelaner.NewPipelaner(pipelanerCfg)
+	logCfg := cfg.Settings.Logger
+	// todo: use another solution for specific parameters
+	p, err := pipelaner.NewPipelaner(
+		pipelanerCfg,
+		logCfg,
+		cfg.Settings.Metrics.Enable,
+		cfg.Settings.StartGCAfterMessageProcess,
+	)
 	if err != nil {
 		return fmt.Errorf("init pipeliner: %w", err)
 	}

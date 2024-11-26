@@ -6,8 +6,6 @@ package clickhouse
 
 import (
 	"time"
-
-	"github.com/pipelane/pipelaner"
 )
 
 type Config struct {
@@ -29,5 +27,4 @@ type Config struct {
 	ValueCountWriteBatch     int           `pipelane:"value_count_write_batch"`
 	AsyncInsert              string        `pipelane:"async_insert"`
 	WaitForAsyncInsert       string        `pipelane:"wait_for_async_insert"`
-	pipelaner.Internal
 }

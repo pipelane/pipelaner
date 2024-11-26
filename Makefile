@@ -10,7 +10,7 @@ lint:
 
 .PHONY: test
 test:
-	@go test -count=1 -v ./
+	@go test -count=1 -v -race ./...
 
 .PHONY: proto
 proto:

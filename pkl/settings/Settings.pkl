@@ -9,3 +9,4 @@ import "metrics/MetricsConfig.pkl"
 logger: LoggerConfig
 healthCheck: HealthcheckConfig
 metrics: MetricsConfig
+startGCAfterMessageProcess: Boolean = false
