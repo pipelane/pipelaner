@@ -2,13 +2,13 @@
 open module pipelaner.source.Components
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
-import "input/inputs.pkl"
+import "input/Inputs.pkl"
 import "transform/Transforms.pkl"
 import "sink/Sinks.pkl"
 
 class Pipeline {
   name: String
-  inputs: Listing<inputs.Input>
+  inputs: Listing<Inputs.Input>
   maps: Listing<Transforms.Transform>
   sinks: Listing<Sinks.Sink>
 }
