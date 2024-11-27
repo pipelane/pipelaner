@@ -1,0 +1,48 @@
+amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.4#/Pipelaner.pkl"
+import "@pipelaner/source/Components.pkl"
+import "components.pkl"
+
+pipelines {
+  new Components.Pipeline {
+    name = "example-pipeline"
+    inputs {
+      new components.ExampleGenInt {
+        name = "example-gen-int"
+        count = 10
+      }
+    }
+    maps {
+      new components.ExampleMul {
+        name = "example-mul"
+        inputs {
+          "example-gen-int"
+        }
+        mul = 2
+      }
+    }
+    sinks {
+      new components.ExampleConsole {
+        name = "example-sink"
+        inputs {
+          "example-mul"
+        }
+      }
+    }
+  }
+}
+
+settings {
+  logger {
+    logLevel = "info"
+  }
+  healthCheck {
+    enable = false
+    host = "127.0.0.1"
+    port = 8080
+  }
+  metrics {
+    enable = false
+    host = "127.0.0.1"
+    port = 8082
+  }
+}

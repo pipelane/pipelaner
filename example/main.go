@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/pipelane/pipelaner"
+	"github.com/pipelane/pipelaner/example/pkl/gen/custom"
 	"github.com/pipelane/pipelaner/gen/source/input"
 	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/gen/source/transform"
@@ -27,7 +28,7 @@ type GenInt struct {
 }
 
 func (g *GenInt) Init(cfg input.Input) error {
-	gCfg, ok := cfg.(input.ExampleGenInt)
+	gCfg, ok := cfg.(custom.ExampleGenInt)
 	if !ok {
 		return errors.New("invalid config")
 	}
@@ -51,7 +52,7 @@ type TransMul struct {
 }
 
 func (t *TransMul) Init(cfg transform.Transform) error {
-	tCfg, ok := cfg.(transform.ExampleMul)
+	tCfg, ok := cfg.(custom.ExampleMul)
 	if !ok {
 		return errors.New("transform.Mul expects transform.TransMul")
 	}
@@ -81,7 +82,7 @@ func main() {
 	source.RegisterTransform("example-mul", &TransMul{})
 	source.RegisterSink("example-console", &Console{})
 	agent, err := pipelaner.NewAgent(
-		"pkl/dev/config_o.pkl",
+		"example/pkl/config.pkl",
 	)
 	if err != nil {
 		panic(err)

@@ -1,0 +1,7 @@
+amends "pkl:Project"
+
+dependencies {
+  ["pipelaner"] {
+    uri = "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.4"
+  }
+}

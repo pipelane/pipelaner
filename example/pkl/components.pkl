@@ -1,0 +1,21 @@
+@go.Package {name = "gen/custom"}
+module pipelaner.source.example
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.4#/source/input/Inputs.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.4#/source/sink/Sinks.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.4#/source/transform/Transforms.pkl"
+
+class ExampleGenInt extends Inputs.Input {
+  fixed sourceName = "example-generator"
+  count: Int
+}
+
+class ExampleMul extends Transforms.Transform {
+  fixed sourceName = "example-mul"
+  mul: Int
+}
+
+class ExampleConsole extends Sinks.Sink {
+  fixed sourceName = "example-console"
+}
