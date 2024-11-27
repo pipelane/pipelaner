@@ -2,6 +2,7 @@
 module pipelaner.source.inputs
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+import ".../source/Common.pkl"
 
 abstract class Input {
   name: String
@@ -10,29 +11,21 @@ abstract class Input {
   outputBufferSize: Int = 10
 }
 
-typealias SASLMechanism = "SCRAM-SHA-512" | "SCRAM-SHA-256"
+class Cmd extends Input {
+  fixed sourceName = "cmd"
+  exec: Listing<String>
+}
+
 typealias AutoOffsetReset = "earliest" | "latest"
 typealias Strategy = "range" | "round-robin" | "cooperative-sticky"
 
 class KafkaConsumer extends Input {
-  fixed sourceName = "kafka"
-  saslEnabled: Boolean(enableSaslRequiresMechanism)?
-
-  hidden enableSaslRequiresMechanism = (_) ->
-    if (saslMechanism == null)
-      throw("Enable 'saslEnabled' requires set 'saslMechanism'")
-    else true
-  saslMechanism: SASLMechanism?
-
-  saslUsername: String?
-  saslPassword: String?
-  brokers: String
-  version: String?
-  topics: Listing<String>
-  schemaRegistry: String?
+  fixed sourceName = "kafka-consumer"
+  kafka: Common.Kafka
   autoCommitEnabled: Boolean? = false
   consumerGroupID: String
-  // fetchMaxBytes > maxPartitionFetchBytes, можно добавить функцию проверки
+  // TODO: replace default values && implement validation function
+  // fetchMaxBytes > maxPartitionFetchBytes
   maxPartitionFetchBytes: DataSize = 50.mib
   fetchMaxBytes: DataSize = 10.mib
   autoOffsetReset: AutoOffsetReset = "earliest"

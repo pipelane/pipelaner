@@ -1,0 +1,19 @@
+@go.Package {name = "github.com/pipelane/pipelaner/gen/source/common"}
+module pipelaner.source.Common
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+
+// TODO: implemnt validation functions
+
+typealias SASLMechanism = "SCRAM-SHA-512" | "SCRAM-SHA-256"
+
+class Kafka {
+  saslEnabled: Boolean
+  saslMechanism: SASLMechanism?
+  saslUsername: String?
+  saslPassword: String?
+  brokers: String
+  version: String?
+  topics: Listing<String>
+  schemaRegistry: String
+}

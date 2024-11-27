@@ -2,6 +2,7 @@
 module pipelaner.source.sinks
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+import ".../source/Common.pkl"
 
 abstract class Sink {
   name: String
@@ -14,12 +15,44 @@ class Console extends Sink {
   fixed sourceName = "console"
 }
 
+class Pipelaner extends Sink{
+  fixed sourceName = "pipelaner"
+  host: String = "localhost"
+  port: Int
+  tls: Boolean = false
+  // todo: implement validate function for tls
+  // statement: if tls enabled -> check that certFile and keyFile not empty
+  certFile: String?
+  keyFile: String?
+}
+
+class KafkaProducer extends Sink {
+  fixed sourceName = "kafka-producer"
+  kafka: Common.Kafka
+  maxRequestSize: DataSize = 10.mib
+  // TODO: set default value
+  lingerMs: Duration
+  batchNumMessages: Int = 100_000
+}
+
 class Clickhouse extends Sink {
   fixed sourceName = "clickhouse"
   address: String
+  user: String
   password: String
   database: String
   migrationEngine: String
   migrationsPathClickhouse: String
-  maxExecutionTime: String
+  maxExecutionTime: Duration
+  cannMaxLifeTime: Duration
+  dialTimeout: Duration
+  maxOpenConns: Int
+  maxIdleConns: Int
+  blockBufferSize: UInt8
+  maxCompressionBuffer: DataSize
+  enableDebug: Boolean = false
+  tableName: String
+
+  asyncInsert: String = "1"
+  waitForAsyncInsert: String = "1"
 }

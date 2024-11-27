@@ -174,5 +174,4 @@ func TestTransform_Run(t *testing.T) {
 		}()
 		wg.Wait()
 	})
-	// TODO: add unit test for channel messages
 }

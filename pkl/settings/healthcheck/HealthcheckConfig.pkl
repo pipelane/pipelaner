@@ -5,6 +5,6 @@ import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 
 host: String = "localhsot"
 
-port: Int
+port: Int?
 
 enable: Boolean = false

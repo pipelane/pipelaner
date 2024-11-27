@@ -3,29 +3,15 @@ package input
 
 import (
 	"github.com/apple/pkl-go/pkl"
+	"github.com/pipelane/pipelaner/gen/source/common"
 	"github.com/pipelane/pipelaner/gen/source/input/autooffsetreset"
-	"github.com/pipelane/pipelaner/gen/source/input/saslmechanism"
 	"github.com/pipelane/pipelaner/gen/source/input/strategy"
 )
 
 type KafkaConsumer interface {
 	Input
 
-	GetSaslEnabled() *bool
-
-	GetSaslMechanism() *saslmechanism.SASLMechanism
-
-	GetSaslUsername() *string
-
-	GetSaslPassword() *string
-
-	GetBrokers() string
-
-	GetVersion() *string
-
-	GetTopics() []string
-
-	GetSchemaRegistry() *string
+	GetKafka() *common.Kafka
 
 	GetAutoCommitEnabled() *bool
 
@@ -45,21 +31,7 @@ var _ KafkaConsumer = (*KafkaConsumerImpl)(nil)
 type KafkaConsumerImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	SaslEnabled *bool `pkl:"saslEnabled"`
-
-	SaslMechanism *saslmechanism.SASLMechanism `pkl:"saslMechanism"`
-
-	SaslUsername *string `pkl:"saslUsername"`
-
-	SaslPassword *string `pkl:"saslPassword"`
-
-	Brokers string `pkl:"brokers"`
-
-	Version *string `pkl:"version"`
-
-	Topics []string `pkl:"topics"`
-
-	SchemaRegistry *string `pkl:"schemaRegistry"`
+	Kafka *common.Kafka `pkl:"kafka"`
 
 	AutoCommitEnabled *bool `pkl:"autoCommitEnabled"`
 
@@ -84,36 +56,8 @@ func (rcv *KafkaConsumerImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *KafkaConsumerImpl) GetSaslEnabled() *bool {
-	return rcv.SaslEnabled
-}
-
-func (rcv *KafkaConsumerImpl) GetSaslMechanism() *saslmechanism.SASLMechanism {
-	return rcv.SaslMechanism
-}
-
-func (rcv *KafkaConsumerImpl) GetSaslUsername() *string {
-	return rcv.SaslUsername
-}
-
-func (rcv *KafkaConsumerImpl) GetSaslPassword() *string {
-	return rcv.SaslPassword
-}
-
-func (rcv *KafkaConsumerImpl) GetBrokers() string {
-	return rcv.Brokers
-}
-
-func (rcv *KafkaConsumerImpl) GetVersion() *string {
-	return rcv.Version
-}
-
-func (rcv *KafkaConsumerImpl) GetTopics() []string {
-	return rcv.Topics
-}
-
-func (rcv *KafkaConsumerImpl) GetSchemaRegistry() *string {
-	return rcv.SchemaRegistry
+func (rcv *KafkaConsumerImpl) GetKafka() *common.Kafka {
+	return rcv.Kafka
 }
 
 func (rcv *KafkaConsumerImpl) GetAutoCommitEnabled() *bool {

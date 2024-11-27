@@ -11,28 +11,36 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/pipelane/pipelaner"
 	"github.com/pipelane/pipelaner/gen/source/input"
 	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/internal/pipeline/source"
-	_ "github.com/pipelane/pipelaner/source"
 )
 
 // ============== Test generator ===============
 
 type GenInt struct {
-	a string
+	count int
 }
 
 func (g *GenInt) Init(cfg input.Input) error {
+	gCfg, ok := cfg.(input.ExampleGenInt)
+	if !ok {
+		return errors.New("invalid config")
+	}
+	g.count = gCfg.GetCount()
 	return nil
 }
 
 func (g *GenInt) Generate(_ context.Context, input chan<- any) {
-	for i := 0; i < 10; i++ {
-		input <- i
+	for {
+		for i := 0; i < g.count; i++ {
+			input <- i
+		}
+		time.Sleep(3 * time.Second)
 	}
 }
 
@@ -43,7 +51,7 @@ type TransMul struct {
 }
 
 func (t *TransMul) Init(cfg transform.Transform) error {
-	tCfg, ok := cfg.(transform.Mul)
+	tCfg, ok := cfg.(transform.ExampleMul)
 	if !ok {
 		return errors.New("transform.Mul expects transform.TransMul")
 	}
@@ -69,12 +77,11 @@ func (c *Console) Sink(val any) {
 }
 
 func main() {
-	log.Println("Start")
-	source.RegisterInput("test_gen", &GenInt{})
-	source.RegisterTransform("mul", &TransMul{})
-	source.RegisterSink("console", &Console{})
+	source.RegisterInput("example-generator", &GenInt{})
+	source.RegisterTransform("example-mul", &TransMul{})
+	source.RegisterSink("example-console", &Console{})
 	agent, err := pipelaner.NewAgent(
-		"/Users/n.frolov/GolandProjects/pipelaner_old/pipelaner_pkl/pipelaner/pkl/dev/config.pkl",
+		"pkl/dev/config_o.pkl",
 	)
 	if err != nil {
 		panic(err)
@@ -84,6 +91,12 @@ func main() {
 		os.Interrupt,
 		syscall.SIGTERM,
 	)
+	go func() {
+		<-ctx.Done()
+		os.Exit(100)
+	}()
 	defer stop()
-	agent.Serve(ctx)
+	if err := agent.Serve(ctx); err != nil {
+		panic(err)
+	}
 }

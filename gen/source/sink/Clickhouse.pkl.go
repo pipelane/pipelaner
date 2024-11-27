@@ -1,10 +1,14 @@
 // Code generated from Pkl module `pipelaner.source.sinks`. DO NOT EDIT.
 package sink
 
+import "github.com/apple/pkl-go/pkl"
+
 type Clickhouse interface {
 	Sink
 
 	GetAddress() string
+
+	GetUser() string
 
 	GetPassword() string
 
@@ -14,7 +18,27 @@ type Clickhouse interface {
 
 	GetMigrationsPathClickhouse() string
 
-	GetMaxExecutionTime() string
+	GetMaxExecutionTime() *pkl.Duration
+
+	GetCannMaxLifeTime() *pkl.Duration
+
+	GetDialTimeout() *pkl.Duration
+
+	GetMaxOpenConns() int
+
+	GetMaxIdleConns() int
+
+	GetBlockBufferSize() uint8
+
+	GetMaxCompressionBuffer() *pkl.DataSize
+
+	GetEnableDebug() bool
+
+	GetTableName() string
+
+	GetAsyncInsert() string
+
+	GetWaitForAsyncInsert() string
 }
 
 var _ Clickhouse = (*ClickhouseImpl)(nil)
@@ -24,6 +48,8 @@ type ClickhouseImpl struct {
 
 	Address string `pkl:"address"`
 
+	User string `pkl:"user"`
+
 	Password string `pkl:"password"`
 
 	Database string `pkl:"database"`
@@ -32,7 +58,27 @@ type ClickhouseImpl struct {
 
 	MigrationsPathClickhouse string `pkl:"migrationsPathClickhouse"`
 
-	MaxExecutionTime string `pkl:"maxExecutionTime"`
+	MaxExecutionTime *pkl.Duration `pkl:"maxExecutionTime"`
+
+	CannMaxLifeTime *pkl.Duration `pkl:"cannMaxLifeTime"`
+
+	DialTimeout *pkl.Duration `pkl:"dialTimeout"`
+
+	MaxOpenConns int `pkl:"maxOpenConns"`
+
+	MaxIdleConns int `pkl:"maxIdleConns"`
+
+	BlockBufferSize uint8 `pkl:"blockBufferSize"`
+
+	MaxCompressionBuffer *pkl.DataSize `pkl:"maxCompressionBuffer"`
+
+	EnableDebug bool `pkl:"enableDebug"`
+
+	TableName string `pkl:"tableName"`
+
+	AsyncInsert string `pkl:"asyncInsert"`
+
+	WaitForAsyncInsert string `pkl:"waitForAsyncInsert"`
 
 	Name string `pkl:"name"`
 
@@ -47,6 +93,10 @@ func (rcv *ClickhouseImpl) GetSourceName() string {
 
 func (rcv *ClickhouseImpl) GetAddress() string {
 	return rcv.Address
+}
+
+func (rcv *ClickhouseImpl) GetUser() string {
+	return rcv.User
 }
 
 func (rcv *ClickhouseImpl) GetPassword() string {
@@ -65,8 +115,48 @@ func (rcv *ClickhouseImpl) GetMigrationsPathClickhouse() string {
 	return rcv.MigrationsPathClickhouse
 }
 
-func (rcv *ClickhouseImpl) GetMaxExecutionTime() string {
+func (rcv *ClickhouseImpl) GetMaxExecutionTime() *pkl.Duration {
 	return rcv.MaxExecutionTime
+}
+
+func (rcv *ClickhouseImpl) GetCannMaxLifeTime() *pkl.Duration {
+	return rcv.CannMaxLifeTime
+}
+
+func (rcv *ClickhouseImpl) GetDialTimeout() *pkl.Duration {
+	return rcv.DialTimeout
+}
+
+func (rcv *ClickhouseImpl) GetMaxOpenConns() int {
+	return rcv.MaxOpenConns
+}
+
+func (rcv *ClickhouseImpl) GetMaxIdleConns() int {
+	return rcv.MaxIdleConns
+}
+
+func (rcv *ClickhouseImpl) GetBlockBufferSize() uint8 {
+	return rcv.BlockBufferSize
+}
+
+func (rcv *ClickhouseImpl) GetMaxCompressionBuffer() *pkl.DataSize {
+	return rcv.MaxCompressionBuffer
+}
+
+func (rcv *ClickhouseImpl) GetEnableDebug() bool {
+	return rcv.EnableDebug
+}
+
+func (rcv *ClickhouseImpl) GetTableName() string {
+	return rcv.TableName
+}
+
+func (rcv *ClickhouseImpl) GetAsyncInsert() string {
+	return rcv.AsyncInsert
+}
+
+func (rcv *ClickhouseImpl) GetWaitForAsyncInsert() string {
+	return rcv.WaitForAsyncInsert
 }
 
 func (rcv *ClickhouseImpl) GetName() string {
