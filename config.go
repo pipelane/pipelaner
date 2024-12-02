@@ -177,10 +177,10 @@ func recursiveReplace(cfg map[string]any) (map[string]any, error) {
 			}
 			newMap[k] = e
 		case []any:
-			var newSlice []any
 			if len(val) == 0 {
 				return nil, fmt.Errorf("invalid env var %s array", k)
 			}
+			newSlice := make([]any, 0, len(val))
 			for _, item := range val {
 				vals, ok := item.(string)
 				if !ok {
