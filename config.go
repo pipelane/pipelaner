@@ -177,20 +177,27 @@ func recursiveReplace(cfg map[string]any) (map[string]any, error) {
 			}
 			newMap[k] = e
 		case []any:
+			var newSlice []any
 			if len(val) == 0 {
 				return nil, fmt.Errorf("invalid env var %s array", k)
 			}
-			vals, ok := val[0].(string)
-			if !ok {
-				newMap[k] = val
-				continue
+			for _, item := range val {
+				vals, ok := item.(string)
+				if !ok {
+					newSlice = append(newSlice, item)
+					continue
+				}
+				e, err := findEnvValue(vals)
+				if err != nil {
+					return nil, err
+				}
+				e = strings.ReplaceAll(e, " ", "")
+				splitItems := strings.Split(e, ",")
+				for _, splitItem := range splitItems {
+					newSlice = append(newSlice, splitItem)
+				}
 			}
-			e, err := findEnvValue(vals)
-			if err != nil {
-				return nil, err
-			}
-			e = strings.ReplaceAll(e, " ", "")
-			newMap[k] = strings.Split(e, ",")
+			newMap[k] = newSlice
 		default:
 			newMap[k] = val
 		}
