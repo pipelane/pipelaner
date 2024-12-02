@@ -5,7 +5,9 @@ import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 
 host: String = "localhost"
 
-port: Int?
+port: Int = 8090
+
+path: String = "/metrics"
 
 // non empty only if metrics enable
 serviceName: String?

@@ -12,6 +12,8 @@ type MetricsConfig struct {
 
 	Port int `pkl:"port"`
 
+	Path string `pkl:"path"`
+
 	ServiceName *string `pkl:"serviceName"`
 
 	Enable bool `pkl:"enable"`

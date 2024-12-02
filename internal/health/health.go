@@ -8,7 +8,7 @@ import (
 
 	"github.com/pipelane/pipelaner/gen/settings/healthcheck"
 	"github.com/pipelane/pipelaner/internal/logger"
-	"github.com/pipelane/pipelaner/internal/source/shared/grpc_server"
+	"github.com/pipelane/pipelaner/source/shared/grpc_server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"

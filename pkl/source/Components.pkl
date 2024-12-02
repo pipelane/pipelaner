@@ -9,6 +9,6 @@ import "sink/Sinks.pkl"
 class Pipeline {
   name: String
   inputs: Listing<Inputs.Input>
-  maps: Listing<Transforms.Transform>
+  transforms: Listing<Transforms.Transform>
   sinks: Listing<Sinks.Sink>
 }

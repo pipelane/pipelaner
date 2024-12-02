@@ -4,6 +4,7 @@ go 1.22.1
 
 toolchain go1.23.3
 
+
 require (
 	github.com/ClickHouse/ch-go v0.63.1
 	github.com/ClickHouse/clickhouse-go/v2 v2.30.0

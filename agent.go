@@ -11,12 +11,11 @@ import (
 	config "github.com/pipelane/pipelaner/gen/pipelaner"
 	"github.com/pipelane/pipelaner/internal/health"
 	"github.com/pipelane/pipelaner/internal/metrics"
-	"github.com/pipelane/pipelaner/internal/pipelaner"
 	"golang.org/x/sync/errgroup"
 )
 
 type Agent struct {
-	pipelaner *pipelaner.Pipelaner
+	pipelaner *Pipelaner
 
 	hc      *health.Server
 	metrics *metrics.Server
@@ -74,7 +73,7 @@ func (a *Agent) initPipelaner(cfg *config.Pipelaner) error {
 	pipelanerCfg := cfg.Pipelines
 	logCfg := cfg.Settings.Logger
 	// todo: use another solution for specific parameters
-	p, err := pipelaner.NewPipelaner(
+	p, err := NewPipelaner(
 		pipelanerCfg,
 		logCfg,
 		cfg.Settings.Metrics.Enable,

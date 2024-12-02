@@ -5,11 +5,11 @@ import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 
 // TODO: implemnt validation functions
 
-typealias SASLMechanism = "SCRAM-SHA-512" | "SCRAM-SHA-256"
+typealias SASLMechanism = "SCRAM-SHA-512" | "SCRAM-SHA-256" | "PLAIN"
 
 class Kafka {
   saslEnabled: Boolean
-  saslMechanism: SASLMechanism?
+  saslMechanism: SASLMechanism = "PLAIN"
   saslUsername: String?
   saslPassword: String?
   brokers: String

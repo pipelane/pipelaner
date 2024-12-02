@@ -18,7 +18,7 @@ import (
 	"github.com/pipelane/pipelaner/gen/source/input"
 	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/gen/source/transform"
-	"github.com/pipelane/pipelaner/internal/pipeline/source"
+	"github.com/pipelane/pipelaner/pipeline/source"
 )
 
 // ============== Test generator ===============
@@ -77,10 +77,14 @@ func (c *Console) Sink(val any) {
 	log.Println(val)
 }
 
-func main() {
+func init() {
 	source.RegisterInput("example-generator", &GenInt{})
 	source.RegisterTransform("example-mul", &TransMul{})
 	source.RegisterSink("example-console", &Console{})
+}
+
+func main() {
+	
 	agent, err := pipelaner.NewAgent(
 		"example/pkl/config.pkl",
 	)

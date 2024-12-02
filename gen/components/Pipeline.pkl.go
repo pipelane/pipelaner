@@ -12,7 +12,7 @@ type Pipeline struct {
 
 	Inputs []input.Input `pkl:"inputs"`
 
-	Maps []transform.Transform `pkl:"maps"`
+	Transforms []transform.Transform `pkl:"transforms"`
 
 	Sinks []sink.Sink `pkl:"sinks"`
 }

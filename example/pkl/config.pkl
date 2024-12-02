@@ -1,18 +1,18 @@
 amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.4#/Pipelaner.pkl"
 import "@pipelaner/source/Components.pkl"
-import "components.pkl"
+import "example.pkl"
 
 pipelines {
   new Components.Pipeline {
     name = "example-pipeline"
     inputs {
-      new components.ExampleGenInt {
+      new example.ExampleGenInt {
         name = "example-gen-int"
         count = 10
       }
     }
-    maps {
-      new components.ExampleMul {
+    transforms {
+      new example.ExampleMul {
         name = "example-mul"
         inputs {
           "example-gen-int"
@@ -21,7 +21,7 @@ pipelines {
       }
     }
     sinks {
-      new components.ExampleConsole {
+      new example.ExampleConsole {
         name = "example-sink"
         inputs {
           "example-mul"

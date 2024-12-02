@@ -5,7 +5,6 @@ import "github.com/apple/pkl-go/pkl"
 
 func init() {
 	pkl.RegisterMapping("pipelaner.source.inputs", Inputs{})
-	pkl.RegisterMapping("pipelaner.source.inputs#ExampleGenInt", ExampleGenIntImpl{})
 	pkl.RegisterMapping("pipelaner.source.inputs#Cmd", CmdImpl{})
 	pkl.RegisterMapping("pipelaner.source.inputs#KafkaConsumer", KafkaConsumerImpl{})
 	pkl.RegisterMapping("pipelaner.source.inputs#Pipelaner", PipelanerImpl{})

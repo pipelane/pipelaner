@@ -17,6 +17,6 @@ amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.4
 4) При необходимости создаем свои имплементации компонент pkl/components.pkl
 5) В случае если были созданы свои компоненты необходимо сгенерировать код для их использования для файла pkl/components.pkl, используется следующая команда:
 ```
-pkl-gen-go pkl/components.pkl
+pkl-gen-go pkl/example.pkl
 ```
 6) Имплементируем созданные компоненты и регистрируем их в source pipelaner'a пример в main.go

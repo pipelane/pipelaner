@@ -1,4 +1,3 @@
-LOCAL_BIN:=$(CURDIR)/bin
 
 .PHONY: install-linter
 install-linter:
@@ -22,12 +21,12 @@ proto:
 
 .PHONY: install-pkl-go
 install-pkl-go:
-	GOBIN=$(LOCAL_BIN) go install github.com/apple/pkl-go/cmd/pkl-gen-go@v0.8.1
+	go install github.com/apple/pkl-go/cmd/pkl-gen-go@v0.8.1
 
 .PHONY: pkl-generate-go
 pkl-generate-go:
-	${LOCAL_BIN}/pkl-gen-go pkl/Pipelaner.pkl
+	pkl-gen-go pkl/Pipelaner.pkl
 
-.PHONY: pkl-project
+.PHONY: pkl-build
 pkl-project:
 	pkl project package pkl

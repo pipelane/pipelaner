@@ -13,7 +13,7 @@ type KafkaConsumer interface {
 
 	GetKafka() *common.Kafka
 
-	GetAutoCommitEnabled() *bool
+	GetAutoCommitEnabled() bool
 
 	GetConsumerGroupID() string
 
@@ -23,7 +23,7 @@ type KafkaConsumer interface {
 
 	GetAutoOffsetReset() autooffsetreset.AutoOffsetReset
 
-	GetBalancerStrategy() *[]strategy.Strategy
+	GetBalancerStrategy() []strategy.Strategy
 }
 
 var _ KafkaConsumer = (*KafkaConsumerImpl)(nil)
@@ -33,7 +33,7 @@ type KafkaConsumerImpl struct {
 
 	Kafka *common.Kafka `pkl:"kafka"`
 
-	AutoCommitEnabled *bool `pkl:"autoCommitEnabled"`
+	AutoCommitEnabled bool `pkl:"autoCommitEnabled"`
 
 	ConsumerGroupID string `pkl:"consumerGroupID"`
 
@@ -43,7 +43,7 @@ type KafkaConsumerImpl struct {
 
 	AutoOffsetReset autooffsetreset.AutoOffsetReset `pkl:"autoOffsetReset"`
 
-	BalancerStrategy *[]strategy.Strategy `pkl:"balancerStrategy"`
+	BalancerStrategy []strategy.Strategy `pkl:"balancerStrategy"`
 
 	Name string `pkl:"name"`
 
@@ -60,7 +60,7 @@ func (rcv *KafkaConsumerImpl) GetKafka() *common.Kafka {
 	return rcv.Kafka
 }
 
-func (rcv *KafkaConsumerImpl) GetAutoCommitEnabled() *bool {
+func (rcv *KafkaConsumerImpl) GetAutoCommitEnabled() bool {
 	return rcv.AutoCommitEnabled
 }
 
@@ -80,7 +80,7 @@ func (rcv *KafkaConsumerImpl) GetAutoOffsetReset() autooffsetreset.AutoOffsetRes
 	return rcv.AutoOffsetReset
 }
 
-func (rcv *KafkaConsumerImpl) GetBalancerStrategy() *[]strategy.Strategy {
+func (rcv *KafkaConsumerImpl) GetBalancerStrategy() []strategy.Strategy {
 	return rcv.BalancerStrategy
 }
 

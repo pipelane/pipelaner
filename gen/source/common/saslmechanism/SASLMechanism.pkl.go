@@ -11,6 +11,7 @@ type SASLMechanism string
 const (
 	SCRAMSHA512 SASLMechanism = "SCRAM-SHA-512"
 	SCRAMSHA256 SASLMechanism = "SCRAM-SHA-256"
+	PLAIN       SASLMechanism = "PLAIN"
 )
 
 // String returns the string representation of SASLMechanism
@@ -27,6 +28,8 @@ func (rcv *SASLMechanism) UnmarshalBinary(data []byte) error {
 		*rcv = SCRAMSHA512
 	case "SCRAM-SHA-256":
 		*rcv = SCRAMSHA256
+	case "PLAIN":
+		*rcv = PLAIN
 	default:
 		return fmt.Errorf(`illegal: "%s" is not a valid SASLMechanism`, str)
 	}

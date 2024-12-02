@@ -17,19 +17,21 @@ class Cmd extends Input {
 }
 
 typealias AutoOffsetReset = "earliest" | "latest"
-typealias Strategy = "range" | "round-robin" | "cooperative-sticky"
+typealias Strategy = "range" | "round-robin" | "cooperative-sticky" | "sticky"
 
 class KafkaConsumer extends Input {
   fixed sourceName = "kafka-consumer"
   kafka: Common.Kafka
-  autoCommitEnabled: Boolean? = false
+  autoCommitEnabled: Boolean = false
   consumerGroupID: String
   // TODO: replace default values && implement validation function
   // fetchMaxBytes > maxPartitionFetchBytes
   maxPartitionFetchBytes: DataSize = 50.mib
   fetchMaxBytes: DataSize = 10.mib
   autoOffsetReset: AutoOffsetReset = "earliest"
-  balancerStrategy: Listing<Strategy>?
+  balancerStrategy: Listing<Strategy> = new Listing<Strategy> {
+    "cooperative-sticky"
+  }
 }
 
 typealias ConnectionType = "unix"

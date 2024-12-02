@@ -6,7 +6,7 @@ import "github.com/pipelane/pipelaner/gen/source/common/saslmechanism"
 type Kafka struct {
 	SaslEnabled bool `pkl:"saslEnabled"`
 
-	SaslMechanism *saslmechanism.SASLMechanism `pkl:"saslMechanism"`
+	SaslMechanism saslmechanism.SASLMechanism `pkl:"saslMechanism"`
 
 	SaslUsername *string `pkl:"saslUsername"`
 

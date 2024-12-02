@@ -12,6 +12,7 @@ const (
 	Range             Strategy = "range"
 	RoundRobin        Strategy = "round-robin"
 	CooperativeSticky Strategy = "cooperative-sticky"
+	Sticky            Strategy = "sticky"
 )
 
 // String returns the string representation of Strategy
@@ -30,6 +31,8 @@ func (rcv *Strategy) UnmarshalBinary(data []byte) error {
 		*rcv = RoundRobin
 	case "cooperative-sticky":
 		*rcv = CooperativeSticky
+	case "sticky":
+		*rcv = Sticky
 	default:
 		return fmt.Errorf(`illegal: "%s" is not a valid Strategy`, str)
 	}

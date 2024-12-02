@@ -24,10 +24,7 @@ func NewMetricsServer(cfg *metrics.MetricsConfig) (*Server, error) {
 	if cfg == nil {
 		return nil, errors.New("config is required")
 	}
-	if cfg.Port == 0 {
-		return nil, errors.New("port is required")
-	}
-	http.Handle("/metrics", promhttp.Handler())
+	http.Handle(cfg.Path, promhttp.Handler())
 	server := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
 		ReadHeaderTimeout: 10 * time.Second,
