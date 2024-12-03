@@ -48,7 +48,7 @@ func NewAgent(file string) (*Agent, error) {
 func (a *Agent) initHealthCheck(cfg *config.Pipelaner) error {
 	hcCfg := cfg.Settings.HealthCheck
 	if hcCfg.Enable {
-		hc, err := health.NewHealthCheck(hcCfg)
+		hc, err := health.NewHealthCheck(cfg)
 		if err != nil {
 			return fmt.Errorf("init health check: %w", err)
 		}
