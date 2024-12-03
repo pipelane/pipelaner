@@ -10,9 +10,9 @@ import (
 	"fmt"
 
 	"github.com/pipelane/pipelaner/gen/source/sink"
+	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	service2 "github.com/pipelane/pipelaner/source/shared/proto/service"
-	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
@@ -23,7 +23,7 @@ func init() {
 }
 
 type Pipelaner struct {
-	logger *zerolog.Logger
+	components.Logger
 	client service2.PipelanerClient
 }
 
@@ -69,7 +69,7 @@ func (p *Pipelaner) Sink(val any) {
 	default:
 		b, err := json.Marshal(v)
 		if err != nil {
-			p.logger.Error().Err(err).Msg("Grpc sink failed")
+			p.Log().Error().Err(err).Msg("Grpc sink failed")
 			return
 		}
 		m = &service2.Message{
@@ -80,6 +80,6 @@ func (p *Pipelaner) Sink(val any) {
 	}
 	_, err := p.client.Sink(context.Background(), m)
 	if err != nil {
-		p.logger.Error().Err(err).Msg("Grpc sing failed")
+		p.Log().Error().Err(err).Msg("Grpc sing failed")
 	}
 }

@@ -30,8 +30,7 @@ type Input struct {
 	impl        components.Input
 	outChannels []chan any
 	cfg         *inputNodeCfg
-
-	logger zerolog.Logger
+	logger      zerolog.Logger
 }
 
 func NewInput(cfg configinput.Input, logger *zerolog.Logger, opts ...Option) (*Input, error) {
@@ -55,15 +54,17 @@ func NewInput(cfg configinput.Input, logger *zerolog.Logger, opts ...Option) (*I
 	if err != nil {
 		return nil, fmt.Errorf("get input implementation: %w", err)
 	}
-	if err := inputImpl.Init(cfg); err != nil {
-		return nil, fmt.Errorf("init input implementation: %s: %w", cfg.GetName(), err)
-	}
-
 	l := logger.With().
 		Str("source", cfg.GetSourceName()).
 		Str("type", inputNodeType).
 		Str("lane_name", cfg.GetName()).
 		Logger()
+	if v, ok := inputImpl.(components.Logging); ok {
+		v.SetLogger(l)
+	}
+	if err := inputImpl.Init(cfg); err != nil {
+		return nil, fmt.Errorf("init input implementation: %s: %w", cfg.GetName(), err)
+	}
 	return &Input{
 		impl: inputImpl,
 		cfg: &inputNodeCfg{
@@ -71,7 +72,7 @@ func NewInput(cfg configinput.Input, logger *zerolog.Logger, opts ...Option) (*I
 			outBufferSize: cfg.GetOutputBufferSize(),
 			nodeCfg:       buildOptions(opts...),
 		},
-		logger: l,
+		logger: l.With().Logger(),
 	}, nil
 }
 

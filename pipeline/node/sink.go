@@ -29,7 +29,7 @@ type Sink struct {
 	cfg           *sinkNodeCfg
 	inputChannels []chan any
 
-	logger *zerolog.Logger
+	logger zerolog.Logger
 }
 
 func NewSink(
@@ -51,18 +51,22 @@ func NewSink(
 	}
 
 	sinkImpl, err := source.GetSink(cfg.GetSourceName())
+
 	if err != nil {
 		return nil, fmt.Errorf("get sink implementation: %w", err)
+	}
+	l := logger.With().
+		Str("source", cfg.GetSourceName()).
+		Str("type", sinkNodeType).
+		Str("lane_name", cfg.GetName()).
+		Logger()
+	if v, ok := sinkImpl.(components.Logging); ok {
+		v.SetLogger(l)
 	}
 	if err := sinkImpl.Init(cfg); err != nil {
 		return nil, fmt.Errorf("init sink implementation: %w", err)
 	}
 
-	log := logger.With().
-		Str("source", cfg.GetSourceName()).
-		Str("type", sinkNodeType).
-		Str("lane_name", cfg.GetName()).
-		Logger()
 	return &Sink{
 		impl: sinkImpl,
 		cfg: &sinkNodeCfg{
@@ -71,7 +75,7 @@ func NewSink(
 			threadsCount: cfg.GetThreads(),
 			nodeCfg:      buildOptions(opts...),
 		},
-		logger: &log,
+		logger: logger.With().Logger(),
 	}, nil
 }
 

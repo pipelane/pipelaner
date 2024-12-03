@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pipelane/pipelaner/gen/source/input"
-	"github.com/pipelane/pipelaner/internal/logger"
+	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
@@ -15,6 +15,7 @@ func init() {
 }
 
 type Kafka struct {
+	components.Logger
 	cons *Consumer
 	cfg  input.KafkaConsumer
 }
@@ -24,7 +25,7 @@ func (c *Kafka) Init(cfg input.Input) error {
 	if !ok {
 		return fmt.Errorf("invalid cafka config type: %T", cfg)
 	}
-	l := logger.NewLogger()
+	l := c.Log().With().Logger()
 	cons, err := NewConsumer(consumerCfg, &l)
 	if err != nil {
 		return err
@@ -35,14 +36,14 @@ func (c *Kafka) Init(cfg input.Input) error {
 }
 
 func (c *Kafka) Generate(ctx context.Context, input chan<- any) {
-	l := ctx.Logger()
+	l := c.Log()
 	for {
 		err := c.cons.Consume(ctx, func(record *kgo.Record) error {
 			input <- record.Value
 			return nil
 		})
 		if err != nil {
-			l.Log().Err(err).Msg("consume error")
+			l.Error().Err(err).Msg("consume error")
 		}
 	}
 }

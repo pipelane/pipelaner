@@ -15,7 +15,7 @@ fileDirectory: String?
 
 fileName: String?
 
-fileMaxSize: Int?
+fileMaxSize: DataSize = 100.mb
 
 fileMaxBackups: Int? = 5
 

@@ -13,9 +13,8 @@ import (
 	"strings"
 
 	"github.com/pipelane/pipelaner/gen/source/input"
-	"github.com/pipelane/pipelaner/internal/logger"
+	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
-	"github.com/rs/zerolog"
 )
 
 func init() {
@@ -23,8 +22,8 @@ func init() {
 }
 
 type Cmd struct {
-	exec   []string
-	logger *zerolog.Logger
+	components.Logger
+	exec []string
 }
 
 func (c *Cmd) Init(cfg input.Input) error {
@@ -32,9 +31,6 @@ func (c *Cmd) Init(cfg input.Input) error {
 	if !ok {
 		return fmt.Errorf("invalid cmd config type: %T", cfg)
 	}
-	// todo: inject logger here
-	l := logger.NewLogger()
-	c.logger = &l
 	c.exec = cmdConfig.GetExec()
 	return nil
 }
@@ -51,18 +47,18 @@ func (c *Cmd) Generate(ctx context.Context, input chan<- any) {
 	}
 	stdErr, err := cmd.StderrPipe()
 	if err != nil {
-		c.logger.Error().Err(err).Msg("Cmd: create stdPipe error")
+		c.Log().Error().Err(err).Msg("Cmd: create stdPipe error")
 		return
 	}
 	if err = cmd.Start(); err != nil {
-		c.logger.Error().Err(err).Msg("Cmd: create errPipe error")
+		c.Log().Error().Err(err).Msg("Cmd: create errPipe error")
 		return
 	}
 	go c.readPipe(ctx, stdPipe, input)
 	go c.readPipe(ctx, stdErr, input)
 
 	if err = cmd.Wait(); err != nil {
-		c.logger.Error().Err(err).Msg("Cmd: command wait error")
+		c.Log().Error().Err(err).Msg("Cmd: command wait error")
 	}
 }
 

@@ -34,8 +34,7 @@ type Transform struct {
 	cfg           *transformNodeCfg
 	inputChannels []chan any
 	outChannels   []chan any
-
-	logger *zerolog.Logger
+	logger        zerolog.Logger
 }
 
 func NewTransform(
@@ -63,18 +62,22 @@ func NewTransform(
 	}
 
 	transformImpl, err := source.GetTransform(cfg.GetSourceName())
+
 	if err != nil {
 		return nil, fmt.Errorf("get transform implementation: %w", err)
+	}
+	l := logger.With().
+		Str("source", cfg.GetSourceName()).
+		Str("type", transformNodeType).
+		Str("lane_name", cfg.GetName()).
+		Logger()
+	if v, ok := transformImpl.(components.Logging); ok {
+		v.SetLogger(l)
 	}
 	if err := transformImpl.Init(cfg); err != nil {
 		return nil, fmt.Errorf("init transform implementation: %w", err)
 	}
 
-	log := logger.With().
-		Str("source", cfg.GetSourceName()).
-		Str("type", transformNodeType).
-		Str("lane_name", cfg.GetName()).
-		Logger()
 	return &Transform{
 		impl: transformImpl,
 		cfg: &transformNodeCfg{
@@ -84,7 +87,7 @@ func NewTransform(
 			inputs:        cfg.GetInputs(),
 			nodeCfg:       buildOptions(opts...),
 		},
-		logger: &log,
+		logger: l.With().Logger(),
 	}, nil
 }
 

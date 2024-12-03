@@ -3,12 +3,11 @@ package health
 import (
 	"context"
 	"errors"
-	"fmt"
-	"log"
 
-	"github.com/pipelane/pipelaner/gen/settings/healthcheck"
+	config "github.com/pipelane/pipelaner/gen/pipelaner"
 	"github.com/pipelane/pipelaner/internal/logger"
 	"github.com/pipelane/pipelaner/source/shared/grpc_server"
+	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -16,25 +15,26 @@ import (
 
 type Server struct {
 	serv *grpc_server.Server
+	l    *zerolog.Logger
 }
 
-func NewHealthCheck(cfg *healthcheck.HealthcheckConfig) (*Server, error) {
+func NewHealthCheck(cfg *config.Pipelaner) (*Server, error) {
+
 	if cfg == nil {
 		return nil, errors.New("config is required")
 	}
 
-	if cfg.Port == 0 {
-		return nil, fmt.Errorf("health check port is required")
+	l, err := logger.NewLoggerWithCfg(cfg.Settings.Logger)
+	if err != nil {
+		return nil, err
 	}
-
-	l := logger.NewLogger()
 	serv := grpc_server.NewServer(&grpc_server.ServerConfig{
-		Host: cfg.Host,
-		Port: cfg.Port,
-	}, &l)
-
+		Host: cfg.Settings.HealthCheck.Host,
+		Port: cfg.Settings.HealthCheck.Port,
+	}, l)
 	return &Server{
 		serv: serv,
+		l:    l,
 	}, nil
 }
 
@@ -49,7 +49,7 @@ func (p *Server) Serve(ctx context.Context) error {
 	go func() {
 		<-ctx.Done()
 		if cErr := p.serv.Stop(); cErr != nil {
-			log.Printf("health check server stop error: %v", cErr)
+			p.l.Error().Err(cErr).Msgf("health check server stop error:")
 		}
 	}()
 

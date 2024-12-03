@@ -20,7 +20,7 @@ type LoggerConfig struct {
 
 	FileName *string `pkl:"fileName"`
 
-	FileMaxSize *int `pkl:"fileMaxSize"`
+	FileMaxSize *pkl.DataSize `pkl:"fileMaxSize"`
 
 	FileMaxBackups *int `pkl:"fileMaxBackups"`
 

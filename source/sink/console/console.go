@@ -8,9 +8,8 @@ import (
 	"fmt"
 
 	"github.com/pipelane/pipelaner/gen/source/sink"
-	"github.com/pipelane/pipelaner/internal/logger"
+	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
-	"github.com/rs/zerolog"
 )
 
 func init() {
@@ -18,7 +17,7 @@ func init() {
 }
 
 type Console struct {
-	logger *zerolog.Logger
+	components.Logger
 }
 
 func (c *Console) Init(cfg sink.Sink) error {
@@ -27,8 +26,6 @@ func (c *Console) Init(cfg sink.Sink) error {
 		return fmt.Errorf("invalid console config type: %T", cfg)
 	}
 
-	l := logger.NewLogger()
-	c.logger = &l
 	return nil
 }
 
@@ -50,6 +47,6 @@ func (c *Console) Sink(val any) {
 		}
 		return
 	default:
-		c.logger.Info().Msg(fmt.Sprintf("%v", val))
+		c.Log().Info().Msg(fmt.Sprintf("%v", val))
 	}
 }

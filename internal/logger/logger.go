@@ -7,6 +7,7 @@ import (
 	"path"
 	"time"
 
+	"github.com/apple/pkl-go/pkl"
 	"github.com/pipelane/pipelaner/gen/settings/logger"
 	"github.com/pipelane/pipelaner/gen/settings/logger/logformat"
 	"github.com/pipelane/pipelaner/gen/settings/logger/loglevel"
@@ -51,20 +52,9 @@ func newRollingFile(cfg *logger.LoggerConfig) io.Writer {
 	return &lumberjack.Logger{
 		Filename:   path.Join(*cfg.FileDirectory, *cfg.FileName),
 		MaxBackups: *cfg.FileMaxBackups,
-		MaxSize:    *cfg.FileMaxSize,
+		MaxSize:    int(cfg.FileMaxSize.ToUnit(pkl.Megabytes).Value),
 		MaxAge:     *cfg.FileMaxAge,
 		Compress:   *cfg.FileCompress,
 		LocalTime:  *cfg.FileLocalFormat,
 	}
-}
-
-func NewLogger() zerolog.Logger {
-	lg := zerolog.New(zerolog.ConsoleWriter{
-		Out:        os.Stderr,
-		TimeFormat: time.RFC3339,
-	}).Level(zerolog.InfoLevel).
-		With().
-		Timestamp()
-	l := lg.Logger()
-	return l
 }

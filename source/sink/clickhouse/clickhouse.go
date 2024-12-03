@@ -12,8 +12,8 @@ import (
 	"github.com/ClickHouse/ch-go/proto"
 	"github.com/google/uuid"
 	"github.com/pipelane/pipelaner/gen/source/sink"
+	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
-	"github.com/rs/zerolog"
 )
 
 func init() {
@@ -21,7 +21,7 @@ func init() {
 }
 
 type Clickhouse struct {
-	logger      *zerolog.Logger
+	components.Logger
 	clickConfig sink.Clickhouse
 	client      *LowLevelClickhouseClient
 }
@@ -308,7 +308,7 @@ func (c *Clickhouse) Sink(val any) {
 	case json.RawMessage:
 		chData = make(chan any, 1)
 		if err := json.Unmarshal(v, &data); err != nil {
-			c.logger.Error().Err(err).Msgf("channel RawMessage unmarshal")
+			c.Log().Error().Err(err).Msgf("channel RawMessage unmarshal")
 			return
 		}
 		chData <- data
@@ -316,7 +316,7 @@ func (c *Clickhouse) Sink(val any) {
 	case []byte:
 		chData = make(chan any, 1)
 		if err := json.Unmarshal(v, &data); err != nil {
-			c.logger.Error().Err(err).Msgf("channel []byte unmarshal")
+			c.Log().Error().Err(err).Msgf("channel []byte unmarshal")
 			return
 		}
 		chData <- data
@@ -328,10 +328,10 @@ func (c *Clickhouse) Sink(val any) {
 	case chan any:
 		chData = v
 	default:
-		c.logger.Error().Err(errors.New("unknown type val"))
+		c.Log().Error().Err(errors.New("unknown type val"))
 		return
 	}
 	if err := c.write(context.Background(), chData); err != nil {
-		c.logger.Error().Err(err).Msg("write")
+		c.Log().Error().Err(err).Msg("write")
 	}
 }

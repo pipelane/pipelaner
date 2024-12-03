@@ -10,9 +10,8 @@ import (
 	"fmt"
 
 	"github.com/pipelane/pipelaner/gen/source/sink"
-	"github.com/pipelane/pipelaner/internal/logger"
+	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
-	"github.com/rs/zerolog"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
@@ -21,9 +20,9 @@ func init() {
 }
 
 type Kafka struct {
-	logger *zerolog.Logger
-	cfg    sink.KafkaProducer
-	prod   *Producer
+	components.Logger
+	cfg  sink.KafkaProducer
+	prod *Producer
 }
 
 func (k *Kafka) Init(cfg sink.Sink) error {
@@ -31,8 +30,7 @@ func (k *Kafka) Init(cfg sink.Sink) error {
 	if !ok {
 		return fmt.Errorf("invalid kafka-producer config %T", cfg)
 	}
-	// todo inject node logger
-	kafkaLogger := logger.NewLogger()
+	kafkaLogger := k.Log().With().Logger()
 	p, err := NewProducer(kafkaCfg, &kafkaLogger)
 	if err != nil {
 		return fmt.Errorf("init kafka producer: %w", err)
@@ -49,7 +47,7 @@ func (k *Kafka) write(ctx context.Context, message []byte) {
 			Topic: topic,
 		}, func(record *kgo.Record, err error) {
 			if err != nil {
-				k.logger.Error().Err(err).Msg("failed to produce message")
+				k.Log().Error().Err(err).Msg("failed to produce message")
 				k.write(ctx, record.Value)
 			}
 		})
@@ -82,7 +80,7 @@ func (k *Kafka) Sink(val any) {
 	default:
 		data, err := json.Marshal(val)
 		if err != nil {
-			k.logger.Error().Err(err).Msgf("marshall val")
+			k.Log().Error().Err(err).Msgf("marshall val")
 			return
 		}
 		message = data

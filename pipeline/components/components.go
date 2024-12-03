@@ -10,7 +10,13 @@ import (
 	"github.com/pipelane/pipelaner/gen/source/input"
 	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/gen/source/transform"
+	"github.com/rs/zerolog"
 )
+
+type Logging interface {
+	SetLogger(logger zerolog.Logger)
+	Logger() zerolog.Logger
+}
 
 type Input interface {
 	Init(cfg input.Input) error
@@ -25,4 +31,16 @@ type Transform interface {
 type Sink interface {
 	Init(cfg sink.Sink) error
 	Sink(val any)
+}
+
+type Logger struct {
+	logger *zerolog.Logger
+}
+
+func (l *Logger) SetLogger(logger zerolog.Logger) {
+	l.logger = &logger
+}
+
+func (l *Logger) Log() *zerolog.Logger {
+	return l.logger
 }
