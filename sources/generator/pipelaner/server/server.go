@@ -9,7 +9,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/pipelane/pipelaner/source/shared/proto/service"
+	"github.com/pipelane/pipelaner/sources/shared/proto/service"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

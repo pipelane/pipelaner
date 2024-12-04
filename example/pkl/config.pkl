@@ -1,5 +1,6 @@
-amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.4#/Pipelaner.pkl"
-import "@pipelaner/source/Components.pkl"
+amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.5#/Pipelaner.pkl"
+import  "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.5#/source/Components.pkl"
+import  "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.5#/source/sink/Sinks.pkl"
 import "example.pkl"
 
 pipelines {
@@ -21,8 +22,8 @@ pipelines {
       }
     }
     sinks {
-      new example.ExampleConsole {
-        name = "example-sink"
+      new Sinks.Console {
+        name = "console"
         inputs {
           "example-mul"
         }

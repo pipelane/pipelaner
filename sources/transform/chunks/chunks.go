@@ -11,7 +11,7 @@ import (
 
 	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/pipeline/source"
-	"github.com/pipelane/pipelaner/source/shared/chunker"
+	"github.com/pipelane/pipelaner/sources/shared/chunker"
 )
 
 func init() {

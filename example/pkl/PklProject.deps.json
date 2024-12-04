@@ -3,9 +3,9 @@
   "resolvedDependencies": {
     "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0": {
       "type": "remote",
-      "uri": "projectpackage://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.4",
+      "uri": "projectpackage://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.5",
       "checksums": {
-        "sha256": "7098b83b49b4e61c81e23f61689764accfd5c9b89d562847aeaa0eef5646bcbb"
+        "sha256": "d42a89615bbd9296b22db6eaade0b013054b767cdddf9f6a8ff02b09e72c06db"
       }
     }
   }

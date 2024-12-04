@@ -15,7 +15,7 @@ import (
 
 type Logging interface {
 	SetLogger(logger zerolog.Logger)
-	Logger() zerolog.Logger
+	Log() *zerolog.Logger
 }
 
 type Input interface {

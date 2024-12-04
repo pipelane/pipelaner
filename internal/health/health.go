@@ -6,7 +6,7 @@ import (
 
 	config "github.com/pipelane/pipelaner/gen/pipelaner"
 	"github.com/pipelane/pipelaner/internal/logger"
-	"github.com/pipelane/pipelaner/source/shared/grpc_server"
+	"github.com/pipelane/pipelaner/sources/shared/grpc_server"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"

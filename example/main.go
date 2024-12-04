@@ -7,7 +7,6 @@ package main
 import (
 	"context"
 	"errors"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,9 +15,9 @@ import (
 	"github.com/pipelane/pipelaner"
 	"github.com/pipelane/pipelaner/example/pkl/gen/custom"
 	"github.com/pipelane/pipelaner/gen/source/input"
-	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/pipeline/source"
+	_ "github.com/pipelane/pipelaner/sources"
 )
 
 // ============== Test generator ===============
@@ -64,27 +63,13 @@ func (t *TransMul) Transform(val any) any {
 	return t.mul * val.(int)
 }
 
-// ============= Test sink ==================
-
-type Console struct {
-}
-
-func (c *Console) Init(cfg sink.Sink) error {
-	return nil
-}
-
-func (c *Console) Sink(val any) {
-	log.Println(val)
-}
-
 func init() {
 	source.RegisterInput("example-generator", &GenInt{})
 	source.RegisterTransform("example-mul", &TransMul{})
-	source.RegisterSink("example-console", &Console{})
 }
 
 func main() {
-	
+
 	agent, err := pipelaner.NewAgent(
 		"example/pkl/config.pkl",
 	)

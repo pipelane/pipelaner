@@ -12,7 +12,7 @@ import (
 	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
-	service2 "github.com/pipelane/pipelaner/source/shared/proto/service"
+	service2 "github.com/pipelane/pipelaner/sources/shared/proto/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
