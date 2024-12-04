@@ -1,7 +1,7 @@
 package chunker
 
 import (
-	"context"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -11,96 +11,105 @@ type Config struct {
 	BufferSize   int
 	MaxIdleTime  time.Duration
 }
-type Chunks[T any] struct {
+type Chunks struct {
 	Cfg     Config
-	buffers chan chan T
+	buffers chan chan any
 	stopped atomic.Bool
-	ctx     context.Context
-	cancel  context.CancelFunc
-	input   chan T
+	input   chan any
+	wg      sync.WaitGroup
 }
 
-func (c *Chunks[T]) Ctx() context.Context {
-	return c.ctx
-}
-
-func NewChunks[T any](ctx context.Context, cfg Config) *Chunks[T] {
-	b := &Chunks[T]{
-		Cfg: cfg,
+func NewChunks(cfg Config) *Chunks {
+	b := &Chunks{
+		Cfg:   cfg,
+		input: make(chan any, cfg.MaxChunkSize*cfg.BufferSize),
+		wg:    sync.WaitGroup{},
 	}
-	b.input = make(chan T, b.Cfg.MaxChunkSize*b.Cfg.BufferSize)
 	b.resetChannels()
-	b.ctx, b.cancel = context.WithCancel(ctx)
 	return b
 }
 
-func (c *Chunks[T]) Input() chan<- T {
-	return c.input
+func (c *Chunks) SetValue(v any) {
+	c.wg.Add(1)
+	c.input <- v
 }
 
-func (c *Chunks[T]) Close() {
-	if c.stopped.Load() {
-		return
-	}
-	c.stopped.Store(true)
-	c.cancel()
-	close(c.buffers)
+func (c *Chunks) resetChannels() {
+	c.buffers = make(chan chan any, c.Cfg.BufferSize)
 }
 
-func (c *Chunks[T]) resetChannels() {
-	c.buffers = make(chan chan T, c.Cfg.BufferSize)
+func (c *Chunks) send(ch chan any) {
+	c.buffers <- ch
 }
-
-func (c *Chunks[T]) send(ch chan T) {
-	if !c.stopped.Load() {
-		c.buffers <- ch
-	}
-}
-func (c *Chunks[T]) NewChunk() chan T {
-	b := make(chan T, c.Cfg.MaxChunkSize)
+func (c *Chunks) NewChunk() chan any {
+	b := make(chan any, c.Cfg.MaxChunkSize)
 	c.send(b)
 	return b
 }
 
-func (c *Chunks[T]) GetChunks() <-chan chan T {
+func (c *Chunks) Chunks() <-chan chan any {
 	return c.buffers
 }
+func (c *Chunks) Chunk() chan any {
+	return <-c.buffers
+}
+func (c *Chunks) Stop() {
+	c.stopped.Store(true)
+}
 
-func (c *Chunks[T]) Generator() {
-	counter := atomic.Int64{}
-	counter.Store(0)
+func (c *Chunks) Generator() {
 	timer := time.NewTicker(c.Cfg.MaxIdleTime)
-	buffer := c.NewChunk()
+	stop := make(chan struct{}, 1)
 	go func() {
-		defer c.Close()
-		defer timer.Stop()
 		for {
-			select {
-			case <-c.Ctx().Done():
-				close(buffer)
-				return
-			case <-timer.C:
-				if counter.Load() == 0 {
-					continue
-				}
-				close(buffer)
-				counter.Store(0)
-				buffer = c.NewChunk()
-			case msg := <-c.input:
-				if c.stopped.Load() {
-					close(buffer)
-					return
-				}
-				timer.Reset(c.Cfg.MaxIdleTime)
-				buffer <- msg
-				counter.Add(1)
-
-				if counter.Load() >= int64(c.Cfg.MaxChunkSize) {
-					counter.Store(0)
-					close(buffer)
-					buffer = c.NewChunk()
-				}
+			if c.stopped.Load() {
+				c.wg.Wait()
+				timer.Stop()
+				close(c.buffers)
+				close(c.input)
+				stop <- struct{}{}
+				close(stop)
+				break
 			}
 		}
 	}()
+	go c.startProcessing(stop, timer)
+}
+
+func (c *Chunks) startProcessing(stop chan struct{}, timer *time.Ticker) {
+	buffer := c.NewChunk()
+	counter := atomic.Int64{}
+	counter.Store(0)
+	breaks := false
+	for !breaks {
+		select {
+		case <-stop:
+			close(buffer)
+			breaks = true
+			continue
+		case <-timer.C:
+			if counter.Load() == 0 {
+				timer.Reset(c.Cfg.MaxIdleTime)
+				continue
+			}
+			close(buffer)
+			counter.Store(0)
+			buffer = c.NewChunk()
+			timer.Reset(c.Cfg.MaxIdleTime)
+		default:
+			msg, ok := <-c.input
+			if !ok && msg == nil {
+				continue
+			}
+			timer.Reset(c.Cfg.MaxIdleTime)
+			buffer <- msg
+			counter.Add(1)
+			if counter.Load() >= int64(c.Cfg.MaxChunkSize) {
+				counter.Store(0)
+				close(buffer)
+				buffer = c.NewChunk()
+			}
+			c.wg.Done()
+		}
+	}
 }

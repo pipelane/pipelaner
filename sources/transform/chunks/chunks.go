@@ -5,7 +5,6 @@
 package chunks
 
 import (
-	"context"
 	"fmt"
 	"sync/atomic"
 
@@ -19,7 +18,7 @@ func init() {
 }
 
 type Chunk struct {
-	buffer *chunker.Chunks[any]
+	buffer *chunker.Chunks
 	locked atomic.Bool
 }
 
@@ -29,7 +28,7 @@ func (c *Chunk) Init(cfg transform.Transform) error {
 		return fmt.Errorf("invalid chunk config type: %T", cfg)
 	}
 
-	c.buffer = chunker.NewChunks[any](context.Background(), chunker.Config{
+	c.buffer = chunker.NewChunks(chunker.Config{
 		MaxChunkSize: int(chunkCfg.GetMaxChunkSize()),
 		BufferSize:   chunkCfg.GetOutputBufferSize(),
 		MaxIdleTime:  chunkCfg.GetMaxIdleTime().GoDuration(),
@@ -39,12 +38,12 @@ func (c *Chunk) Init(cfg transform.Transform) error {
 }
 
 func (c *Chunk) Transform(val any) any {
-	c.buffer.Input() <- val
+	c.buffer.SetValue(val)
 	if c.locked.Load() {
 		return nil
 	}
 	c.locked.Store(true)
 	defer c.locked.Store(false)
-	v := <-c.buffer.GetChunks()
+	v := <-c.buffer.Chunks()
 	return v
 }
