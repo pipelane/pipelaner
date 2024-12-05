@@ -13,10 +13,10 @@ test:
 
 .PHONY: proto
 proto:
-	@rm -rf source/shared/proto
-	@mkdir source/shared/proto
+	@rm -rf sources/shared/proto
+	@mkdir sources/shared/proto
 	@docker run -v $(PWD):/defs namely/protoc-all:1.51_2 -i proto -d proto -o go -l go && \
-    mv go/github.com/pipelane/pipelaner/source/shared/proto source/shared  && \
+    mv go/github.com/pipelane/pipelaner/sources/shared/proto sources/shared  && \
     rm -rf go
 
 .PHONY: install-pkl-go
