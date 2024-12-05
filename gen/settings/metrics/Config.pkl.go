@@ -1,4 +1,4 @@
-// Code generated from Pkl module `com.pipelaner.settings.metrics.MetricsConfig`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.settings.metrics.config`. DO NOT EDIT.
 package metrics
 
 import (
@@ -7,7 +7,7 @@ import (
 	"github.com/apple/pkl-go/pkl"
 )
 
-type MetricsConfig struct {
+type Config struct {
 	Host string `pkl:"host"`
 
 	Port int `pkl:"port"`
@@ -19,8 +19,8 @@ type MetricsConfig struct {
 	Enable bool `pkl:"enable"`
 }
 
-// LoadFromPath loads the pkl module at the given path and evaluates it into a MetricsConfig
-func LoadFromPath(ctx context.Context, path string) (ret *MetricsConfig, err error) {
+// LoadFromPath loads the pkl module at the given path and evaluates it into a Config
+func LoadFromPath(ctx context.Context, path string) (ret *Config, err error) {
 	evaluator, err := pkl.NewEvaluator(ctx, pkl.PreconfiguredOptions)
 	if err != nil {
 		return nil, err
@@ -35,9 +35,9 @@ func LoadFromPath(ctx context.Context, path string) (ret *MetricsConfig, err err
 	return ret, err
 }
 
-// Load loads the pkl module at the given source and evaluates it with the given evaluator into a MetricsConfig
-func Load(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (*MetricsConfig, error) {
-	var ret MetricsConfig
+// Load loads the pkl module at the given source and evaluates it with the given evaluator into a Config
+func Load(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (*Config, error) {
+	var ret Config
 	if err := evaluator.EvaluateModule(ctx, source, &ret); err != nil {
 		return nil, err
 	}

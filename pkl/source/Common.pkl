@@ -1,11 +1,9 @@
-@go.Package {name = "github.com/pipelane/pipelaner/gen/source/common"}
-module pipelaner.source.Common
+@go.Package { name = "github.com/pipelane/pipelaner/gen/source/common" }
+module com.pipelaner.source.common
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 
-// TODO: implemnt validation functions
-
-typealias SASLMechanism = "SCRAM-SHA-512" | "SCRAM-SHA-256" | "PLAIN"
+typealias SASLMechanism = "SCRAM-SHA-512"|"SCRAM-SHA-256"|"PLAIN"
 
 class Kafka {
   saslEnabled: Boolean
@@ -16,4 +14,19 @@ class Kafka {
   version: String?
   topics: Listing<String>
   schemaRegistry: String
+}
+
+class TLSConfig {
+  certFile: String(!isTLSKeyAndCertSetted)
+  keyFile: String(!isTLSKeyAndCertSetted)
+  hidden isTLSKeyAndCertSetted = (_) ->
+      if (keyFile == "" || certFile == "")
+        throw("key and cert files required with enabled tls")
+      else true
+}
+
+class Pipelaner {
+  host: String = "localhost"
+  port: Int
+  tls: TLSConfig?
 }

@@ -1,4 +1,4 @@
-// Code generated from Pkl module `pipelaner.source.inputs`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.source.inputs`. DO NOT EDIT.
 package strategy
 
 import (

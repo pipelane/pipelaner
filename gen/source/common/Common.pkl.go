@@ -1,4 +1,4 @@
-// Code generated from Pkl module `pipelaner.source.Common`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.source.common`. DO NOT EDIT.
 package common
 
 import (

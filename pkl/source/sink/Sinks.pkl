@@ -1,5 +1,5 @@
-@go.Package {name = "github.com/pipelane/pipelaner/gen/source/sink"}
-module pipelaner.source.sinks
+@go.Package { name = "github.com/pipelane/pipelaner/gen/source/sink" }
+module com.pipelaner.source.sinks
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 import ".../source/Common.pkl"
@@ -15,23 +15,16 @@ class Console extends Sink {
   fixed sourceName = "console"
 }
 
-class Pipelaner extends Sink{
+class Pipelaner extends Sink {
   fixed sourceName = "pipelaner"
-  host: String = "localhost"
-  port: Int
-  tls: Boolean = false
-  // todo: implement validate function for tls
-  // statement: if tls enabled -> check that certFile and keyFile not empty
-  certFile: String?
-  keyFile: String?
+  commonConfig: Common.Pipelaner
 }
 
 class KafkaProducer extends Sink {
-  fixed sourceName = "kafka-producer"
+  fixed sourceName = "kafka"
   kafka: Common.Kafka
   maxRequestSize: DataSize = 10.mib
-  // TODO: set default value
-  lingerMs: Duration
+  lingerMs: Duration = 0.ms
   batchNumMessages: Int = 100_000
 }
 

@@ -1,4 +1,4 @@
-// Code generated from Pkl module `pipelaner.source.Components`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.source.components`. DO NOT EDIT.
 package components
 
 import (

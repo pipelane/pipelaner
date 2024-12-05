@@ -56,7 +56,7 @@ func (s *Server) createListener() net.Listener {
 			s.logger.Fatal().Err(err).Msgf("Failed to unlink Unix socket %s", s.config.UnixSocketPath)
 		}
 
-		unixListener, err := net.ListenUnix("unix", &net.UnixAddr{Name: s.config.UnixSocketPath, Net: unixConnectionType})
+		unixListener, err := net.ListenUnix("unix", &net.UnixAddr{Name: *s.config.UnixSocketPath, Net: unixConnectionType})
 		if err != nil {
 			s.logger.Fatal().Err(err).Msgf("Failed to listen on Unix socket %s", s.config.UnixSocketPath)
 		}

@@ -1,5 +1,5 @@
-// Code generated from Pkl module `pipelaner.source.inputs`. DO NOT EDIT.
-package input
+// Code generated from Pkl module `com.pipelaner.source.common`. DO NOT EDIT.
+package common
 
 type TLSConfig struct {
 	CertFile string `pkl:"certFile"`

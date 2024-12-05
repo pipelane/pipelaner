@@ -1,4 +1,4 @@
-// Code generated from Pkl module `pipelaner.source.sinks`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.source.sinks`. DO NOT EDIT.
 package sink
 
 import "github.com/apple/pkl-go/pkl"

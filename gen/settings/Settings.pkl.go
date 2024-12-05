@@ -1,4 +1,4 @@
-// Code generated from Pkl module `pipelaner.settings.Settings`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.settings.settings`. DO NOT EDIT.
 package settings
 
 import (
@@ -11,11 +11,11 @@ import (
 )
 
 type Settings struct {
-	Logger *logger.LoggerConfig `pkl:"logger"`
+	Logger *logger.Config `pkl:"logger"`
 
-	HealthCheck *healthcheck.HealthcheckConfig `pkl:"healthCheck"`
+	HealthCheck *healthcheck.Config `pkl:"healthCheck"`
 
-	Metrics *metrics.MetricsConfig `pkl:"metrics"`
+	Metrics *metrics.Config `pkl:"metrics"`
 
 	StartGCAfterMessageProcess bool `pkl:"startGCAfterMessageProcess"`
 }

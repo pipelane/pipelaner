@@ -1,4 +1,4 @@
-// Code generated from Pkl module `com.pipelaner.settings.logger.LoggerConfig`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.settings.logger.config`. DO NOT EDIT.
 package logger
 
 import (
@@ -9,7 +9,7 @@ import (
 	"github.com/pipelane/pipelaner/gen/settings/logger/loglevel"
 )
 
-type LoggerConfig struct {
+type Config struct {
 	LogLevel loglevel.LogLevel `pkl:"logLevel"`
 
 	EnableConsole bool `pkl:"enableConsole"`
@@ -33,8 +33,8 @@ type LoggerConfig struct {
 	LogFormat logformat.LogFormat `pkl:"logFormat"`
 }
 
-// LoadFromPath loads the pkl module at the given path and evaluates it into a LoggerConfig
-func LoadFromPath(ctx context.Context, path string) (ret *LoggerConfig, err error) {
+// LoadFromPath loads the pkl module at the given path and evaluates it into a Config
+func LoadFromPath(ctx context.Context, path string) (ret *Config, err error) {
 	evaluator, err := pkl.NewEvaluator(ctx, pkl.PreconfiguredOptions)
 	if err != nil {
 		return nil, err
@@ -49,9 +49,9 @@ func LoadFromPath(ctx context.Context, path string) (ret *LoggerConfig, err erro
 	return ret, err
 }
 
-// Load loads the pkl module at the given source and evaluates it with the given evaluator into a LoggerConfig
-func Load(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (*LoggerConfig, error) {
-	var ret LoggerConfig
+// Load loads the pkl module at the given source and evaluates it with the given evaluator into a Config
+func Load(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (*Config, error) {
+	var ret Config
 	if err := evaluator.EvaluateModule(ctx, source, &ret); err != nil {
 		return nil, err
 	}

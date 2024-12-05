@@ -1,5 +1,5 @@
 @go.Package {name = "github.com/pipelane/pipelaner/gen/settings/healthcheck"}
-module com.pipelaner.settings.healthcheck.HealthcheckConfig
+module com.pipelaner.settings.healthcheck.config
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 

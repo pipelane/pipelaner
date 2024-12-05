@@ -1,5 +1,5 @@
 @go.Package {name = "github.com/pipelane/pipelaner/gen/settings/metrics"}
-module com.pipelaner.settings.metrics.MetricsConfig
+module com.pipelaner.settings.metrics.config
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 

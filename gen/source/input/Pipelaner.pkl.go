@@ -1,16 +1,15 @@
-// Code generated from Pkl module `pipelaner.source.inputs`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.source.inputs`. DO NOT EDIT.
 package input
 
-import "github.com/pipelane/pipelaner/gen/source/input/connectiontype"
+import (
+	"github.com/pipelane/pipelaner/gen/source/common"
+	"github.com/pipelane/pipelaner/gen/source/input/connectiontype"
+)
 
 type Pipelaner interface {
 	Input
 
-	GetHost() string
-
-	GetPort() int
-
-	GetTls() *TLSConfig
+	GetCommonConfig() *common.Pipelaner
 
 	GetConnectionType() connectiontype.ConnectionType
 
@@ -22,11 +21,7 @@ var _ Pipelaner = (*PipelanerImpl)(nil)
 type PipelanerImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	Host string `pkl:"host"`
-
-	Port int `pkl:"port"`
-
-	Tls *TLSConfig `pkl:"tls"`
+	CommonConfig *common.Pipelaner `pkl:"commonConfig"`
 
 	ConnectionType connectiontype.ConnectionType `pkl:"connectionType"`
 
@@ -43,16 +38,8 @@ func (rcv *PipelanerImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *PipelanerImpl) GetHost() string {
-	return rcv.Host
-}
-
-func (rcv *PipelanerImpl) GetPort() int {
-	return rcv.Port
-}
-
-func (rcv *PipelanerImpl) GetTls() *TLSConfig {
-	return rcv.Tls
+func (rcv *PipelanerImpl) GetCommonConfig() *common.Pipelaner {
+	return rcv.CommonConfig
 }
 
 func (rcv *PipelanerImpl) GetConnectionType() connectiontype.ConnectionType {

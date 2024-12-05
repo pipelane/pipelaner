@@ -1,4 +1,4 @@
-// Code generated from Pkl module `pipelaner.source.inputs`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.source.inputs`. DO NOT EDIT.
 package input
 
 import (
@@ -17,13 +17,13 @@ type KafkaConsumer interface {
 
 	GetConsumerGroupID() string
 
-	GetMaxPartitionFetchBytes() *pkl.DataSize
-
-	GetFetchMaxBytes() *pkl.DataSize
-
 	GetAutoOffsetReset() autooffsetreset.AutoOffsetReset
 
 	GetBalancerStrategy() []strategy.Strategy
+
+	GetMaxPartitionFetchBytes() *pkl.DataSize
+
+	GetFetchMaxBytes() *pkl.DataSize
 }
 
 var _ KafkaConsumer = (*KafkaConsumerImpl)(nil)
@@ -37,13 +37,13 @@ type KafkaConsumerImpl struct {
 
 	ConsumerGroupID string `pkl:"consumerGroupID"`
 
-	MaxPartitionFetchBytes *pkl.DataSize `pkl:"maxPartitionFetchBytes"`
-
-	FetchMaxBytes *pkl.DataSize `pkl:"fetchMaxBytes"`
-
 	AutoOffsetReset autooffsetreset.AutoOffsetReset `pkl:"autoOffsetReset"`
 
 	BalancerStrategy []strategy.Strategy `pkl:"balancerStrategy"`
+
+	MaxPartitionFetchBytes *pkl.DataSize `pkl:"maxPartitionFetchBytes"`
+
+	FetchMaxBytes *pkl.DataSize `pkl:"fetchMaxBytes"`
 
 	Name string `pkl:"name"`
 
@@ -68,20 +68,20 @@ func (rcv *KafkaConsumerImpl) GetConsumerGroupID() string {
 	return rcv.ConsumerGroupID
 }
 
-func (rcv *KafkaConsumerImpl) GetMaxPartitionFetchBytes() *pkl.DataSize {
-	return rcv.MaxPartitionFetchBytes
-}
-
-func (rcv *KafkaConsumerImpl) GetFetchMaxBytes() *pkl.DataSize {
-	return rcv.FetchMaxBytes
-}
-
 func (rcv *KafkaConsumerImpl) GetAutoOffsetReset() autooffsetreset.AutoOffsetReset {
 	return rcv.AutoOffsetReset
 }
 
 func (rcv *KafkaConsumerImpl) GetBalancerStrategy() []strategy.Strategy {
 	return rcv.BalancerStrategy
+}
+
+func (rcv *KafkaConsumerImpl) GetMaxPartitionFetchBytes() *pkl.DataSize {
+	return rcv.MaxPartitionFetchBytes
+}
+
+func (rcv *KafkaConsumerImpl) GetFetchMaxBytes() *pkl.DataSize {
+	return rcv.FetchMaxBytes
 }
 
 func (rcv *KafkaConsumerImpl) GetName() string {

@@ -1,5 +1,5 @@
 @go.Package { name = "github.com/pipelane/pipelaner/gen/source/input" }
-module pipelaner.source.inputs
+module com.pipelaner.source.inputs
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 import ".../source/Common.pkl"
@@ -20,43 +20,32 @@ typealias AutoOffsetReset = "earliest"|"latest"
 typealias Strategy = "range"|"round-robin"|"cooperative-sticky"|"sticky"
 
 class KafkaConsumer extends Input {
-  fixed sourceName = "kafka-consumer"
+  fixed sourceName = "kafka"
   kafka: Common.Kafka
-  autoCommitEnabled: Boolean = false
+  autoCommitEnabled: Boolean = true
   consumerGroupID: String
-  // fetchMaxBytes > maxPartitionFetchBytes
-  maxPartitionFetchBytes: DataSize = 1.mib
-  fetchMaxBytes: DataSize = 50.mib
-  //
   autoOffsetReset: AutoOffsetReset = "earliest"
   balancerStrategy: Listing<Strategy> = new Listing<Strategy> {
     "cooperative-sticky"
   }
-  hidden checkBufferSizes = (_) ->
+  // fetchMaxBytes > maxPartitionFetchBytes
+  maxPartitionFetchBytes: DataSize(!validateBuffersSizes) = 1.mib
+  fetchMaxBytes: DataSize(!validateBuffersSizes) = 50.mib
+  //
+  hidden validateBuffersSizes = (_) ->
       if (fetchMaxBytes < maxPartitionFetchBytes)
         throw("'fetchMaxBytes' should be more than 'maxPartitionFetchBytes'")
       else true
 }
 
-typealias ConnectionType = "unix" | "http2"
-
-class TLSConfig {
-  certFile: String
-  keyFile: String
-  hidden tlsEnabled = (_) ->
-      if (keyFile == "" || certFile == "")
-        throw("key and cert files required with enabled tls")
-      else true
-}
+typealias ConnectionType = "unix"|"http2"
 
 class Pipelaner extends Input {
   fixed sourceName = "pipelaner"
-  host: String
-  port: Int
-  tls: TLSConfig?
+  commonConfig: Common.Pipelaner
   connectionType: ConnectionType = "http2"
-  unixSocketPath: String?
-  hidden unixSockerPathSetted = (_) ->
+  unixSocketPath: String(!isUnixPathSetted)?
+  hidden isUnixPathSetted = (_) ->
       if (connectionType == "unix" && unixSocketPath == null)
         throw("if you use unix socket, please set up 'unixSocketPath'")
       else true

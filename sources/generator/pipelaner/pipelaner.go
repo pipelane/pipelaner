@@ -36,7 +36,7 @@ func (p *Pipelaner) Init(cfg input.Input) error {
 	if !ok {
 		return errors.New("invalid input config type")
 	}
-	if tls := c.GetTls(); tls != nil {
+	if tls := c.GetCommonConfig().Tls; tls != nil {
 		cred, errs := credentials.NewServerTLSFromFile(tls.CertFile, tls.KeyFile)
 		if errs != nil {
 			p.Log().Fatal().Err(errs).Msg("Failed to generate credentials")
@@ -45,9 +45,9 @@ func (p *Pipelaner) Init(cfg input.Input) error {
 	}
 	l := p.Log().With().Logger()
 	serv := grpc_server.NewServer(&grpc_server.ServerConfig{
-		Host:           c.GetHost(),
-		Port:           c.GetPort(),
-		ConnectionType: string(c.GetConnectionType()),
+		Host:           c.GetCommonConfig().Host,
+		Port:           c.GetCommonConfig().Port,
+		ConnectionType: c.GetConnectionType().String(),
 		UnixSocketPath: c.GetUnixSocketPath(),
 		Opts:           opts,
 	}, &l)

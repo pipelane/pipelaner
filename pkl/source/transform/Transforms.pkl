@@ -1,5 +1,5 @@
 @go.Package {name = "github.com/pipelane/pipelaner/gen/source/transform"}
-module pipelaner.source.transforms
+module com.pipelaner.source.transforms
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 

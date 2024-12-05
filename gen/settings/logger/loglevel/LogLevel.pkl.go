@@ -1,4 +1,4 @@
-// Code generated from Pkl module `com.pipelaner.settings.logger.LoggerConfig`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.settings.logger.config`. DO NOT EDIT.
 package loglevel
 
 import (

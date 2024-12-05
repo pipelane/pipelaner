@@ -1,14 +1,14 @@
-// Code generated from Pkl module `pipelaner.source.transforms`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.source.transforms`. DO NOT EDIT.
 package transform
 
 import "github.com/apple/pkl-go/pkl"
 
 func init() {
-	pkl.RegisterMapping("pipelaner.source.transforms", Transforms{})
-	pkl.RegisterMapping("pipelaner.source.transforms#Batch", BatchImpl{})
-	pkl.RegisterMapping("pipelaner.source.transforms#Chunk", ChunkImpl{})
-	pkl.RegisterMapping("pipelaner.source.transforms#Debounce", DebounceImpl{})
-	pkl.RegisterMapping("pipelaner.source.transforms#Throttling", ThrottlingImpl{})
-	pkl.RegisterMapping("pipelaner.source.transforms#Filter", FilterImpl{})
-	pkl.RegisterMapping("pipelaner.source.transforms#Remap", RemapImpl{})
+	pkl.RegisterMapping("com.pipelaner.source.transforms", Transforms{})
+	pkl.RegisterMapping("com.pipelaner.source.transforms#Batch", BatchImpl{})
+	pkl.RegisterMapping("com.pipelaner.source.transforms#Chunk", ChunkImpl{})
+	pkl.RegisterMapping("com.pipelaner.source.transforms#Debounce", DebounceImpl{})
+	pkl.RegisterMapping("com.pipelaner.source.transforms#Throttling", ThrottlingImpl{})
+	pkl.RegisterMapping("com.pipelaner.source.transforms#Filter", FilterImpl{})
+	pkl.RegisterMapping("com.pipelaner.source.transforms#Remap", RemapImpl{})
 }

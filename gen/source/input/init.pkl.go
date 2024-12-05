@@ -1,12 +1,11 @@
-// Code generated from Pkl module `pipelaner.source.inputs`. DO NOT EDIT.
+// Code generated from Pkl module `com.pipelaner.source.inputs`. DO NOT EDIT.
 package input
 
 import "github.com/apple/pkl-go/pkl"
 
 func init() {
-	pkl.RegisterMapping("pipelaner.source.inputs", Inputs{})
-	pkl.RegisterMapping("pipelaner.source.inputs#Cmd", CmdImpl{})
-	pkl.RegisterMapping("pipelaner.source.inputs#KafkaConsumer", KafkaConsumerImpl{})
-	pkl.RegisterMapping("pipelaner.source.inputs#TLSConfig", TLSConfig{})
-	pkl.RegisterMapping("pipelaner.source.inputs#Pipelaner", PipelanerImpl{})
+	pkl.RegisterMapping("com.pipelaner.source.inputs", Inputs{})
+	pkl.RegisterMapping("com.pipelaner.source.inputs#Cmd", CmdImpl{})
+	pkl.RegisterMapping("com.pipelaner.source.inputs#KafkaConsumer", KafkaConsumerImpl{})
+	pkl.RegisterMapping("com.pipelaner.source.inputs#Pipelaner", PipelanerImpl{})
 }

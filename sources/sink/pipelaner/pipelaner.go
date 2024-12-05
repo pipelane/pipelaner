@@ -33,16 +33,21 @@ func (p *Pipelaner) Init(cfg sink.Sink) error {
 		return fmt.Errorf("invalid pipelaner config type: %T", cfg)
 	}
 	var opts []grpc.DialOption
-	if pipelanerCfg.GetTls() {
-		creds, err := credentials.NewClientTLSFromFile(*pipelanerCfg.GetCertFile(), "")
+	if tls := pipelanerCfg.GetCommonConfig().Tls; tls != nil {
+		cred, err := credentials.NewClientTLSFromFile(tls.CertFile, "")
 		if err != nil {
 			return err
 		}
-		opts = append(opts, grpc.WithTransportCredentials(creds))
+		opts = append(opts, grpc.WithTransportCredentials(cred))
 	} else {
 		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
-	conn, err := grpc.NewClient(fmt.Sprintf("%s:%d", pipelanerCfg.GetHost(), pipelanerCfg.GetPort()), opts...)
+	conn, err := grpc.NewClient(
+		fmt.Sprintf(
+			"%s:%d",
+			pipelanerCfg.GetCommonConfig().Host,
+			pipelanerCfg.GetCommonConfig().Port,
+		), opts...)
 	if err != nil {
 		return err
 	}
