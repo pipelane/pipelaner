@@ -62,7 +62,7 @@ func NewInput(cfg configinput.Input, logger *zerolog.Logger, opts ...Option) (*I
 	if v, ok := inputImpl.(components.Logging); ok {
 		v.SetLogger(l)
 	}
-	if err := inputImpl.Init(cfg); err != nil {
+	if err = inputImpl.Init(cfg); err != nil {
 		return nil, fmt.Errorf("init input implementation: %s: %w", cfg.GetName(), err)
 	}
 	return &Input{
@@ -108,12 +108,7 @@ func (i *Input) Run(ctx context.Context) error {
 					i.logger.Error().Err(err).Msg("prepare message failed")
 					continue
 				}
-
-				if err := i.preSendMessageAction(len(input), len(input)); err != nil {
-					i.logger.Error().Err(err).Msg("pre-send message action")
-					continue
-				}
-
+				i.preSendMessageAction(len(input), len(input))
 				ch <- m
 			}
 		}
@@ -141,18 +136,18 @@ func (i *Input) prepareMessage(msg any) (any, error) {
 		kind := reflect.TypeOf(msg).Kind()
 		switch kind {
 		case reflect.Pointer, reflect.Slice, reflect.Map, reflect.Struct:
-			msg, err := kamino.Clone(msg)
+			mes, err := kamino.Clone(msg)
 			if err != nil {
 				return nil, err
 			}
-			return msg, nil
+			return mes, nil
 		default:
 			return msg, nil
 		}
 	}
 }
 
-func (i *Input) preSendMessageAction(length, capacity int) error {
+func (i *Input) preSendMessageAction(length, capacity int) {
 	if i.cfg.enableMetrics {
 		metrics.TotalMessagesCount.WithLabelValues(inputNodeType, i.cfg.name).Inc()
 		metrics.BufferLength.WithLabelValues(inputNodeType, i.cfg.name).Set(float64(length))
@@ -161,5 +156,4 @@ func (i *Input) preSendMessageAction(length, capacity int) error {
 	if i.cfg.callGC {
 		runtime.GC()
 	}
-	return nil
 }

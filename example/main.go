@@ -60,7 +60,11 @@ func (t *TransMul) Init(cfg transform.Transform) error {
 }
 
 func (t *TransMul) Transform(val any) any {
-	return t.mul * val.(int)
+	v, ok := val.(int)
+	if !ok {
+		return errors.New("transform.TransMul expects transform.TransMul")
+	}
+	return t.mul * v
 }
 
 func init() {
@@ -69,7 +73,6 @@ func init() {
 }
 
 func main() {
-
 	agent, err := pipelaner.NewAgent(
 		"example/pkl/config.pkl",
 	)
@@ -86,7 +89,7 @@ func main() {
 		os.Exit(100)
 	}()
 	defer stop()
-	if err := agent.Serve(ctx); err != nil {
+	if err = agent.Serve(ctx); err != nil {
 		panic(err)
 	}
 }

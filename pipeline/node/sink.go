@@ -63,7 +63,7 @@ func NewSink(
 	if v, ok := sinkImpl.(components.Logging); ok {
 		v.SetLogger(l)
 	}
-	if err := sinkImpl.Init(cfg); err != nil {
+	if err = sinkImpl.Init(cfg); err != nil {
 		return nil, fmt.Errorf("init sink implementation: %w", err)
 	}
 
@@ -101,17 +101,9 @@ func (s *Sink) Run() error {
 			sema.Acquire()
 			go func() {
 				defer sema.Release()
-
-				if err := s.preSinkAction(len(inChannel), cap(inChannel)); err != nil {
-					s.logger.Error().Err(err).Msg("pre-sink action")
-					return
-				}
+				s.preSinkAction(len(inChannel), cap(inChannel))
 				s.impl.Sink(msg)
-
-				if err := s.postSinkAction(); err != nil {
-					s.logger.Error().Err(err).Msg("post-sink action")
-					return
-				}
+				s.postSinkAction()
 			}()
 		}
 		s.logger.Debug().Msg("input channels processed")
@@ -119,17 +111,15 @@ func (s *Sink) Run() error {
 	return nil
 }
 
-func (s *Sink) preSinkAction(length, capacity int) error {
+func (s *Sink) preSinkAction(length, capacity int) {
 	if s.cfg.enableMetrics {
 		metrics.BufferLength.WithLabelValues(sinkNodeType, s.cfg.name).Set(float64(length))
 		metrics.BufferCapacity.WithLabelValues(sinkNodeType, s.cfg.name).Set(float64(capacity))
 	}
-	return nil
 }
 
-func (s *Sink) postSinkAction() error {
+func (s *Sink) postSinkAction() {
 	if s.cfg.callGC {
 		metrics.TotalMessagesCount.WithLabelValues(sinkNodeType, s.cfg.name).Inc()
 	}
-	return nil
 }

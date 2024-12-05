@@ -45,13 +45,11 @@ func (d *Debounce) Transform(val any) any {
 		return nil
 	}
 	d.locked.Store(true)
-	select {
-	case <-d.timer.C:
-		v := d.val.Load()
-		d.locked.Store(false)
-		d.val = atomic.Value{}
-		return v
-	}
+	<-d.timer.C
+	v := d.val.Load()
+	d.locked.Store(false)
+	d.val = atomic.Value{}
+	return v
 }
 
 func (d *Debounce) storeValue(val any) {

@@ -15,7 +15,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func NewLoggerWithCfg(cfg *logger.LoggerConfig) (*zerolog.Logger, error) {
+func NewLoggerWithCfg(cfg *logger.Config) (*zerolog.Logger, error) {
 	var writers []io.Writer
 
 	if cfg.LogLevel == "" {
@@ -48,7 +48,7 @@ func NewLoggerWithCfg(cfg *logger.LoggerConfig) (*zerolog.Logger, error) {
 	return &logger, nil
 }
 
-func newRollingFile(cfg *logger.LoggerConfig) io.Writer {
+func newRollingFile(cfg *logger.Config) io.Writer {
 	return &lumberjack.Logger{
 		Filename:   path.Join(*cfg.FileDirectory, *cfg.FileName),
 		MaxBackups: *cfg.FileMaxBackups,

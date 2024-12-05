@@ -68,7 +68,8 @@ func (t *Filter) Transform(val any) any {
 	if err != nil {
 		return err
 	}
-	if !output.(bool) {
+	o, ok := output.(bool)
+	if !ok || !o {
 		return nil
 	}
 	return val

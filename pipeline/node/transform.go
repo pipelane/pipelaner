@@ -74,7 +74,7 @@ func NewTransform(
 	if v, ok := transformImpl.(components.Logging); ok {
 		v.SetLogger(l)
 	}
-	if err := transformImpl.Init(cfg); err != nil {
+	if err = transformImpl.Init(cfg); err != nil {
 		return nil, fmt.Errorf("init transform implementation: %w", err)
 	}
 
@@ -111,7 +111,7 @@ func (t *Transform) GetOutputBufferSize() int {
 	return t.cfg.outBufferSize
 }
 
-// Run non-blocking call that start Transform node action in separated goroutine
+// Run non-blocking call that start Transform node action in separated goroutine.
 func (t *Transform) Run() error {
 	if len(t.inputChannels) == 0 {
 		return fmt.Errorf("no input channels configured for '%s'", t.cfg.name)
@@ -147,10 +147,7 @@ func (t *Transform) Run() error {
 						t.logger.Error().Err(err).Msg("prepare message to send")
 						continue
 					}
-
-					if err := t.preSendMessageAction(len(ch), cap(ch)); err != nil {
-						t.logger.Error().Err(err).Msg("pre-send message action")
-					}
+					t.preSendMessageAction(len(ch), cap(ch))
 					ch <- mes
 				}
 			}()
@@ -187,7 +184,7 @@ func (t *Transform) prepareMessage(msg any) (any, error) {
 		newChan := make(chan any, cap(mCh))
 		go func() {
 			close(newChan)
-			for m := range msg.(chan any) {
+			for m := range mCh {
 				copyMes, errs := t.prepareMessage(m)
 				if errs != nil {
 					return
@@ -201,7 +198,7 @@ func (t *Transform) prepareMessage(msg any) (any, error) {
 	}
 }
 
-func (t *Transform) preSendMessageAction(length, capacity int) error {
+func (t *Transform) preSendMessageAction(length, capacity int) {
 	if t.cfg.enableMetrics {
 		metrics.TotalMessagesCount.WithLabelValues(transformNodeType, t.cfg.name)
 		metrics.BufferLength.WithLabelValues(transformNodeType, t.cfg.name).Set(float64(length))
@@ -210,5 +207,4 @@ func (t *Transform) preSendMessageAction(length, capacity int) error {
 	if t.cfg.callGC {
 		runtime.GC()
 	}
-	return nil
 }

@@ -45,13 +45,11 @@ func (t *Throttling) Transform(val any) any {
 	}
 	t.locked.Store(true)
 	t.reset()
-	select {
-	case <-t.timer.C:
-		v := t.val.Load()
-		t.locked.Store(false)
-		t.val = atomic.Value{}
-		return v
-	}
+	<-t.timer.C
+	v := t.val.Load()
+	t.locked.Store(false)
+	t.val = atomic.Value{}
+	return v
 }
 
 func (t *Throttling) storeValue(val any) {

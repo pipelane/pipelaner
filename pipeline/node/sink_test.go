@@ -30,8 +30,7 @@ func linesCount(t *testing.T, filePath string) int {
 	return lineCount
 }
 
-// fileSinkCollector - write value into separated line
-// in file
+// fileSinkCollector - write value into separated line in file.
 type fileSinkCollector struct {
 	m        sync.Mutex
 	filePath string
@@ -60,12 +59,12 @@ func (s *fileSinkCollector) Sink(value any) {
 	}
 	defer f.Close()
 	// write every string on separated lines
-	if _, err := f.WriteString(sValue + "\n"); err != nil {
+	if _, err = f.WriteString(sValue + "\n"); err != nil {
 		panic(fmt.Errorf("write out file: %w", err))
 	}
 }
 
-// configuration for fileSinkCollector
+// configuration for fileSinkCollector.
 type fileSinkCfgImpl struct {
 	outFilePath string
 	threads     int

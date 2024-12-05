@@ -21,6 +21,7 @@ func newConfig(
 	t *testing.T,
 	duration time.Duration,
 ) transform.Transform {
+	t.Helper()
 	durationStr := duration.String()
 
 	re := regexp.MustCompile(`^(\d+)([a-z]+)$`)
@@ -36,10 +37,9 @@ func newConfig(
 				Unit:  unit,
 			},
 		}
-	} else {
-		t.Fatal("invalid input string")
-		return nil
 	}
+	t.Fatal("invalid input string")
+	return nil
 }
 
 func TestThrottling_Map(t *testing.T) {

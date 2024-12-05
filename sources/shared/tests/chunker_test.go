@@ -96,7 +96,9 @@ func TestChunksOfChunks(t *testing.T) {
 			var got testStructs
 			var ok bool
 			for out := range output {
-				for v := range out.(chan any) {
+				ot, o := out.(chan any)
+				assert.False(t, o)
+				for v := range ot {
 					got, ok = v.(testStructs)
 					assert.True(t, ok)
 				}

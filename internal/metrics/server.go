@@ -12,15 +12,11 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-var (
-	metricsNotInitializedErr = errors.New("metrics server not initialized")
-)
-
 type Server struct {
 	server *http.Server
 }
 
-func NewMetricsServer(cfg *metrics.MetricsConfig) (*Server, error) {
+func NewMetricsServer(cfg *metrics.Config) (*Server, error) {
 	if cfg == nil {
 		return nil, errors.New("config is required")
 	}
@@ -38,7 +34,7 @@ func NewMetricsServer(cfg *metrics.MetricsConfig) (*Server, error) {
 func (m *Server) Serve(ctx context.Context) error {
 	go func() {
 		<-ctx.Done()
-		if cErr := m.server.Shutdown(context.Background()); cErr != nil {
+		if cErr := m.server.Shutdown(ctx); cErr != nil {
 			log.Printf("failed to shutdown metrics server: %v", cErr)
 		}
 	}()

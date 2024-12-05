@@ -20,7 +20,7 @@ type Pipelaner struct {
 
 func NewPipelaner(
 	configs []*components.Pipeline,
-	loggerCfg *logCfg.LoggerConfig,
+	loggerCfg *logCfg.Config,
 	metricsEnabled, gcAfterProcess bool,
 ) (*Pipelaner, error) {
 	pl := make([]pipeline, 0, len(configs))
@@ -30,9 +30,9 @@ func NewPipelaner(
 	}
 
 	for _, cfg := range configs {
-		p, err := pipelines.NewPipeline(cfg, l, metricsEnabled, gcAfterProcess)
-		if err != nil {
-			return nil, fmt.Errorf("create pipeline '%s': %w", cfg.Name, err)
+		p, e := pipelines.NewPipeline(cfg, l, metricsEnabled, gcAfterProcess)
+		if e != nil {
+			return nil, fmt.Errorf("create pipeline '%s': %w", cfg.Name, e)
 		}
 		pl = append(pl, p)
 	}

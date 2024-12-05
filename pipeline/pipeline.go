@@ -64,14 +64,10 @@ func NewPipeline(
 		opts = append(opts, node.WithCallGC())
 	}
 
-	if err := p.initNodes(cfg, logger); err != nil {
+	if err := p.initNodes(cfg, logger, opts...); err != nil {
 		return nil, err
 	}
-
-	if err := p.connectNodes(); err != nil {
-		return nil, err
-	}
-
+	p.connectNodes()
 	return p, nil
 }
 
@@ -110,14 +106,9 @@ func (p *Pipeline) initNodes(cfg *config.Pipeline, logger *zerolog.Logger, opts 
 	return nil
 }
 
-func (p *Pipeline) connectNodes() error {
-	if err := p.connectSinkNodes(); err != nil {
-		return fmt.Errorf("connect sink nodes: %w", err)
-	}
-	if err := p.connectTransformNodes(); err != nil {
-		return fmt.Errorf("connect transform nodes: %w", err)
-	}
-	return nil
+func (p *Pipeline) connectNodes() {
+	p.connectSinkNodes()
+	p.connectTransformNodes()
 }
 
 func (p *Pipeline) initSinkNodes(
@@ -171,7 +162,7 @@ func (p *Pipeline) initInputNodes(
 	return nil
 }
 
-func (p *Pipeline) connectSinkNodes() error {
+func (p *Pipeline) connectSinkNodes() {
 	for _, sinkNode := range p.sinks {
 		for _, transformNode := range p.transforms {
 			if slices.Contains(sinkNode.GetInputs(), transformNode.GetName()) {
@@ -188,10 +179,9 @@ func (p *Pipeline) connectSinkNodes() error {
 			}
 		}
 	}
-	return nil
 }
 
-func (p *Pipeline) connectTransformNodes() error {
+func (p *Pipeline) connectTransformNodes() {
 	for _, tNode := range p.transforms {
 		for _, transformNode := range p.transforms {
 			if slices.Contains(tNode.GetInputs(), transformNode.GetName()) {
@@ -209,5 +199,4 @@ func (p *Pipeline) connectTransformNodes() error {
 			}
 		}
 	}
-	return nil
 }

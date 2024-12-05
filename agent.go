@@ -37,7 +37,7 @@ func NewAgent(file string) (*Agent, error) {
 	}
 
 	for _, init := range inits {
-		if err := init(cfg); err != nil {
+		if err = init(cfg); err != nil {
 			return nil, err
 		}
 	}

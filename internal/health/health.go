@@ -19,7 +19,6 @@ type Server struct {
 }
 
 func NewHealthCheck(cfg *config.Pipelaner) (*Server, error) {
-
 	if cfg == nil {
 		return nil, errors.New("config is required")
 	}
@@ -39,12 +38,12 @@ func NewHealthCheck(cfg *config.Pipelaner) (*Server, error) {
 }
 
 var (
-	healthcheckNotInitialized = errors.New("healthcheck server not initialized")
+	errHealthcheckNotInitialized = errors.New("healthcheck server not initialized")
 )
 
 func (p *Server) Serve(ctx context.Context) error {
 	if p.serv == nil {
-		return healthcheckNotInitialized
+		return errHealthcheckNotInitialized
 	}
 	go func() {
 		<-ctx.Done()

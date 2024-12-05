@@ -31,8 +31,8 @@ func NewConsumer(
 		kgo.WithLogger(kzerolog.New(logger)),
 		kgo.ConsumerGroup(cfg.GetConsumerGroupID()),
 		kgo.ConsumeTopics(cfg.GetKafka().Topics...),
-		kgo.FetchMaxBytes(int32(maxByteFetch)), //nolint: gosec
-		kgo.FetchMaxPartitionBytes(int32(v)),   //nolint: gosec
+		kgo.FetchMaxBytes(int32(maxByteFetch)),
+		kgo.FetchMaxPartitionBytes(int32(v)),
 		kgo.HeartbeatInterval(time.Second),
 	}
 	var balancers []kgo.GroupBalancer

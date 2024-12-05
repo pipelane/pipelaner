@@ -53,12 +53,12 @@ func (s *Server) Serve(use ...func(grpc *grpc.Server)) error {
 func (s *Server) createListener() net.Listener {
 	if s.config.ConnectionType == unixConnectionType {
 		if err := syscall.Unlink(*s.config.UnixSocketPath); err != nil && !os.IsNotExist(err) {
-			s.logger.Fatal().Err(err).Msgf("Failed to unlink Unix socket %s", s.config.UnixSocketPath)
+			s.logger.Fatal().Err(err).Msgf("Failed to unlink Unix socket %s", *s.config.UnixSocketPath)
 		}
 
 		unixListener, err := net.ListenUnix("unix", &net.UnixAddr{Name: *s.config.UnixSocketPath, Net: unixConnectionType})
 		if err != nil {
-			s.logger.Fatal().Err(err).Msgf("Failed to listen on Unix socket %s", s.config.UnixSocketPath)
+			s.logger.Fatal().Err(err).Msgf("Failed to listen on Unix socket %s", *s.config.UnixSocketPath)
 		}
 		return unixListener
 	}
