@@ -7,5 +7,6 @@ func init() {
 	pkl.RegisterMapping("pipelaner.source.inputs", Inputs{})
 	pkl.RegisterMapping("pipelaner.source.inputs#Cmd", CmdImpl{})
 	pkl.RegisterMapping("pipelaner.source.inputs#KafkaConsumer", KafkaConsumerImpl{})
+	pkl.RegisterMapping("pipelaner.source.inputs#TLSConfig", TLSConfig{})
 	pkl.RegisterMapping("pipelaner.source.inputs#Pipelaner", PipelanerImpl{})
 }

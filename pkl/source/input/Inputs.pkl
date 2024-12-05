@@ -1,4 +1,4 @@
-@go.Package {name = "github.com/pipelane/pipelaner/gen/source/input" }
+@go.Package { name = "github.com/pipelane/pipelaner/gen/source/input" }
 module pipelaner.source.inputs
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
@@ -16,39 +16,48 @@ class Cmd extends Input {
   exec: Listing<String>
 }
 
-typealias AutoOffsetReset = "earliest" | "latest"
-typealias Strategy = "range" | "round-robin" | "cooperative-sticky" | "sticky"
+typealias AutoOffsetReset = "earliest"|"latest"
+typealias Strategy = "range"|"round-robin"|"cooperative-sticky"|"sticky"
 
 class KafkaConsumer extends Input {
   fixed sourceName = "kafka-consumer"
   kafka: Common.Kafka
   autoCommitEnabled: Boolean = false
   consumerGroupID: String
-  // TODO: replace default values && implement validation function
   // fetchMaxBytes > maxPartitionFetchBytes
-  maxPartitionFetchBytes: DataSize = 50.mib
-  fetchMaxBytes: DataSize = 10.mib
+  maxPartitionFetchBytes: DataSize = 10.mib
+  fetchMaxBytes: DataSize = 50.mib
+  // 
   autoOffsetReset: AutoOffsetReset = "earliest"
   balancerStrategy: Listing<Strategy> = new Listing<Strategy> {
     "cooperative-sticky"
   }
+  hidden checkBufferSizes = (_) ->
+      if (fetchMaxBytes < maxPartitionFetchBytes)
+        throw("'fetchMaxBytes' should be more than 'maxPartitionFetchBytes'")
+      else true
 }
 
-typealias ConnectionType = "unix"
+typealias ConnectionType = "unix" | "http2"
+
+class TLSConfig {
+  certFile: String
+  keyFile: String
+  hidden tlsEnabled = (_) ->
+      if (keyFile == "" || certFile == "")
+        throw("key and cert files required with enabled tls")
+      else true
+}
 
 class Pipelaner extends Input {
   fixed sourceName = "pipelaner"
-
-  host: String?
+  host: String
   port: Int
-  tls: Boolean(tlsEnabled)? = false
-
-  hidden tlsEnabled = (_) ->
-    if (keyFile == "" || certFile == "")
-      throw("key and cert files required with enabled tls")
-    else true
-  certFile: String?
-  keyFile: String?
-  connectionType: ConnectionType?
-  unixSocketPasth: String
+  tls: TLSConfig?
+  connectionType: ConnectionType = "http2"
+  unixSocketPath: String?
+  hidden unixSockerPathSetted = (_) ->
+      if (connectionType == "unix" && unixSocketPath == null)
+        throw("if you use unix socket, please set up 'unixSocketPath'")
+      else true
 }

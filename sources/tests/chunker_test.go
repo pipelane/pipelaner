@@ -82,12 +82,12 @@ func TestChunksOfChunks(t *testing.T) {
 			go func() {
 				ch := make(chan any, tt.args.cfg.BufferSize)
 				var slice []any
-				tetsstruct := testStructs{}
+				tStruct := testStructs{}
 				for i := 0; i < tt.args.cfg.BufferSize; i++ {
 					slice = append(slice, i)
 				}
-				tetsstruct.val = slice
-				ch <- tetsstruct
+				tStruct.val = slice
+				ch <- tStruct
 				chunk.SetValue(ch)
 				close(ch)
 				chunk.Stop()

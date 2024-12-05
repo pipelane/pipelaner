@@ -4,80 +4,64 @@
 
 package pipelaner
 
-/*import (
-	"github.com/goccy/go-json"
-	"github.com/pipelane/pipelaner/source/generator/pipelaner/server"
-	grpc_server "github.com/pipelane/pipelaner/source/shared/grыpc_server"
+import (
+	"context"
+	"encoding/json"
+	"errors"
+
+	"github.com/pipelane/pipelaner/gen/source/input"
+	"github.com/pipelane/pipelaner/pipeline/components"
+	"github.com/pipelane/pipelaner/pipeline/source"
+	"github.com/pipelane/pipelaner/sources/generator/pipelaner/server"
+	"github.com/pipelane/pipelaner/sources/shared/grpc_server"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
-	"github.com/pipelane/pipelaner"
-	"github.com/pipelane/pipelaner/source/shared/proto/service"
+	"github.com/pipelane/pipelaner/sources/shared/proto/service"
 )
 
-type Config struct {
-	Host           *string `pipelane:"host"`
-	Port           int     `pipelane:"port"`
-	TLS            bool    `pipelane:"tls"`
-	CertFile       string  `pipelane:"cert"`
-	KeyFile        string  `pipelane:"key"`
-	ConnectionType string  `pipelane:"connection_type"`
-	UnixSocketPath string  `pipelane:"unix_socket_path"`
-}
-
 type Pipelaner struct {
-	cfg *pipelaner.BaseLaneConfig
+	components.Logger
 	srv *server.PipelanerServer
 }
 
 func init() {
-	pipelaner.RegisterGenerator("pipelaner", &Pipelaner{})
+	source.RegisterInput("pipelaner", &Pipelaner{})
 }
 
-func (p *Pipelaner) Init(ctx *pipelaner.Context) error {
-	p.cfg = ctx.LaneItem().Config()
-
-	v := &Config{}
-	err := p.cfg.ParseExtended(v)
-	if err != nil {
-		return err
-	}
-	host := "localhost"
-	if v.Host != nil {
-		host = *v.Host
-	}
-
-	l := ctx.Logger()
+func (p *Pipelaner) Init(cfg input.Input) error {
 	var opts []grpc.ServerOption
-	if v.TLS {
-		cred, errs := credentials.NewServerTLSFromFile(v.CertFile, v.KeyFile)
+	c, ok := cfg.(input.Pipelaner)
+	if !ok {
+		return errors.New("invalid input config type")
+	}
+	if tls := c.GetTls(); tls != nil {
+		cred, errs := credentials.NewServerTLSFromFile(tls.CertFile, tls.KeyFile)
 		if errs != nil {
-			l.Fatal().Err(errs).Msg("Failed to generate credentials")
+			p.Log().Fatal().Err(errs).Msg("Failed to generate credentials")
 		}
 		opts = []grpc.ServerOption{grpc.Creds(cred)}
 	}
-
+	l := p.Log().With().Logger()
 	serv := grpc_server.NewServer(&grpc_server.ServerConfig{
-		Host:           host,
-		Port:           v.Port,
-		ConnectionType: v.ConnectionType,
-		UnixSocketPath: v.UnixSocketPath,
+		Host:           c.GetHost(),
+		Port:           c.GetPort(),
+		ConnectionType: string(c.GetConnectionType()),
+		UnixSocketPath: c.GetUnixSocketPath(),
 		Opts:           opts,
 	}, &l)
-	p.srv = server.NewServer(&l, p.cfg.OutputBufferSize)
-	serv.Serve(func(s *grpc.Server) {
+	p.srv = server.NewServer(&l, int64(c.GetOutputBufferSize()))
+	err := serv.Serve(func(s *grpc.Server) {
 		service.RegisterPipelanerServer(s, p.srv)
 	})
-
-	return nil
+	return err
 }
 
-func (p *Pipelaner) Generate(ctx *pipelaner.Context, input chan<- any) {
-	l := ctx.Logger()
+func (p *Pipelaner) Generate(ctx context.Context, input chan<- any) {
 	for m := range p.srv.Recv() {
 		select {
-		case <-ctx.Context().Done():
+		case <-ctx.Done():
 			break
 		default:
 			switch {
@@ -89,11 +73,11 @@ func (p *Pipelaner) Generate(ctx *pipelaner.Context, input chan<- any) {
 				var v map[string]any
 				err := json.Unmarshal(m.GetJsonValue(), &v)
 				if err != nil {
-					l.Error().Err(err).Msg("Error invalid unmarshal json data")
+					p.Log().Error().Err(err).Msg("Error invalid unmarshal json data")
 					continue
 				}
 				input <- v
 			}
 		}
 	}
-}*/
+}

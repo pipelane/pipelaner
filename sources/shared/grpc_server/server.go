@@ -12,14 +12,15 @@ import (
 )
 
 const (
-	unixConnectionType = "unix"
+	unixConnectionType  = "unix"
+	http2ConnectionType = "http2"
 )
 
 type ServerConfig struct {
 	Host           string
 	Port           int
 	ConnectionType string
-	UnixSocketPath string
+	UnixSocketPath *string
 	Opts           []grpc.ServerOption
 }
 
@@ -51,7 +52,7 @@ func (s *Server) Serve(use ...func(grpc *grpc.Server)) error {
 
 func (s *Server) createListener() net.Listener {
 	if s.config.ConnectionType == unixConnectionType {
-		if err := syscall.Unlink(s.config.UnixSocketPath); err != nil && !os.IsNotExist(err) {
+		if err := syscall.Unlink(*s.config.UnixSocketPath); err != nil && !os.IsNotExist(err) {
 			s.logger.Fatal().Err(err).Msgf("Failed to unlink Unix socket %s", s.config.UnixSocketPath)
 		}
 

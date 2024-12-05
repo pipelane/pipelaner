@@ -1,22 +1,20 @@
 // Code generated from Pkl module `pipelaner.source.inputs`. DO NOT EDIT.
 package input
 
+import "github.com/pipelane/pipelaner/gen/source/input/connectiontype"
+
 type Pipelaner interface {
 	Input
 
-	GetHost() *string
+	GetHost() string
 
 	GetPort() int
 
-	GetTls() *bool
+	GetTls() *TLSConfig
 
-	GetCertFile() *string
+	GetConnectionType() connectiontype.ConnectionType
 
-	GetKeyFile() *string
-
-	GetConnectionType() *string
-
-	GetUnixSocketPasth() string
+	GetUnixSocketPath() *string
 }
 
 var _ Pipelaner = (*PipelanerImpl)(nil)
@@ -24,19 +22,15 @@ var _ Pipelaner = (*PipelanerImpl)(nil)
 type PipelanerImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	Host *string `pkl:"host"`
+	Host string `pkl:"host"`
 
 	Port int `pkl:"port"`
 
-	Tls *bool `pkl:"tls"`
+	Tls *TLSConfig `pkl:"tls"`
 
-	CertFile *string `pkl:"certFile"`
+	ConnectionType connectiontype.ConnectionType `pkl:"connectionType"`
 
-	KeyFile *string `pkl:"keyFile"`
-
-	ConnectionType *string `pkl:"connectionType"`
-
-	UnixSocketPasth string `pkl:"unixSocketPasth"`
+	UnixSocketPath *string `pkl:"unixSocketPath"`
 
 	Name string `pkl:"name"`
 
@@ -49,7 +43,7 @@ func (rcv *PipelanerImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *PipelanerImpl) GetHost() *string {
+func (rcv *PipelanerImpl) GetHost() string {
 	return rcv.Host
 }
 
@@ -57,24 +51,16 @@ func (rcv *PipelanerImpl) GetPort() int {
 	return rcv.Port
 }
 
-func (rcv *PipelanerImpl) GetTls() *bool {
+func (rcv *PipelanerImpl) GetTls() *TLSConfig {
 	return rcv.Tls
 }
 
-func (rcv *PipelanerImpl) GetCertFile() *string {
-	return rcv.CertFile
-}
-
-func (rcv *PipelanerImpl) GetKeyFile() *string {
-	return rcv.KeyFile
-}
-
-func (rcv *PipelanerImpl) GetConnectionType() *string {
+func (rcv *PipelanerImpl) GetConnectionType() connectiontype.ConnectionType {
 	return rcv.ConnectionType
 }
 
-func (rcv *PipelanerImpl) GetUnixSocketPasth() string {
-	return rcv.UnixSocketPasth
+func (rcv *PipelanerImpl) GetUnixSocketPath() *string {
+	return rcv.UnixSocketPath
 }
 
 func (rcv *PipelanerImpl) GetName() string {
