@@ -25,9 +25,9 @@ class KafkaConsumer extends Input {
   autoCommitEnabled: Boolean = false
   consumerGroupID: String
   // fetchMaxBytes > maxPartitionFetchBytes
-  maxPartitionFetchBytes: DataSize = 10.mib
+  maxPartitionFetchBytes: DataSize = 1.mib
   fetchMaxBytes: DataSize = 50.mib
-  // 
+  //
   autoOffsetReset: AutoOffsetReset = "earliest"
   balancerStrategy: Listing<Strategy> = new Listing<Strategy> {
     "cooperative-sticky"
