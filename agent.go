@@ -31,7 +31,9 @@ func NewAgent(file string) (*Agent, error) {
 		return nil, fmt.Errorf("read config: %w", err)
 	}
 
-	a := &Agent{}
+	a := &Agent{
+		cfg: cfg,
+	}
 
 	inits := []func(cfg *config.Pipelaner) error{
 		a.initHealthCheck,
