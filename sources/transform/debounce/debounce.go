@@ -12,6 +12,7 @@ import (
 
 	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/pipeline/source"
+	nullableAtomic "github.com/pipelane/pipelaner/sources/shared/atomic"
 )
 
 func init() {
@@ -20,7 +21,7 @@ func init() {
 
 type Debounce struct {
 	interval time.Duration
-	val      atomic.Value
+	val      nullableAtomic.Nullable
 	locked   atomic.Bool
 
 	mx    sync.Mutex
@@ -48,7 +49,7 @@ func (d *Debounce) Transform(val any) any {
 	<-d.timer.C
 	v := d.val.Load()
 	d.locked.Store(false)
-	d.val = atomic.Value{}
+	d.val.Store(nil)
 	return v
 }
 

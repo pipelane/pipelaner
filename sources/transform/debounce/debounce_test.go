@@ -6,7 +6,6 @@ package debounce
 
 import (
 	"sync"
-	"sync/atomic"
 	"testing"
 	"time"
 
@@ -53,8 +52,7 @@ func TestDebounce_Map(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			maps := &Debounce{
-				mx:  sync.Mutex{},
-				val: atomic.Value{},
+				mx: sync.Mutex{},
 			}
 			e := maps.Init(newCfg(t, 300, "ms"))
 			if e != nil {
@@ -94,8 +92,7 @@ func TestDebounceConcurrent_Map(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			maps := &Debounce{
-				mx:  sync.Mutex{},
-				val: atomic.Value{},
+				mx: sync.Mutex{},
 			}
 			e := maps.Init(newCfg(t, 300, "ms"))
 			if e != nil {

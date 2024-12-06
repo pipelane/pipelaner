@@ -12,6 +12,7 @@ import (
 
 	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/pipeline/source"
+	nullableAtomic "github.com/pipelane/pipelaner/sources/shared/atomic"
 )
 
 func init() {
@@ -20,7 +21,7 @@ func init() {
 
 type Throttling struct {
 	interval time.Duration
-	val      atomic.Value
+	val      nullableAtomic.Nullable
 	locked   atomic.Bool
 
 	mx    sync.Mutex
@@ -48,7 +49,7 @@ func (t *Throttling) Transform(val any) any {
 	<-t.timer.C
 	v := t.val.Load()
 	t.locked.Store(false)
-	t.val = atomic.Value{}
+	t.val.Store(nil)
 	return v
 }
 

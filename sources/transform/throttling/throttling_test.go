@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"strconv"
 	"sync"
-	"sync/atomic"
 	"testing"
 	"time"
 
@@ -64,8 +63,7 @@ func TestThrottling_Map(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			maps := &Throttling{
-				mx:  sync.Mutex{},
-				val: atomic.Value{},
+				mx: sync.Mutex{},
 			}
 			e := maps.Init(newConfig(t, tt.args.duration))
 			if e != nil {
@@ -107,8 +105,7 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			maps := &Throttling{
-				mx:  sync.Mutex{},
-				val: atomic.Value{},
+				mx: sync.Mutex{},
 			}
 			e := maps.Init(newConfig(t, tt.args.duration))
 			if e != nil {
