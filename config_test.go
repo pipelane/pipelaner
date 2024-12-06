@@ -818,7 +818,7 @@ topics = ["$KAFKA_TOPICS$"]
 						"sasl_mechanism": "PLAIN",
 						"sasl_password":  "123",
 						"sasl_username":  "321",
-						"topics":         []string{"1", "2"},
+						"topics":         []any{"1", "2"},
 					},
 				},
 			},
