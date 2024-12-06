@@ -19,5 +19,5 @@ jobs:
           go mod tidy
       - name: Testing
         run: |
-          go test -v ./ -race
+          go test -count=1 -v ./... -race
     
