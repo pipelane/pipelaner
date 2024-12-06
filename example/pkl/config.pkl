@@ -1,0 +1,59 @@
+amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/Pipelaner.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/source/Components.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/source/sink/Sinks.pkl"
+import "example.pkl"
+
+pipelines {
+  new Components.Pipeline {
+    name = "example-pipeline"
+    inputs {
+      new example.ExampleGenInt {
+        name = "example-gen-int"
+        count = 10
+      }
+    }
+    transforms {
+      new example.ExampleMul {
+        name = "example-mul"
+        inputs {
+          "example-gen-int"
+        }
+        mul = 2
+      }
+      new example.ExampleMul {
+        threads = 10
+        name = "example-mul2"
+        inputs {
+          "example-mul"
+        }
+        mul = 5
+      }
+    }
+    sinks {
+      new Sinks.Console {
+        threads = 10
+        name = "console"
+        inputs {
+          "example-mul2"
+        }
+      }
+    }
+  }
+}
+
+settings {
+  gracefullShutdownDelay = 15.s
+  logger {
+    logLevel = "info"
+  }
+  healthCheck {
+    enable = false
+    host = "127.0.0.1"
+    port = 8080
+  }
+  metrics {
+    enable = false
+    host = "127.0.0.1"
+    port = 8082
+  }
+}

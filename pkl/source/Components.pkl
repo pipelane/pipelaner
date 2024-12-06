@@ -1,0 +1,14 @@
+@go.Package { name = "github.com/pipelane/pipelaner/gen/components"}
+open module com.pipelaner.source.components
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+import "input/Inputs.pkl"
+import "transform/Transforms.pkl"
+import "sink/Sinks.pkl"
+
+class Pipeline {
+  name: String
+  inputs: Listing<Inputs.Input>
+  transforms: Listing<Transforms.Transform>
+  sinks: Listing<Sinks.Sink>
+}
