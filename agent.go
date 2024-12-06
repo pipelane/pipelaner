@@ -7,6 +7,7 @@ package pipelaner
 import (
 	"context"
 	"fmt"
+	"time"
 
 	config "github.com/pipelane/pipelaner/gen/pipelaner"
 	"github.com/pipelane/pipelaner/internal/health"
@@ -19,6 +20,7 @@ type Agent struct {
 
 	hc      *health.Server
 	metrics *metrics.Server
+	cancel  context.CancelFunc
 }
 
 func NewAgent(file string) (*Agent, error) {
@@ -87,7 +89,9 @@ func (a *Agent) initPipelaner(cfg *config.Pipelaner) error {
 }
 
 func (a *Agent) Serve(ctx context.Context) error {
-	g, ctx := errgroup.WithContext(ctx)
+	g := errgroup.Group{}
+	inputsCtx, cancel := context.WithCancel(ctx)
+	a.cancel = cancel
 	if a.hc != nil {
 		g.Go(func() error {
 			return a.hc.Serve(ctx)
@@ -99,11 +103,29 @@ func (a *Agent) Serve(ctx context.Context) error {
 		})
 	}
 	g.Go(func() error {
-		return a.pipelaner.Run(ctx)
+		return a.pipelaner.Run(inputsCtx)
 	})
 
 	if err := g.Wait(); err != nil {
 		return fmt.Errorf("run agent: %w", err)
+	}
+	return nil
+}
+
+func (a *Agent) Shutdown(ctx context.Context, delay time.Duration) error {
+	a.cancel()
+	time.Sleep(delay)
+	if a.metrics != nil {
+		err := a.metrics.Shutdown(ctx)
+		if err != nil {
+			return fmt.Errorf("shutdown metrics: %w", err)
+		}
+	}
+	if a.hc != nil {
+		err := a.hc.Shutdown()
+		if err != nil {
+			return fmt.Errorf("shutdown healthcheck: %w", err)
+		}
 	}
 	return nil
 }

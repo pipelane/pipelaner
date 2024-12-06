@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -31,16 +30,10 @@ func NewMetricsServer(cfg *metrics.Config) (*Server, error) {
 	}, nil
 }
 
-func (m *Server) Serve(ctx context.Context) error {
-	go func() {
-		<-ctx.Done()
-		if cErr := m.server.Shutdown(ctx); cErr != nil {
-			log.Printf("failed to shutdown metrics server: %v", cErr)
-		}
-	}()
+func (m *Server) Serve(_ context.Context) error {
 	return m.server.ListenAndServe()
 }
 
-func (m *Server) Close() error {
-	return m.server.Close()
+func (m *Server) Shutdown(ctx context.Context) error {
+	return m.server.Shutdown(ctx)
 }

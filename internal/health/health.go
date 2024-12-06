@@ -41,18 +41,20 @@ var (
 	errHealthcheckNotInitialized = errors.New("healthcheck server not initialized")
 )
 
-func (p *Server) Serve(ctx context.Context) error {
+func (p *Server) Serve(_ context.Context) error {
 	if p.serv == nil {
 		return errHealthcheckNotInitialized
 	}
-	go func() {
-		<-ctx.Done()
-		if cErr := p.serv.Stop(); cErr != nil {
-			p.l.Error().Err(cErr).Msgf("health check server stop error:")
-		}
-	}()
 
 	return p.serv.Serve(func(s *grpc.Server) {
 		grpc_health_v1.RegisterHealthServer(s, health.NewServer())
 	})
+}
+
+func (p *Server) Shutdown() error {
+	err := p.serv.Stop()
+	if err != nil {
+		return err
+	}
+	return nil
 }

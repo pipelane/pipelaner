@@ -7,9 +7,6 @@ package main
 import (
 	"context"
 	"errors"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/pipelane/pipelaner"
@@ -35,10 +32,15 @@ func (g *GenInt) Init(cfg input.Input) error {
 	return nil
 }
 
-func (g *GenInt) Generate(_ context.Context, input chan<- any) {
+func (g *GenInt) Generate(ctx context.Context, input chan<- any) {
 	for {
-		for i := 0; i < g.count; i++ {
-			input <- i
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			for i := 0; i < g.count; i++ {
+				input <- i
+			}
 		}
 		time.Sleep(3 * time.Second)
 	}
@@ -73,23 +75,26 @@ func init() {
 }
 
 func main() {
+	ctx := context.Background()
 	agent, err := pipelaner.NewAgent(
 		"example/pkl/config.pkl",
 	)
 	if err != nil {
 		panic(err)
 	}
-	ctx, stop := signal.NotifyContext(
-		context.Background(),
-		os.Interrupt,
-		syscall.SIGTERM,
-	)
+	lock := make(chan struct{})
 	go func() {
-		<-ctx.Done()
-		os.Exit(100)
+		time.Sleep(time.Second * 15)
+		err = agent.Shutdown(context.Background(), time.Second*15)
+		if err != nil {
+			panic(err)
+		}
+		lock <- struct{}{}
 	}()
-	defer stop()
-	if err = agent.Serve(ctx); err != nil {
-		panic(err)
-	}
+	go func() {
+		if err = agent.Serve(ctx); err != nil {
+			panic(err)
+		}
+	}()
+	<-lock
 }
