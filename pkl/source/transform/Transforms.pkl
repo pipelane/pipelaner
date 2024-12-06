@@ -7,8 +7,8 @@ abstract class Transform {
   name: String
   fixed sourceName: String
   inputs: Listing<String>
-  threads: Int = 1
-  outputBufferSize: Int = 10
+  threads: Int = read?("env:GOMAXPROCS")?.toInt() ?? 1
+  outputBufferSize: Int = 10 * threads
 }
 
 class Batch extends Transform {

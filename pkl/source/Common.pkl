@@ -17,8 +17,8 @@ class Kafka {
 }
 
 class TLSConfig {
-  certFile: String(!isTLSKeyAndCertSetted)
-  keyFile: String(!isTLSKeyAndCertSetted)
+  certFile: String(isTLSKeyAndCertSetted)
+  keyFile: String(isTLSKeyAndCertSetted)
   hidden isTLSKeyAndCertSetted = (_) ->
       if (keyFile == "" || certFile == "")
         throw("key and cert files required with enabled tls")

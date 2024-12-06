@@ -1,6 +1,6 @@
-amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.5#/Pipelaner.pkl"
-import  "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.5#/source/Components.pkl"
-import  "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.5#/source/sink/Sinks.pkl"
+amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.6#/Pipelaner.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.6#/source/Components.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.6#/source/sink/Sinks.pkl"
 import "example.pkl"
 
 pipelines {
@@ -20,12 +20,21 @@ pipelines {
         }
         mul = 2
       }
+      new example.ExampleMul {
+        threads = 10
+        name = "example-mul2"
+        inputs {
+          "example-mul"
+        }
+        mul = 5
+      }
     }
     sinks {
       new Sinks.Console {
+        threads = 10
         name = "console"
         inputs {
-          "example-mul"
+          "example-mul2"
         }
       }
     }

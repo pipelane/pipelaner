@@ -8,7 +8,7 @@ abstract class Sink {
   name: String
   fixed sourceName: String
   inputs: Listing<String>
-  threads: Int = 1
+  threads: Int = read?("env:GOMAXPROCS")?.toInt() ?? 1
 }
 
 class Console extends Sink {

@@ -7,8 +7,8 @@ import ".../source/Common.pkl"
 abstract class Input {
   name: String
   fixed sourceName: String
-  threads: Int = 1
-  outputBufferSize: Int = 10
+  threads: Int = read?("env:GOMAXPROCS")?.toInt() ?? 1
+  outputBufferSize: Int = 10 * threads
 }
 
 class Cmd extends Input {
@@ -29,8 +29,8 @@ class KafkaConsumer extends Input {
     "cooperative-sticky"
   }
   // fetchMaxBytes > maxPartitionFetchBytes
-  maxPartitionFetchBytes: DataSize(!validateBuffersSizes) = 1.mib
-  fetchMaxBytes: DataSize(!validateBuffersSizes) = 50.mib
+  maxPartitionFetchBytes: DataSize(validateBuffersSizes) = 1.mib
+  fetchMaxBytes: DataSize(validateBuffersSizes) = 50.mib
   //
   hidden validateBuffersSizes = (_) ->
       if (fetchMaxBytes < maxPartitionFetchBytes)
@@ -44,7 +44,7 @@ class Pipelaner extends Input {
   fixed sourceName = "pipelaner"
   commonConfig: Common.Pipelaner
   connectionType: ConnectionType = "http2"
-  unixSocketPath: String(!isUnixPathSetted)?
+  unixSocketPath: String(isUnixPathSetted)?
   hidden isUnixPathSetted = (_) ->
       if (connectionType == "unix" && unixSocketPath == null)
         throw("if you use unix socket, please set up 'unixSocketPath'")
