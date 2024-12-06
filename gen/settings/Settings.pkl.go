@@ -18,6 +18,8 @@ type Settings struct {
 	Metrics *metrics.Config `pkl:"metrics"`
 
 	StartGCAfterMessageProcess bool `pkl:"startGCAfterMessageProcess"`
+
+	GracefullShutdownDelay *pkl.Duration `pkl:"gracefullShutdownDelay"`
 }
 
 // LoadFromPath loads the pkl module at the given path and evaluates it into a Settings

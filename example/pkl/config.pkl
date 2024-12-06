@@ -1,6 +1,6 @@
-amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.6#/Pipelaner.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.6#/source/Components.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.6#/source/sink/Sinks.pkl"
+amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.7#/Pipelaner.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.7#/source/Components.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.7#/source/sink/Sinks.pkl"
 import "example.pkl"
 
 pipelines {
@@ -42,6 +42,7 @@ pipelines {
 }
 
 settings {
+  gracefullShutdownDelay = 15.s
   logger {
     logLevel = "info"
   }

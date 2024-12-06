@@ -21,6 +21,7 @@ type Agent struct {
 	hc      *health.Server
 	metrics *metrics.Server
 	cancel  context.CancelFunc
+	cfg     *config.Pipelaner
 }
 
 func NewAgent(file string) (*Agent, error) {
@@ -112,9 +113,9 @@ func (a *Agent) Serve(ctx context.Context) error {
 	return nil
 }
 
-func (a *Agent) Shutdown(ctx context.Context, delay time.Duration) error {
+func (a *Agent) Shutdown(ctx context.Context) error {
 	a.cancel()
-	time.Sleep(delay)
+	time.Sleep(a.cfg.Settings.GracefullShutdownDelay.GoDuration())
 	if a.metrics != nil {
 		err := a.metrics.Shutdown(ctx)
 		if err != nil {

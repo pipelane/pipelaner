@@ -85,7 +85,7 @@ func main() {
 	lock := make(chan struct{})
 	go func() {
 		time.Sleep(time.Second * 15)
-		err = agent.Shutdown(context.Background(), time.Second*15)
+		err = agent.Shutdown(context.Background())
 		if err != nil {
 			panic(err)
 		}
