@@ -26,8 +26,8 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.60
-          args: --timeout=5m
+          version: v1.62.2
+          args: --timeout=5m --config=.golangci.yml
           skip-cache: false
           # skip-build-cache: true
 
