@@ -7,7 +7,6 @@ package debounce
 import (
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/apple/pkl-go/pkl"
 	"github.com/pipelane/pipelaner/gen/source/transform"
@@ -116,7 +115,6 @@ func TestDebounceConcurrent_Map(t *testing.T) {
 				}(i)
 			}
 			wg.Wait()
-			time.Sleep(300 * time.Millisecond)
 			assert.NotNil(t, val)
 		})
 	}

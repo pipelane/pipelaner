@@ -10,4 +10,4 @@ logger: LoggerConfig
 healthCheck: HealthcheckConfig
 metrics: MetricsConfig
 startGCAfterMessageProcess: Boolean = false
-gracefullShutdownDelay:Duration = 15.s
+gracefulShutdownDelay:Duration = 15.s

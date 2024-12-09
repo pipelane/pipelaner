@@ -65,9 +65,9 @@ func (c *Chunks) Generator() {
 			if c.stopped.Load() {
 				c.wg.Wait()
 				timer.Stop()
+				stop <- struct{}{}
 				close(c.buffers)
 				close(c.input)
-				stop <- struct{}{}
 				close(stop)
 				break
 			}

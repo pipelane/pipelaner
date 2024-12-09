@@ -129,7 +129,6 @@ func TestThrottlingConcurrent_Map(t *testing.T) {
 				}(i)
 			}
 			wg.Wait()
-			time.Sleep(tt.args.duration)
 			assert.NotNil(t, val)
 		})
 	}

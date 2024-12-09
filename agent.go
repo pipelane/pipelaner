@@ -117,7 +117,7 @@ func (a *Agent) Serve(ctx context.Context) error {
 
 func (a *Agent) Shutdown(ctx context.Context) error {
 	a.cancel()
-	time.Sleep(a.cfg.Settings.GracefullShutdownDelay.GoDuration())
+	time.Sleep(a.cfg.Settings.GracefulShutdownDelay.GoDuration())
 	if a.metrics != nil {
 		err := a.metrics.Shutdown(ctx)
 		if err != nil {

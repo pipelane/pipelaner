@@ -23,7 +23,7 @@ func init() {
 type Clickhouse struct {
 	components.Logger
 	clickConfig sink.Clickhouse
-	client      *LowLevelClickhouseClient
+	client      *Client
 }
 
 func (c *Clickhouse) Init(cfg sink.Sink) error {
@@ -31,7 +31,7 @@ func (c *Clickhouse) Init(cfg sink.Sink) error {
 	if !ok {
 		return fmt.Errorf("invalid clickhouse config type: %T", cfg)
 	}
-	cli, err := NewLowLevelClickhouseClient(context.Background(), clickCfg)
+	cli, err := NewClickhouseClient(context.Background(), clickCfg)
 	if err != nil {
 		return fmt.Errorf("init clickhouse client: %w", err)
 	}

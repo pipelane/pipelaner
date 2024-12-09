@@ -42,7 +42,7 @@ pipelines {
 }
 
 settings {
-  gracefullShutdownDelay = 15.s
+  gracefulShutdownDelay = 15.s
   logger {
     logLevel = "info"
   }

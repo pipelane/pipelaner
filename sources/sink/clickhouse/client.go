@@ -9,11 +9,11 @@ import (
 	"github.com/pipelane/pipelaner/gen/source/sink"
 )
 
-type LowLevelClickhouseClient struct {
+type Client struct {
 	conn *chpool.Pool
 }
 
-func NewLowLevelClickhouseClient(ctx context.Context, cfg sink.Clickhouse) (*LowLevelClickhouseClient, error) {
+func NewClickhouseClient(ctx context.Context, cfg sink.Clickhouse) (*Client, error) {
 	conn, err := chpool.Dial(ctx, chpool.Options{
 
 		ClientOptions: ch.Options{
@@ -30,12 +30,12 @@ func NewLowLevelClickhouseClient(ctx context.Context, cfg sink.Clickhouse) (*Low
 		return nil, err
 	}
 
-	return &LowLevelClickhouseClient{
+	return &Client{
 		conn: conn,
 	}, nil
 }
 
-func (c *LowLevelClickhouseClient) GetConn(ctx context.Context) (*chpool.Client, error) {
+func (c *Client) GetConn(ctx context.Context) (*chpool.Client, error) {
 	conn, err := c.conn.Acquire(ctx)
 
 	if err != nil {

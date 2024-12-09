@@ -89,7 +89,7 @@ func TestBuildProtoInput(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cl := Clickhouse{
-				client: &LowLevelClickhouseClient{},
+				client: &Client{},
 			}
 
 			mapColumns, input, err := cl.buildProtoInput(tt.args.values)
