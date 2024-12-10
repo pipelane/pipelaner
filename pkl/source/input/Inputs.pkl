@@ -19,9 +19,9 @@ class Cmd extends Input {
 typealias AutoOffsetReset = "earliest"|"latest"
 typealias Strategy = "range"|"round-robin"|"cooperative-sticky"|"sticky"
 
-class KafkaConsumer extends Input {
+class Kafka extends Input {
   fixed sourceName = "kafka"
-  kafka: Common.Kafka
+  common: Common.Kafka
   autoCommitEnabled: Boolean = true
   consumerGroupID: String
   autoOffsetReset: AutoOffsetReset = "earliest"

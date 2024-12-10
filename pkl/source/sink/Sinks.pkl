@@ -20,9 +20,9 @@ class Pipelaner extends Sink {
   commonConfig: Common.Pipelaner
 }
 
-class KafkaProducer extends Sink {
+class Kafka extends Sink {
   fixed sourceName = "kafka"
-  kafka: Common.Kafka
+  common: Common.Kafka
   maxRequestSize: DataSize = 10.mib
   lingerMs: Duration = 0.ms
   batchNumMessages: Int = 100_000
@@ -34,18 +34,15 @@ class Clickhouse extends Sink {
   user: String
   password: String
   database: String
-  migrationEngine: String
-  migrationsPathClickhouse: String
-  maxExecutionTime: Duration
-  cannMaxLifeTime: Duration
-  dialTimeout: Duration
-  maxOpenConns: Int
-  maxIdleConns: Int
-  blockBufferSize: UInt8
-  maxCompressionBuffer: DataSize
-  enableDebug: Boolean = false
   tableName: String
 
   asyncInsert: String = "1"
   waitForAsyncInsert: String = "1"
+}
+
+typealias Method = "PATCH"|"POST"|"PUT"|"DELETE"|"GET"
+class Http extends Sink {
+  fixed sourceName = "http"
+  url: String
+  method: Method
 }

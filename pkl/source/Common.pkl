@@ -3,17 +3,26 @@ module com.pipelaner.source.common
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 
-typealias SASLMechanism = "SCRAM-SHA-512"|"SCRAM-SHA-256"|"PLAIN"
+typealias SASLMechanism = "SCRAM-SHA-512"|"SCRAM-SHA-256"
 
 class Kafka {
-  saslEnabled: Boolean
-  saslMechanism: SASLMechanism = "PLAIN"
-  saslUsername: String?
-  saslPassword: String?
-  brokers: String
+  saslEnabled: Boolean = false
+  saslMechanism: SASLMechanism(isSASLMechanizmSetted)?
+  saslUsername: String(isSASLEnabled)?
+  saslPassword: String(isSASLEnabled)?
+  brokers: Listing<String>
   version: String?
   topics: Listing<String>
-  schemaRegistry: String
+
+  hidden isSASLMechanizmSetted = (_) ->
+      if (saslEnabled && saslMechanism == null)
+        throw("'saslMechanism' can not be null")
+      else true
+  hidden isSASLEnabled = (_) ->
+      if ((saslEnabled && saslUsername == null && saslPassword == null) ||
+        (saslEnabled && saslUsername == "" && saslPassword == ""))
+        throw("'saslUsername' and 'saslPassword' can not be empty string or null")
+      else true
 }
 
 class TLSConfig {
