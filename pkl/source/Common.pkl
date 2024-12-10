@@ -1,0 +1,41 @@
+@go.Package { name = "github.com/pipelane/pipelaner/gen/source/common" }
+module com.pipelaner.source.common
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+
+typealias SASLMechanism = "SCRAM-SHA-512"|"SCRAM-SHA-256"
+
+class Kafka {
+  saslEnabled: Boolean = false
+  saslMechanism: SASLMechanism(isSASLMechanizmSetted)?
+  saslUsername: String(isSASLEnabled)?
+  saslPassword: String(isSASLEnabled)?
+  brokers: Listing<String>
+  version: String?
+  topics: Listing<String>
+
+  hidden isSASLMechanizmSetted = (_) ->
+      if (saslEnabled && saslMechanism == null)
+        throw("'saslMechanism' can not be null")
+      else true
+  hidden isSASLEnabled = (_) ->
+      if ((saslEnabled && saslUsername == null && saslPassword == null) ||
+        (saslEnabled && saslUsername == "" && saslPassword == ""))
+        throw("'saslUsername' and 'saslPassword' can not be empty string or null")
+      else true
+}
+
+class TLSConfig {
+  certFile: String(isTLSKeyAndCertSetted)
+  keyFile: String(isTLSKeyAndCertSetted)
+  hidden isTLSKeyAndCertSetted = (_) ->
+      if (keyFile == "" || certFile == "")
+        throw("key and cert files required with enabled tls")
+      else true
+}
+
+class Pipelaner {
+  host: String = "localhost"
+  port: Int
+  tls: TLSConfig?
+}
