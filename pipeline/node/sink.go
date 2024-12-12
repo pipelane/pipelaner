@@ -88,7 +88,6 @@ func (s *Sink) GetInputs() []string {
 }
 
 func (s *Sink) Run() error {
-
 	if len(s.inputChannels) == 0 {
 		return errors.New("no input channels configured")
 	}

@@ -120,7 +120,6 @@ func (i *Input) Run(ctx context.Context) error {
 		defer close(input)
 		i.impl.Generate(ctx, input)
 	}()
-	
 	return nil
 }
 

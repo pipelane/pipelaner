@@ -113,7 +113,6 @@ func (t *Transform) GetOutputBufferSize() int {
 
 // Run non-blocking call that start Transform node action in separated goroutine.
 func (t *Transform) Run() error {
-
 	if len(t.inputChannels) == 0 {
 		return fmt.Errorf("no input channels configured for '%s'", t.cfg.name)
 	}

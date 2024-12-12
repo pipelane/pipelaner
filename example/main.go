@@ -42,7 +42,7 @@ func (g *GenInt) Generate(ctx context.Context, input chan<- any) {
 			return
 		default:
 			input <- i
-			i += 1
+			i++
 			time.Sleep(time.Second * 1)
 		}
 	}
