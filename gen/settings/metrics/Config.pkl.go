@@ -14,9 +14,7 @@ type Config struct {
 
 	Path string `pkl:"path"`
 
-	ServiceName *string `pkl:"serviceName"`
-
-	Enable bool `pkl:"enable"`
+	ServiceName string `pkl:"serviceName"`
 }
 
 // LoadFromPath loads the pkl module at the given path and evaluates it into a Config

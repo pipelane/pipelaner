@@ -8,6 +8,7 @@ import (
 	logCfg "github.com/pipelane/pipelaner/gen/settings/logger"
 	"github.com/pipelane/pipelaner/internal/logger"
 	pipelines "github.com/pipelane/pipelaner/pipeline"
+	"golang.org/x/sync/errgroup"
 )
 
 type pipeline interface {
@@ -43,10 +44,11 @@ func NewPipelaner(
 }
 
 func (p *Pipelaner) Run(ctx context.Context) error {
+	gr := errgroup.Group{}
 	for _, pipe := range p.Pipelines {
-		if err := pipe.Run(ctx); err != nil {
-			return err
-		}
+		gr.Go(func() error {
+			return pipe.Run(ctx)
+		})
 	}
-	return nil
+	return gr.Wait()
 }

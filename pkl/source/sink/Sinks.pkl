@@ -3,6 +3,7 @@ module com.pipelaner.source.sinks
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 import ".../source/Common.pkl"
+import ".../settings/logger/LoggerConfig.pkl"
 
 abstract class Sink {
   name: String
@@ -13,6 +14,7 @@ abstract class Sink {
 
 class Console extends Sink {
   fixed sourceName = "console"
+  logFormat: LoggerConfig.LogFormat = "plain"
 }
 
 class Pipelaner extends Sink {

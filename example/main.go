@@ -13,6 +13,7 @@ import (
 	"github.com/pipelane/pipelaner/example/pkl/gen/custom"
 	"github.com/pipelane/pipelaner/gen/source/input"
 	"github.com/pipelane/pipelaner/gen/source/transform"
+	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	_ "github.com/pipelane/pipelaner/sources"
 )
@@ -20,6 +21,7 @@ import (
 // ============== Test generator ===============
 
 type GenInt struct {
+	components.Logger
 	count int
 }
 
@@ -33,16 +35,16 @@ func (g *GenInt) Init(cfg input.Input) error {
 }
 
 func (g *GenInt) Generate(ctx context.Context, input chan<- any) {
+	i := 0
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		default:
-			for i := 0; i < g.count; i++ {
-				input <- i
-			}
+			input <- i
+			i += 1
+			time.Sleep(time.Second * 1)
 		}
-		time.Sleep(3 * time.Second)
 	}
 }
 
@@ -55,7 +57,7 @@ type TransMul struct {
 func (t *TransMul) Init(cfg transform.Transform) error {
 	tCfg, ok := cfg.(custom.ExampleMul)
 	if !ok {
-		return errors.New("transform.Mul expects transform.TransMul")
+		return errors.New("invalid config")
 	}
 	t.mul = tCfg.GetMul()
 	return nil
@@ -64,7 +66,7 @@ func (t *TransMul) Init(cfg transform.Transform) error {
 func (t *TransMul) Transform(val any) any {
 	v, ok := val.(int)
 	if !ok {
-		return errors.New("transform.TransMul expects transform.TransMul")
+		return errors.New("invalid value")
 	}
 	return t.mul * v
 }

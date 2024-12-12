@@ -11,8 +11,6 @@ type Config struct {
 	Host string `pkl:"host"`
 
 	Port int `pkl:"port"`
-
-	Enable bool `pkl:"enable"`
 }
 
 // LoadFromPath loads the pkl module at the given path and evaluates it into a Config

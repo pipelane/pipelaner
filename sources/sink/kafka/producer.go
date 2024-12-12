@@ -20,30 +20,30 @@ type Producer struct {
 }
 
 func NewProducer(
-	cfg sink.KafkaProducer,
+	cfg sink.Kafka,
 	logger *zerolog.Logger,
 ) (*Producer, error) {
 	mSize := cfg.GetBatchNumMessages()
 	opts := []kgo.Opt{
-		kgo.SeedBrokers(cfg.GetKafka().Brokers),
+		kgo.SeedBrokers(cfg.GetCommon().Brokers...),
 		kgo.WithLogger(kzerolog.New(logger)),
 		kgo.ProducerLinger(cfg.GetLingerMs().GoDuration()),
 		kgo.MaxBufferedRecords(mSize),
 	}
 
-	if cfg.GetKafka().SaslEnabled {
+	if cfg.GetCommon().SaslEnabled {
 		auth := scram.Auth{
-			User: *cfg.GetKafka().SaslUsername,
-			Pass: *cfg.GetKafka().SaslPassword,
+			User: *cfg.GetCommon().SaslUsername,
+			Pass: *cfg.GetCommon().SaslPassword,
 		}
 		var authOpt kgo.Opt
-		switch cfg.GetKafka().SaslMechanism {
+		switch *cfg.GetCommon().SaslMechanism {
 		case saslmechanism.SCRAMSHA512:
 			authOpt = kgo.SASL(auth.AsSha512Mechanism())
 		case saslmechanism.SCRAMSHA256:
 			authOpt = kgo.SASL(auth.AsSha512Mechanism())
 		default:
-			return nil, fmt.Errorf("unknown sasl mechanism: %s", cfg.GetKafka().SaslMechanism)
+			return nil, fmt.Errorf("unknown sasl mechanism: %s", cfg.GetCommon().SaslMechanism)
 		}
 		opts = append(opts, authOpt)
 	}

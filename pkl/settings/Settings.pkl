@@ -7,7 +7,7 @@ import "logger/LoggerConfig.pkl"
 import "metrics/MetricsConfig.pkl"
 
 logger: LoggerConfig
-healthCheck: HealthcheckConfig
-metrics: MetricsConfig
+healthCheck: HealthcheckConfig?
+metrics: MetricsConfig?
 startGCAfterMessageProcess: Boolean = false
 gracefulShutdownDelay:Duration = 15.s

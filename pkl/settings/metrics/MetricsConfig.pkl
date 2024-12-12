@@ -9,7 +9,4 @@ port: Int = 8090
 
 path: String = "/metrics"
 
-// non empty only if metrics enable
-serviceName: String?
-
-enable: Boolean = false
+serviceName: String

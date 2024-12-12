@@ -75,7 +75,7 @@ func NewSink(
 			threadsCount: cfg.GetThreads(),
 			nodeCfg:      buildOptions(opts...),
 		},
-		logger: logger.With().Logger(),
+		logger: l.With().Logger(),
 	}, nil
 }
 
@@ -88,14 +88,16 @@ func (s *Sink) GetInputs() []string {
 }
 
 func (s *Sink) Run() error {
+
 	if len(s.inputChannels) == 0 {
 		return errors.New("no input channels configured")
 	}
 
-	inChannel := utils.MergeChannels(s.inputChannels)
+	inChannel := utils.MergeInputs(s.inputChannels...)
 	sema := utils.NewSemaphore(s.cfg.threadsCount)
 
 	go func() {
+		s.logger.Debug().Msg("start sink")
 		for msg := range inChannel {
 			// process message in separated goroutine
 			sema.Acquire()
@@ -106,8 +108,9 @@ func (s *Sink) Run() error {
 				s.postSinkAction()
 			}()
 		}
-		s.logger.Debug().Msg("input channels processed")
+		s.logger.Debug().Msg("stop sink")
 	}()
+
 	return nil
 }
 

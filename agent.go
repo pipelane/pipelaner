@@ -52,7 +52,7 @@ func NewAgent(file string) (*Agent, error) {
 
 func (a *Agent) initHealthCheck(cfg *config.Pipelaner) error {
 	hcCfg := cfg.Settings.HealthCheck
-	if hcCfg.Enable {
+	if hcCfg != nil {
 		hc, err := health.NewHealthCheck(cfg)
 		if err != nil {
 			return fmt.Errorf("init health check: %w", err)
@@ -64,7 +64,7 @@ func (a *Agent) initHealthCheck(cfg *config.Pipelaner) error {
 
 func (a *Agent) initMetricsServer(cfg *config.Pipelaner) error {
 	metricsCfg := cfg.Settings.Metrics
-	if metricsCfg.Enable {
+	if metricsCfg != nil {
 		m, err := metrics.NewMetricsServer(metricsCfg)
 		if err != nil {
 			return fmt.Errorf("init metrics server: %w", err)
@@ -77,11 +77,15 @@ func (a *Agent) initMetricsServer(cfg *config.Pipelaner) error {
 func (a *Agent) initPipelaner(cfg *config.Pipelaner) error {
 	pipelanerCfg := cfg.Pipelines
 	logCfg := cfg.Settings.Logger
-	// todo: use another solution for specific parameters
+	metricsCfg := cfg.Settings.Metrics
+	mEnable := false
+	if metricsCfg != nil {
+		mEnable = true
+	}
 	p, err := NewPipelaner(
 		pipelanerCfg,
 		logCfg,
-		cfg.Settings.Metrics.Enable,
+		mEnable,
 		cfg.Settings.StartGCAfterMessageProcess,
 	)
 	if err != nil {
@@ -105,6 +109,7 @@ func (a *Agent) Serve(ctx context.Context) error {
 			return a.metrics.Serve(ctx)
 		})
 	}
+
 	g.Go(func() error {
 		return a.pipelaner.Run(inputsCtx)
 	})

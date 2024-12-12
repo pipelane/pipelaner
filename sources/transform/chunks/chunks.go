@@ -44,6 +44,5 @@ func (c *Chunk) Transform(val any) any {
 	}
 	c.locked.Store(true)
 	defer c.locked.Store(false)
-	v := <-c.buffer.Chunks()
-	return v
+	return c.buffer.Chunk()
 }

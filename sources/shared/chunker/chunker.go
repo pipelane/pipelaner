@@ -1,6 +1,7 @@
 package chunker
 
 import (
+	"context"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -14,9 +15,9 @@ type Config struct {
 type Chunks struct {
 	Cfg     Config
 	buffers chan chan any
-	stopped atomic.Bool
 	input   chan any
 	wg      sync.WaitGroup
+	cancel  context.CancelFunc
 }
 
 func NewChunks(cfg Config) *Chunks {
@@ -38,12 +39,9 @@ func (c *Chunks) resetChannels() {
 	c.buffers = make(chan chan any, c.Cfg.BufferSize)
 }
 
-func (c *Chunks) send(ch chan any) {
-	c.buffers <- ch
-}
 func (c *Chunks) NewChunk() chan any {
 	b := make(chan any, c.Cfg.MaxChunkSize)
-	c.send(b)
+	c.buffers <- b
 	return b
 }
 
@@ -54,39 +52,35 @@ func (c *Chunks) Chunk() chan any {
 	return <-c.buffers
 }
 func (c *Chunks) Stop() {
-	c.stopped.Store(true)
+	c.cancel()
 }
 
 func (c *Chunks) Generator() {
-	timer := time.NewTicker(c.Cfg.MaxIdleTime)
-	stop := make(chan struct{}, 1)
-	go func() {
-		for {
-			if c.stopped.Load() {
-				c.wg.Wait()
-				timer.Stop()
-				stop <- struct{}{}
-				close(c.buffers)
-				close(c.input)
-				close(stop)
-				break
-			}
-		}
-	}()
+	timer := time.NewTimer(c.Cfg.MaxIdleTime)
+	stop := make(chan struct{})
+	ctx, cancel := context.WithCancel(context.Background())
+	c.cancel = cancel
 	go c.startProcessing(stop, timer)
+	go func() {
+		<-ctx.Done()
+		c.wg.Wait()
+		close(c.input)
+		timer.Stop()
+		close(c.buffers)
+		stop <- struct{}{}
+		close(stop)
+	}()
 }
 
-func (c *Chunks) startProcessing(stop chan struct{}, timer *time.Ticker) {
+func (c *Chunks) startProcessing(onClose chan struct{}, timer *time.Timer) {
 	buffer := c.NewChunk()
 	counter := atomic.Int64{}
 	counter.Store(0)
-	breaks := false
-	for !breaks {
+Loop:
+	for {
 		select {
-		case <-stop:
-			close(buffer)
-			breaks = true
-			continue
+		case <-onClose:
+			break Loop
 		case <-timer.C:
 			if counter.Load() == 0 {
 				timer.Reset(c.Cfg.MaxIdleTime)
@@ -96,20 +90,20 @@ func (c *Chunks) startProcessing(stop chan struct{}, timer *time.Ticker) {
 			counter.Store(0)
 			buffer = c.NewChunk()
 			timer.Reset(c.Cfg.MaxIdleTime)
-		default:
-			msg, ok := <-c.input
+		case msg, ok := <-c.input:
 			if !ok && msg == nil {
 				continue
 			}
 			timer.Reset(c.Cfg.MaxIdleTime)
 			buffer <- msg
 			counter.Add(1)
-			if counter.Load() >= int64(c.Cfg.MaxChunkSize) {
-				counter.Store(0)
+			if counter.Load() == int64(c.Cfg.MaxChunkSize) {
 				close(buffer)
+				counter.Store(0)
 				buffer = c.NewChunk()
 			}
 			c.wg.Done()
 		}
 	}
+	close(buffer)
 }

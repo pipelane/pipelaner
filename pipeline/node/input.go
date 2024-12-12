@@ -94,6 +94,7 @@ func (i *Input) Run(ctx context.Context) error {
 	}
 
 	input := make(chan any, i.cfg.outBufferSize*len(i.outChannels))
+
 	go func() {
 		defer func() {
 			for _, channel := range i.outChannels {
@@ -105,7 +106,7 @@ func (i *Input) Run(ctx context.Context) error {
 			for _, ch := range i.outChannels {
 				m, err := i.prepareMessage(msg)
 				if err != nil {
-					i.logger.Error().Err(err).Msg("prepare message failed")
+					i.logger.Debug().Err(err).Msg("prepare message failed")
 					continue
 				}
 				i.preSendMessageAction(len(input), len(input))
@@ -119,6 +120,7 @@ func (i *Input) Run(ctx context.Context) error {
 		defer close(input)
 		i.impl.Generate(ctx, input)
 	}()
+	
 	return nil
 }
 
@@ -136,6 +138,9 @@ func (i *Input) prepareMessage(msg any) (any, error) {
 		kind := reflect.TypeOf(msg).Kind()
 		switch kind {
 		case reflect.Pointer, reflect.Slice, reflect.Map, reflect.Struct:
+			if len(i.outChannels) == 1 {
+				return msg, nil
+			}
 			mes, err := kamino.Clone(msg)
 			if err != nil {
 				return nil, err

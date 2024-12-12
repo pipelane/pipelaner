@@ -6,5 +6,3 @@ import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 host: String = "localhost"
 
 port: Int(this > 0) = 82
-
-enable: Boolean = false

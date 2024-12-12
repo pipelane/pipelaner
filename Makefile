@@ -10,7 +10,6 @@ lint:
 .PHONY: test
 test:
 	@go test -count=1 -v ./... -race
-
 .PHONY: proto
 proto:
 	@rm -rf sources/shared/proto

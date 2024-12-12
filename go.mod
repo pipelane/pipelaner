@@ -8,6 +8,7 @@ require (
 	github.com/apple/pkl-go v0.8.1
 	github.com/expr-lang/expr v1.16.9
 	github.com/go-faker/faker/v4 v4.5.0
+	github.com/go-resty/resty/v2 v2.16.2
 	github.com/google/uuid v1.6.0
 	github.com/prometheus/client_golang v1.20.5
 	github.com/rs/zerolog v1.33.0

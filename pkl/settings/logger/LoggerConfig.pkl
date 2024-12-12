@@ -1,9 +1,9 @@
-@go.Package {name = "github.com/pipelane/pipelaner/gen/settings/logger"}
+@go.Package { name = "github.com/pipelane/pipelaner/gen/settings/logger" }
 module com.pipelaner.settings.logger.config
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 
-typealias LogLevel = "error"|"warn"|"info"|"debug"
+typealias LogLevel = "error"|"warn"|"info"|"debug"|"trace"
 
 logLevel: LogLevel = "info"
 

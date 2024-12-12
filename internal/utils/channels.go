@@ -11,26 +11,30 @@ import (
 	"github.com/LastPossum/kamino"
 )
 
-func MergeChannels(channels []chan any) chan any {
-	var wg sync.WaitGroup
-	out := make(chan any, len(channels))
-
-	for _, ch := range channels {
-		wg.Add(1)
-		go func() {
-			for msg := range ch {
-				out <- msg
-			}
-			wg.Done()
-		}()
+func MergeInputs[T any](chs ...chan T) chan T {
+	if len(chs) == 1 {
+		return chs[0]
 	}
-
+	lens := 0
+	for i := range chs {
+		lens += cap(chs[i])
+	}
+	res := make(chan T, lens)
+	gr := sync.WaitGroup{}
+	gr.Add(len(chs))
 	go func() {
-		wg.Wait()
-		close(out)
+		gr.Wait()
+		close(res)
 	}()
-
-	return out
+	for _, ch := range chs {
+		go func(c chan T) {
+			defer gr.Done()
+			for v := range c {
+				res <- v
+			}
+		}(ch)
+	}
+	return res
 }
 
 func BroadcastChannels(outputs []chan any, ch chan any) {

@@ -40,12 +40,12 @@ func NewLoggerWithCfg(cfg *logger.Config) (*zerolog.Logger, error) {
 		writers = append(writers, newRollingFile(cfg))
 	}
 	mw := io.MultiWriter(writers...)
-	logger := zerolog.
+	l := zerolog.
 		New(mw).
 		Level(level).
 		With().Timestamp().
 		Logger()
-	return &logger, nil
+	return &l, nil
 }
 
 func newRollingFile(cfg *logger.Config) io.Writer {

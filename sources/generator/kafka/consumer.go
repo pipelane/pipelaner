@@ -20,17 +20,17 @@ type Consumer struct {
 }
 
 func NewConsumer(
-	cfg input.KafkaConsumer,
+	cfg input.Kafka,
 	logger *zerolog.Logger,
 ) (*Consumer, error) {
 	v := cfg.GetMaxPartitionFetchBytes().ToUnit(pkl.Bytes).Value
 	maxByteFetch := cfg.GetFetchMaxBytes().ToUnit(pkl.Bytes).Value
 
 	opts := []kgo.Opt{
-		kgo.SeedBrokers(cfg.GetKafka().Brokers),
+		kgo.SeedBrokers(cfg.GetCommon().Brokers...),
 		kgo.WithLogger(kzerolog.New(logger)),
 		kgo.ConsumerGroup(cfg.GetConsumerGroupID()),
-		kgo.ConsumeTopics(cfg.GetKafka().Topics...),
+		kgo.ConsumeTopics(cfg.GetCommon().Topics...),
 		kgo.FetchMaxBytes(int32(maxByteFetch)),
 		kgo.FetchMaxPartitionBytes(int32(v)),
 		kgo.HeartbeatInterval(time.Second),
@@ -63,13 +63,13 @@ func NewConsumer(
 		opts = append(opts, kgo.ConsumeResetOffset(kgo.NewOffset().AtEnd()))
 	}
 
-	if cfg.GetKafka().SaslEnabled {
+	if cfg.GetCommon().SaslEnabled {
 		auth := scram.Auth{
-			User: *cfg.GetKafka().SaslUsername,
-			Pass: *cfg.GetKafka().SaslPassword,
+			User: *cfg.GetCommon().SaslUsername,
+			Pass: *cfg.GetCommon().SaslPassword,
 		}
 		var authOpt kgo.Opt
-		switch cfg.GetKafka().SaslMechanism {
+		switch *cfg.GetCommon().SaslMechanism {
 		case saslmechanism.SCRAMSHA512:
 			authOpt = kgo.SASL(auth.AsSha512Mechanism())
 		case saslmechanism.SCRAMSHA256:

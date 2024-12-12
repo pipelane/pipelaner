@@ -11,17 +11,17 @@ import (
 )
 
 func init() {
-	source.RegisterInput("kafka-consumer", &Kafka{})
+	source.RegisterInput("kafka", &Kafka{})
 }
 
 type Kafka struct {
 	components.Logger
 	cons *Consumer
-	cfg  input.KafkaConsumer
+	cfg  input.Kafka
 }
 
 func (c *Kafka) Init(cfg input.Input) error {
-	consumerCfg, ok := cfg.(input.KafkaConsumer)
+	consumerCfg, ok := cfg.(input.Kafka)
 	if !ok {
 		return fmt.Errorf("invalid cafka config type: %T", cfg)
 	}

@@ -1,40 +1,82 @@
-amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/Pipelaner.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/source/Components.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/source/sink/Sinks.pkl"
+amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/Pipelaner.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/Components.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/sink/Sinks.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/input/Inputs.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/transform/Transforms.pkl"
 import "example.pkl"
 
 pipelines {
+  //   new Components.Pipeline {
+  //     name = "example-pipeline"
+  //     inputs {
+  //       new example.ExampleGenInt {
+  //         name = "example-gen-int"
+  //         count = 10
+  //       }
+  //       new Inputs.KafkaConsumer {
+  //         kafka {
+  //           topics {
+  //
+  //           }
+  //         }
+  //       }
+  //     }
+  //     transforms {
+  //       new example.ExampleMul {
+  //         name = "example-mul"
+  //         inputs {
+  //           "example-gen-int"
+  //         }
+  //         mul = 2
+  //       }
+  //       new example.ExampleMul {
+  //         threads = 10
+  //         name = "example-mul2"
+  //         inputs {
+  //           "example-mul"
+  //         }
+  //         mul = 5
+  //       }
+  //     }
+  //     sinks {
+  //       new Sinks.Console {
+  //         threads = 10
+  //         name = "console"
+  //         inputs {
+  //           "example-mul2"
+  //         }
+  //       }
+  //     }
+  //   }
   new Components.Pipeline {
     name = "example-pipeline"
     inputs {
-      new example.ExampleGenInt {
-        name = "example-gen-int"
-        count = 10
+      new Inputs.Cmd {
+        name = "osx-logs"
+        exec {
+          "/usr/bin/log"
+          "stream --style ndjson"
+        }
       }
     }
     transforms {
-      new example.ExampleMul {
-        name = "example-mul"
-        inputs {
-          "example-gen-int"
-        }
-        mul = 2
-      }
-      new example.ExampleMul {
+      new Transforms.Chunk {
+        name = "log-buffering"
         threads = 10
-        name = "example-mul2"
+        outputBufferSize = 10_000
         inputs {
-          "example-mul"
+          "osx-logs"
         }
-        mul = 5
+        maxChunkSize = 1_000
+        maxIdleTime = 20.s
       }
     }
     sinks {
       new Sinks.Console {
         threads = 10
-        name = "console"
+        name = "console-log"
         inputs {
-          "example-mul2"
+          "log-buffering"
         }
       }
     }
@@ -45,14 +87,13 @@ settings {
   gracefulShutdownDelay = 15.s
   logger {
     logLevel = "info"
+    logFormat = "json"
   }
   healthCheck {
-    enable = false
     host = "127.0.0.1"
     port = 8080
   }
   metrics {
-    enable = false
     host = "127.0.0.1"
     port = 8082
   }

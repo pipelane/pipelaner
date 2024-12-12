@@ -1,14 +1,20 @@
 // Code generated from Pkl module `com.pipelaner.source.sinks`. DO NOT EDIT.
 package sink
 
+import "github.com/pipelane/pipelaner/gen/settings/logger/logformat"
+
 type Console interface {
 	Sink
+
+	GetLogFormat() logformat.LogFormat
 }
 
 var _ Console = (*ConsoleImpl)(nil)
 
 type ConsoleImpl struct {
 	SourceName string `pkl:"sourceName"`
+
+	LogFormat logformat.LogFormat `pkl:"logFormat"`
 
 	Name string `pkl:"name"`
 
@@ -19,6 +25,10 @@ type ConsoleImpl struct {
 
 func (rcv *ConsoleImpl) GetSourceName() string {
 	return rcv.SourceName
+}
+
+func (rcv *ConsoleImpl) GetLogFormat() logformat.LogFormat {
+	return rcv.LogFormat
 }
 
 func (rcv *ConsoleImpl) GetName() string {

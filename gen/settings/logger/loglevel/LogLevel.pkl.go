@@ -13,6 +13,7 @@ const (
 	Warn  LogLevel = "warn"
 	Info  LogLevel = "info"
 	Debug LogLevel = "debug"
+	Trace LogLevel = "trace"
 )
 
 // String returns the string representation of LogLevel
@@ -33,6 +34,8 @@ func (rcv *LogLevel) UnmarshalBinary(data []byte) error {
 		*rcv = Info
 	case "debug":
 		*rcv = Debug
+	case "trace":
+		*rcv = Trace
 	default:
 		return fmt.Errorf(`illegal: "%s" is not a valid LogLevel`, str)
 	}

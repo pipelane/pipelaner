@@ -11,6 +11,7 @@ import (
 	_ "github.com/pipelane/pipelaner/sources/generator/pipelaner"
 	_ "github.com/pipelane/pipelaner/sources/sink/clickhouse"
 	_ "github.com/pipelane/pipelaner/sources/sink/console"
+	_ "github.com/pipelane/pipelaner/sources/sink/http"
 	_ "github.com/pipelane/pipelaner/sources/sink/kafka"
 	_ "github.com/pipelane/pipelaner/sources/sink/pipelaner"
 	_ "github.com/pipelane/pipelaner/sources/transform/batch"

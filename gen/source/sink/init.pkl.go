@@ -7,6 +7,7 @@ func init() {
 	pkl.RegisterMapping("com.pipelaner.source.sinks", Sinks{})
 	pkl.RegisterMapping("com.pipelaner.source.sinks#Console", ConsoleImpl{})
 	pkl.RegisterMapping("com.pipelaner.source.sinks#Pipelaner", PipelanerImpl{})
-	pkl.RegisterMapping("com.pipelaner.source.sinks#KafkaProducer", KafkaProducerImpl{})
+	pkl.RegisterMapping("com.pipelaner.source.sinks#Kafka", KafkaImpl{})
 	pkl.RegisterMapping("com.pipelaner.source.sinks#Clickhouse", ClickhouseImpl{})
+	pkl.RegisterMapping("com.pipelaner.source.sinks#Http", HttpImpl{})
 }

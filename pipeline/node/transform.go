@@ -113,6 +113,7 @@ func (t *Transform) GetOutputBufferSize() int {
 
 // Run non-blocking call that start Transform node action in separated goroutine.
 func (t *Transform) Run() error {
+
 	if len(t.inputChannels) == 0 {
 		return fmt.Errorf("no input channels configured for '%s'", t.cfg.name)
 	}
@@ -121,9 +122,10 @@ func (t *Transform) Run() error {
 	}
 
 	sema := utils.NewSemaphore(t.cfg.threadsCount)
-	inChannel := utils.MergeChannels(t.inputChannels)
+	inChannel := utils.MergeInputs(t.inputChannels...)
 
 	go func() {
+		t.logger.Debug().Msg("starting transform")
 		var wg sync.WaitGroup
 
 		for msg := range inChannel {
@@ -138,13 +140,13 @@ func (t *Transform) Run() error {
 					if t.cfg.enableMetrics {
 						metrics.TotalTransformationError.WithLabelValues(transformNodeType, t.cfg.name).Inc()
 					}
-					t.logger.Error().Err(e).Msg("received error")
+					t.logger.Debug().Err(e).Msg("received error")
 					return
 				}
 				for _, ch := range t.outChannels {
 					mes, err := t.prepareMessage(msg)
 					if err != nil {
-						t.logger.Error().Err(err).Msg("prepare message to send")
+						t.logger.Debug().Err(err).Msg("skip nil message transform")
 						continue
 					}
 					t.preSendMessageAction(len(ch), cap(ch))
@@ -152,11 +154,11 @@ func (t *Transform) Run() error {
 				}
 			}()
 		}
-		t.logger.Debug().Msg("input channels processed")
 		wg.Wait()
 		for _, ch := range t.outChannels {
 			close(ch)
 		}
+		t.logger.Debug().Msg("stop transform")
 	}()
 	return nil
 }

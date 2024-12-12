@@ -6,10 +6,10 @@ import (
 	"github.com/pipelane/pipelaner/gen/source/common"
 )
 
-type KafkaProducer interface {
+type Kafka interface {
 	Sink
 
-	GetKafka() *common.Kafka
+	GetCommon() *common.Kafka
 
 	GetMaxRequestSize() *pkl.DataSize
 
@@ -18,12 +18,12 @@ type KafkaProducer interface {
 	GetBatchNumMessages() int
 }
 
-var _ KafkaProducer = (*KafkaProducerImpl)(nil)
+var _ Kafka = (*KafkaImpl)(nil)
 
-type KafkaProducerImpl struct {
+type KafkaImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	Kafka *common.Kafka `pkl:"kafka"`
+	Common *common.Kafka `pkl:"common"`
 
 	MaxRequestSize *pkl.DataSize `pkl:"maxRequestSize"`
 
@@ -38,34 +38,34 @@ type KafkaProducerImpl struct {
 	Threads int `pkl:"threads"`
 }
 
-func (rcv *KafkaProducerImpl) GetSourceName() string {
+func (rcv *KafkaImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *KafkaProducerImpl) GetKafka() *common.Kafka {
-	return rcv.Kafka
+func (rcv *KafkaImpl) GetCommon() *common.Kafka {
+	return rcv.Common
 }
 
-func (rcv *KafkaProducerImpl) GetMaxRequestSize() *pkl.DataSize {
+func (rcv *KafkaImpl) GetMaxRequestSize() *pkl.DataSize {
 	return rcv.MaxRequestSize
 }
 
-func (rcv *KafkaProducerImpl) GetLingerMs() *pkl.Duration {
+func (rcv *KafkaImpl) GetLingerMs() *pkl.Duration {
 	return rcv.LingerMs
 }
 
-func (rcv *KafkaProducerImpl) GetBatchNumMessages() int {
+func (rcv *KafkaImpl) GetBatchNumMessages() int {
 	return rcv.BatchNumMessages
 }
 
-func (rcv *KafkaProducerImpl) GetName() string {
+func (rcv *KafkaImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *KafkaProducerImpl) GetInputs() []string {
+func (rcv *KafkaImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *KafkaProducerImpl) GetThreads() int {
+func (rcv *KafkaImpl) GetThreads() int {
 	return rcv.Threads
 }

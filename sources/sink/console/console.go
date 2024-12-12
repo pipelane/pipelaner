@@ -7,9 +7,12 @@ package console
 import (
 	"fmt"
 
+	config "github.com/pipelane/pipelaner/gen/settings/logger"
+	"github.com/pipelane/pipelaner/gen/settings/logger/loglevel"
 	"github.com/pipelane/pipelaner/gen/source/sink"
-	"github.com/pipelane/pipelaner/pipeline/components"
+	logger "github.com/pipelane/pipelaner/internal/logger"
 	"github.com/pipelane/pipelaner/pipeline/source"
+	"github.com/rs/zerolog"
 )
 
 func init() {
@@ -17,15 +20,29 @@ func init() {
 }
 
 type Console struct {
-	components.Logger
+	l *zerolog.Logger
 }
 
 func (c *Console) Init(cfg sink.Sink) error {
-	_, ok := cfg.(sink.Console)
+	cCfg, ok := cfg.(sink.Console)
 	if !ok {
 		return fmt.Errorf("invalid console config type: %T", cfg)
 	}
-
+	lCfg := config.Config{
+		LogLevel:      loglevel.Info,
+		EnableConsole: true,
+		LogFormat:     cCfg.GetLogFormat(),
+	}
+	l, err := logger.NewLoggerWithCfg(&lCfg)
+	if err != nil {
+		return err
+	}
+	logs := l.With().
+		Str("source", cfg.GetSourceName()).
+		Str("type", "sink").
+		Str("lane_name", cfg.GetName()).
+		Logger()
+	c.l = &logs
 	return nil
 }
 
@@ -47,6 +64,6 @@ func (c *Console) Sink(val any) {
 		}
 		return
 	default:
-		c.Log().Info().Msg(fmt.Sprintf("%v", val))
+		c.l.Info().Msg(fmt.Sprintf("%v", val))
 	}
 }

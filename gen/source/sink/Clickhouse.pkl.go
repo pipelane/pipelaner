@@ -1,8 +1,6 @@
 // Code generated from Pkl module `com.pipelaner.source.sinks`. DO NOT EDIT.
 package sink
 
-import "github.com/apple/pkl-go/pkl"
-
 type Clickhouse interface {
 	Sink
 
@@ -13,26 +11,6 @@ type Clickhouse interface {
 	GetPassword() string
 
 	GetDatabase() string
-
-	GetMigrationEngine() string
-
-	GetMigrationsPathClickhouse() string
-
-	GetMaxExecutionTime() *pkl.Duration
-
-	GetCannMaxLifeTime() *pkl.Duration
-
-	GetDialTimeout() *pkl.Duration
-
-	GetMaxOpenConns() int
-
-	GetMaxIdleConns() int
-
-	GetBlockBufferSize() uint8
-
-	GetMaxCompressionBuffer() *pkl.DataSize
-
-	GetEnableDebug() bool
 
 	GetTableName() string
 
@@ -53,26 +31,6 @@ type ClickhouseImpl struct {
 	Password string `pkl:"password"`
 
 	Database string `pkl:"database"`
-
-	MigrationEngine string `pkl:"migrationEngine"`
-
-	MigrationsPathClickhouse string `pkl:"migrationsPathClickhouse"`
-
-	MaxExecutionTime *pkl.Duration `pkl:"maxExecutionTime"`
-
-	CannMaxLifeTime *pkl.Duration `pkl:"cannMaxLifeTime"`
-
-	DialTimeout *pkl.Duration `pkl:"dialTimeout"`
-
-	MaxOpenConns int `pkl:"maxOpenConns"`
-
-	MaxIdleConns int `pkl:"maxIdleConns"`
-
-	BlockBufferSize uint8 `pkl:"blockBufferSize"`
-
-	MaxCompressionBuffer *pkl.DataSize `pkl:"maxCompressionBuffer"`
-
-	EnableDebug bool `pkl:"enableDebug"`
 
 	TableName string `pkl:"tableName"`
 
@@ -105,46 +63,6 @@ func (rcv *ClickhouseImpl) GetPassword() string {
 
 func (rcv *ClickhouseImpl) GetDatabase() string {
 	return rcv.Database
-}
-
-func (rcv *ClickhouseImpl) GetMigrationEngine() string {
-	return rcv.MigrationEngine
-}
-
-func (rcv *ClickhouseImpl) GetMigrationsPathClickhouse() string {
-	return rcv.MigrationsPathClickhouse
-}
-
-func (rcv *ClickhouseImpl) GetMaxExecutionTime() *pkl.Duration {
-	return rcv.MaxExecutionTime
-}
-
-func (rcv *ClickhouseImpl) GetCannMaxLifeTime() *pkl.Duration {
-	return rcv.CannMaxLifeTime
-}
-
-func (rcv *ClickhouseImpl) GetDialTimeout() *pkl.Duration {
-	return rcv.DialTimeout
-}
-
-func (rcv *ClickhouseImpl) GetMaxOpenConns() int {
-	return rcv.MaxOpenConns
-}
-
-func (rcv *ClickhouseImpl) GetMaxIdleConns() int {
-	return rcv.MaxIdleConns
-}
-
-func (rcv *ClickhouseImpl) GetBlockBufferSize() uint8 {
-	return rcv.BlockBufferSize
-}
-
-func (rcv *ClickhouseImpl) GetMaxCompressionBuffer() *pkl.DataSize {
-	return rcv.MaxCompressionBuffer
-}
-
-func (rcv *ClickhouseImpl) GetEnableDebug() bool {
-	return rcv.EnableDebug
 }
 
 func (rcv *ClickhouseImpl) GetTableName() string {

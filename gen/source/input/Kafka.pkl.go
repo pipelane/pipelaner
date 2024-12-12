@@ -8,10 +8,10 @@ import (
 	"github.com/pipelane/pipelaner/gen/source/input/strategy"
 )
 
-type KafkaConsumer interface {
+type Kafka interface {
 	Input
 
-	GetKafka() *common.Kafka
+	GetCommon() *common.Kafka
 
 	GetAutoCommitEnabled() bool
 
@@ -26,12 +26,12 @@ type KafkaConsumer interface {
 	GetFetchMaxBytes() *pkl.DataSize
 }
 
-var _ KafkaConsumer = (*KafkaConsumerImpl)(nil)
+var _ Kafka = (*KafkaImpl)(nil)
 
-type KafkaConsumerImpl struct {
+type KafkaImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	Kafka *common.Kafka `pkl:"kafka"`
+	Common *common.Kafka `pkl:"common"`
 
 	AutoCommitEnabled bool `pkl:"autoCommitEnabled"`
 
@@ -52,46 +52,46 @@ type KafkaConsumerImpl struct {
 	OutputBufferSize int `pkl:"outputBufferSize"`
 }
 
-func (rcv *KafkaConsumerImpl) GetSourceName() string {
+func (rcv *KafkaImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *KafkaConsumerImpl) GetKafka() *common.Kafka {
-	return rcv.Kafka
+func (rcv *KafkaImpl) GetCommon() *common.Kafka {
+	return rcv.Common
 }
 
-func (rcv *KafkaConsumerImpl) GetAutoCommitEnabled() bool {
+func (rcv *KafkaImpl) GetAutoCommitEnabled() bool {
 	return rcv.AutoCommitEnabled
 }
 
-func (rcv *KafkaConsumerImpl) GetConsumerGroupID() string {
+func (rcv *KafkaImpl) GetConsumerGroupID() string {
 	return rcv.ConsumerGroupID
 }
 
-func (rcv *KafkaConsumerImpl) GetAutoOffsetReset() autooffsetreset.AutoOffsetReset {
+func (rcv *KafkaImpl) GetAutoOffsetReset() autooffsetreset.AutoOffsetReset {
 	return rcv.AutoOffsetReset
 }
 
-func (rcv *KafkaConsumerImpl) GetBalancerStrategy() []strategy.Strategy {
+func (rcv *KafkaImpl) GetBalancerStrategy() []strategy.Strategy {
 	return rcv.BalancerStrategy
 }
 
-func (rcv *KafkaConsumerImpl) GetMaxPartitionFetchBytes() *pkl.DataSize {
+func (rcv *KafkaImpl) GetMaxPartitionFetchBytes() *pkl.DataSize {
 	return rcv.MaxPartitionFetchBytes
 }
 
-func (rcv *KafkaConsumerImpl) GetFetchMaxBytes() *pkl.DataSize {
+func (rcv *KafkaImpl) GetFetchMaxBytes() *pkl.DataSize {
 	return rcv.FetchMaxBytes
 }
 
-func (rcv *KafkaConsumerImpl) GetName() string {
+func (rcv *KafkaImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *KafkaConsumerImpl) GetThreads() int {
+func (rcv *KafkaImpl) GetThreads() int {
 	return rcv.Threads
 }
 
-func (rcv *KafkaConsumerImpl) GetOutputBufferSize() int {
+func (rcv *KafkaImpl) GetOutputBufferSize() int {
 	return rcv.OutputBufferSize
 }

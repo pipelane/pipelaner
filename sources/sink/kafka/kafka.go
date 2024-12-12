@@ -21,12 +21,12 @@ func init() {
 
 type Kafka struct {
 	components.Logger
-	cfg  sink.KafkaProducer
+	cfg  sink.Kafka
 	prod *Producer
 }
 
 func (k *Kafka) Init(cfg sink.Sink) error {
-	kafkaCfg, ok := cfg.(sink.KafkaProducer)
+	kafkaCfg, ok := cfg.(sink.Kafka)
 	if !ok {
 		return fmt.Errorf("invalid kafka-producer config %T", cfg)
 	}
@@ -41,7 +41,7 @@ func (k *Kafka) Init(cfg sink.Sink) error {
 }
 
 func (k *Kafka) write(ctx context.Context, message []byte) {
-	for _, topic := range k.cfg.GetKafka().Topics {
+	for _, topic := range k.cfg.GetCommon().Topics {
 		k.prod.Produce(ctx, &kgo.Record{
 			Value: message,
 			Topic: topic,
