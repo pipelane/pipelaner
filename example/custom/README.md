@@ -132,7 +132,7 @@ pkl-gen-go pkl/example.pkl
 
 ## 🚀 **Step 5: Implement and Register Components**
 
-To use the custom components in your project, implement and register them in the source of **Pipelaner**. An example implementation can be found in [main.go](https://github.com/pipelane/pipelaner/tree/main/example/main.go):
+To use the custom components in your project, implement and register them in the source of **Pipelaner**. An example implementation can be found in [custom.go](https://github.com/pipelane/pipelaner/tree/main/example/custom/custom.go):
 
 ```go
 source.RegisterInput("example-generator", &GenInt{})
