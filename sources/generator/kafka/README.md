@@ -1,7 +1,7 @@
 
 # **Kafka**
 
-The **Kafka** input component enables consuming messages from Kafka topics with configurable settings such as partition fetch sizes, offset reset policies, and balancing strategies.
+The **Kafka** input component enable consuming messages from Kafka topics with configurable settings such as partition fetch size, offset reset policies, and balancing strategies.
 
 ---
 
@@ -116,8 +116,13 @@ class Kafka {
 ```pkl
 new Inputs.Kafka {
   common = new Common.Kafka {
-    brokers = ["broker1:9092", "broker2:9092"]
-    topics = ["example-topic"]
+    brokers = {
+     "broker1:9092"
+      "broker2:9092"
+     }
+    topics = {
+     "example-topic"
+    }
   }
   consumerGroupID = "example-consumer-group"
 }
@@ -131,8 +136,13 @@ new Inputs.Kafka {
     saslMechanism = "SCRAM-SHA-512"
     saslUsername = "example-user"
     saslPassword = "example-password"
-    brokers = ["broker1:9092", "broker2:9092"]
-    topics = ["secure-topic"]
+    brokers = {
+     "broker1:9092"
+      "broker2:9092"
+     }
+    topics = {
+       "secure-topic"
+    }
   }
   consumerGroupID = "example-secure-consumer"
 }
