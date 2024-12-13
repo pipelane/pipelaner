@@ -37,7 +37,7 @@ class Chunk extends Transform {
 
 ### **Basic Chunks Transform**
 ```pkl
-new Chunk {
+new Transforms.Chunk {
   name = "example-chunks"
   maxChunkSize = 50
   maxIdleTime = 1.s

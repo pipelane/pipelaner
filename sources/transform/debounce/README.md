@@ -35,7 +35,7 @@ class Debounce extends Transform {
 
 ### **Basic Debounce Transform**
 ```pkl
-new Debounce {
+new Transforms.Debounce {
   name = "example-debounce"
   interval = 500.ms
 }

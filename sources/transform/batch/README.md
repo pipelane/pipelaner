@@ -35,7 +35,7 @@ class Batch extends Transform {
 
 ### **Basic Batch Transform**
 ```pkl
-new Batch {
+new Transforms.Batch {
   name = "example-batch"
   size = 100
 }
