@@ -1,4 +1,4 @@
-### **Generators**
+# **Generators**
 | **Name**                                                                                 | **Description**                                                             |
 |------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
 | [**cmd**](https://github.com/pipelane/pipelaner/tree/main/sources/generator/cmd)         | Reads the output of a command, e.g., `"/usr/bin/log" "stream --style ndjson"`. |

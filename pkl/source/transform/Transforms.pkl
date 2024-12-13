@@ -29,7 +29,7 @@ class Debounce extends Transform {
 
 class Throttling extends Transform {
   fixed sourceName = "throttling"
-  interval: Duration?
+  interval: Duration
 }
 
 class Filter extends Transform {
