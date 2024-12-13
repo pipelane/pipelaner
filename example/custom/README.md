@@ -1,5 +1,5 @@
 
-# **Using Pipelaner in External Projects**
+# **Create custom generator/transform/sink in External Projects**
 
 This guide provides detailed instructions on how to integrate **Pkl** with **Pipelaner** in your external projects.
 
@@ -24,7 +24,7 @@ Replace `x.x.x` with the required version of **Pipelaner**.
 
 ## ⚙️ **Step 2: Configure Pipelines**
 
-Create a pipeline configuration file (e.g., `pipeline_config.pkl`) with the following content:
+Create a pipeline configuration file (e.g., `config.pkl`) with the following content:
 
 ```pkl
 import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/Pipelaner.pkl"
@@ -92,7 +92,7 @@ settings {
 
 ## 🛠 **Step 3: Implement Custom Components**
 
-If you need custom components, create an implementation file (e.g., `pkl/example.pkl`) with the following content:
+If you need custom components, create an implementation file (e.g., `pkl/custom.pkl`) with the following content:
 
 ```pkl
 @go.Package {name = "gen/custom"}

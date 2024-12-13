@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2023 Alexey Khokhlov
- */
-
 package main
 
 import (
@@ -9,13 +5,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/pipelane/pipelaner"
-	"github.com/pipelane/pipelaner/example/pkl/gen/custom"
+	"github.com/pipelane/pipelaner/example/custom/gen/custom"
 	"github.com/pipelane/pipelaner/gen/source/input"
 	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
-	_ "github.com/pipelane/pipelaner/sources"
 )
 
 // ============== Test generator ===============
@@ -74,29 +68,4 @@ func (t *TransMul) Transform(val any) any {
 func init() {
 	source.RegisterInput("example-generator", &GenInt{})
 	source.RegisterTransform("example-mul", &TransMul{})
-}
-
-func main() {
-	ctx := context.Background()
-	agent, err := pipelaner.NewAgent(
-		"example/pkl/config.pkl",
-	)
-	if err != nil {
-		panic(err)
-	}
-	lock := make(chan struct{})
-	go func() {
-		time.Sleep(time.Second * 15)
-		err = agent.Shutdown(context.Background())
-		if err != nil {
-			panic(err)
-		}
-		lock <- struct{}{}
-	}()
-	go func() {
-		if err = agent.Serve(ctx); err != nil {
-			panic(err)
-		}
-	}()
-	<-lock
 }

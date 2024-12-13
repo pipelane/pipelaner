@@ -1,0 +1,57 @@
+amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/Pipelaner.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/Components.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/sink/Sinks.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/input/Inputs.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/transform/Transforms.pkl"
+
+pipelines {
+  new Components.Pipeline {
+    name = "example-pipeline"
+    inputs {
+      new Inputs.Cmd {
+        name = "osx-logs"
+        exec {
+          "/usr/bin/log"
+          "stream --style ndjson"
+        }
+      }
+    }
+    transforms {
+      new Transforms.Chunk {
+        name = "log-buffering"
+        threads = 10
+        outputBufferSize = 10_000
+        inputs {
+          "osx-logs"
+        }
+        maxChunkSize = 1_000
+        maxIdleTime = 20.s
+      }
+    }
+    sinks {
+      new Sinks.Console {
+        threads = 10
+        name = "console-log"
+        inputs {
+          "log-buffering"
+        }
+      }
+    }
+  }
+}
+
+settings {
+  gracefulShutdownDelay = 15.s
+  logger {
+    logLevel = "info"
+    logFormat = "json"
+  }
+  healthCheck {
+    host = "127.0.0.1"
+    port = 8080
+  }
+  metrics {
+    host = "127.0.0.1"
+    port = 8082
+  }
+}

@@ -1,53 +1,39 @@
+
+# **Using Pipelaner in External Projects**
+
+This guide provides detailed instructions on how to integrate **Pkl** with **Pipelaner** in your external projects.
+
+---
+
+## 📂 **Step 1: Configure Dependencies**
+
+1. Create a directory named `pkl` in your project.
+2. Inside the `pkl` directory, create a file named `PklProject` with the following content:
+
+```pkl
+dependencies {
+  ["pipelaner"] {
+    uri = "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@x.x.x"
+  }
+}
+```
+
+Replace `x.x.x` with the required version of **Pipelaner**.
+
+---
+
+## ⚙️ **Step 2: Configure Pipelines**
+
+Create a pipeline configuration file (e.g., `config.pkl`) with the following content:
+
+```pkl
 amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/Pipelaner.pkl"
 import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/Components.pkl"
 import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/sink/Sinks.pkl"
 import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/input/Inputs.pkl"
 import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/transform/Transforms.pkl"
-import "example.pkl"
 
 pipelines {
-  //   new Components.Pipeline {
-  //     name = "example-pipeline"
-  //     inputs {
-  //       new example.ExampleGenInt {
-  //         name = "example-gen-int"
-  //         count = 10
-  //       }
-  //       new Inputs.KafkaConsumer {
-  //         kafka {
-  //           topics {
-  //
-  //           }
-  //         }
-  //       }
-  //     }
-  //     transforms {
-  //       new example.ExampleMul {
-  //         name = "example-mul"
-  //         inputs {
-  //           "example-gen-int"
-  //         }
-  //         mul = 2
-  //       }
-  //       new example.ExampleMul {
-  //         threads = 10
-  //         name = "example-mul2"
-  //         inputs {
-  //           "example-mul"
-  //         }
-  //         mul = 5
-  //       }
-  //     }
-  //     sinks {
-  //       new Sinks.Console {
-  //         threads = 10
-  //         name = "console"
-  //         inputs {
-  //           "example-mul2"
-  //         }
-  //       }
-  //     }
-  //   }
   new Components.Pipeline {
     name = "example-pipeline"
     inputs {
@@ -98,3 +84,13 @@ settings {
     port = 8082
   }
 }
+```
+
+---
+
+---
+
+## 📜 **License**
+
+This project is licensed under the [Apache 2.0](https://github.com/pipelane/pipelaner/blob/main/LICENSE) license.  
+You are free to use, modify, and distribute the code under the terms of the license.
