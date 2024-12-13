@@ -47,13 +47,4 @@ settings {
     logLevel = "info"
     logFormat = "json"
   }
-  healthCheck {
-    host = "127.0.0.1"
-    port = 8080
-  }
-  metrics {
-    host = "127.0.0.1"
-    port = 8082
-    serviceName = "examples-custom-lanes"
-  }
 }

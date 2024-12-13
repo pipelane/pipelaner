@@ -1,4 +1,4 @@
-// Code generated from Pkl module `pipelaner.source.example`. DO NOT EDIT.
+// Code generated from Pkl module `pipelaner.source.examples.custom`. DO NOT EDIT.
 package custom
 
 import "github.com/pipelane/pipelaner/gen/source/sink"

@@ -9,7 +9,6 @@ import (
 	"github.com/pipelane/pipelaner/gen/source/input"
 	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/pipeline/components"
-	"github.com/pipelane/pipelaner/pipeline/source"
 )
 
 // ============== Test generator ===============
@@ -63,9 +62,4 @@ func (t *TransMul) Transform(val any) any {
 		return errors.New("invalid value")
 	}
 	return t.mul * v
-}
-
-func init() {
-	source.RegisterInput("example-generator", &GenInt{})
-	source.RegisterTransform("example-mul", &TransMul{})
 }

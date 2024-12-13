@@ -9,10 +9,17 @@ import (
 	"time"
 
 	"github.com/pipelane/pipelaner"
+	"github.com/pipelane/pipelaner/pipeline/source"
 	_ "github.com/pipelane/pipelaner/sources"
 )
 
+func init() {
+	source.RegisterInput("example-generator", &GenInt{})
+	source.RegisterTransform("example-mul", &TransMul{})
+}
+
 func main() {
+
 	ctx := context.Background()
 	agent, err := pipelaner.NewAgent(
 		"examples/custom/pkl/config.pkl",
