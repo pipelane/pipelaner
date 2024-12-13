@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/pipelane/pipelaner/example/custom/gen/custom"
+	"github.com/pipelane/pipelaner/examples/custom/gen/custom"
 	"github.com/pipelane/pipelaner/gen/source/input"
 	"github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/pipeline/components"

@@ -42,11 +42,15 @@ typealias ConnectionType = "unix"|"http2"
 
 class Pipelaner extends Input {
   fixed sourceName = "pipelaner"
-  commonConfig: Common.Pipelaner
+  commonConfig: Common.Pipelaner(isUnixScoketConnection)?
   connectionType: ConnectionType = "http2"
   unixSocketPath: String(isUnixPathSetted)?
   hidden isUnixPathSetted = (_) ->
       if (connectionType == "unix" && unixSocketPath == null)
         throw("if you use unix socket, please set up 'unixSocketPath'")
+      else true
+  hidden isUnixScoketConnection= (_) ->
+      if (connectionType != "unix" && commonConfig == null)
+        throw("if you use http2 socket, please set up 'commonConfig'")
       else true
 }
