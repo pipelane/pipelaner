@@ -1,5 +1,5 @@
 @go.Package {name = "gen/custom"}
-module pipelaner.source.example
+module pipelaner.source.examples.custom
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
 import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/input/Inputs.pkl"

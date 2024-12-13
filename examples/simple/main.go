@@ -15,7 +15,7 @@ import (
 func main() {
 	ctx := context.Background()
 	agent, err := pipelaner.NewAgent(
-		"example/simple/pkl/config.pkl",
+		"examples/simple/pkl/config.pkl",
 	)
 	if err != nil {
 		panic(err)
