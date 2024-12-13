@@ -5,7 +5,7 @@ The **Pipelaner** input component allows communication between Pipelaner nodes, 
 
 ---
 
-## **Class Definition**
+## **Config Definition**
 
 ```pkl
 typealias ConnectionType = "unix" | "http2"
@@ -34,7 +34,7 @@ class Pipelaner extends Input {
 
 The `commonConfig` attribute of the Pipelaner input component references the **Common.Pipelaner** class, which defines basic connection settings for communication between Pipelaner nodes.
 
-### **Common.Pipelaner Class**
+### **Common.Pipelaner Config**
 
 ```pkl
 class TLSConfig {
@@ -104,7 +104,7 @@ class Pipelaner {
 
 ### **Pipelaner Input with HTTP/2**
 ```pkl
-new Pipelaner {
+new Inputs.Pipelaner {
   connectionType = "http2"
   commonConfig = new Common.Pipelaner {
     host = "127.0.0.1"
@@ -115,7 +115,7 @@ new Pipelaner {
 
 ### **Pipelaner Input with Unix Socket**
 ```pkl
-new Pipelaner {
+new Inputs.Pipelaner {
   connectionType = "unix"
   unixSocketPath = "/tmp/pipelaner.sock"
 }
@@ -123,7 +123,7 @@ new Pipelaner {
 
 ### **Pipelaner Input with TLS**
 ```pkl
-new Pipelaner {
+new Inputs.Pipelaner {
   connectionType = "http2"
   commonConfig = new Common.Pipelaner {
     host = "127.0.0.1"

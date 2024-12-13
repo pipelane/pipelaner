@@ -5,7 +5,7 @@ The **Kafka** input component enables consuming messages from Kafka topics with 
 
 ---
 
-## **Class Definition**
+## **Config Definition**
 
 ```pkl
 class Kafka extends Input {
@@ -33,7 +33,7 @@ class Kafka extends Input {
 
 The `common` attribute of the Kafka input component references the **Common.Kafka** class, which defines essential configurations for connecting to Kafka brokers and interacting with topics.
 
-### **Common.Kafka Class**
+### **Common.Kafka Config**
 
 ```pkl
 class Kafka {
@@ -114,7 +114,7 @@ class Kafka {
 
 ### **Basic Kafka Input**
 ```pkl
-new Kafka {
+new Inputs.Kafka {
   common = new Common.Kafka {
     brokers = ["broker1:9092", "broker2:9092"]
     topics = ["example-topic"]
@@ -125,7 +125,7 @@ new Kafka {
 
 ### **Kafka Input with SASL Authentication**
 ```pkl
-new Kafka {
+new Inputs.Kafka {
   common = new Common.Kafka {
     saslEnabled = true
     saslMechanism = "SCRAM-SHA-512"
