@@ -1,0 +1,50 @@
+name: Pkl Automation and Release
+
+on:
+  push:
+    tags:
+      - 'pipelaner@*'
+
+env:
+  PKL_VERSION: 0.27.1
+  PKL_GO_VERSION: v0.8.1
+
+jobs:
+  pkl-create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Install Pkl and Go tools
+        run: |
+          mkdir -p $HOME/.local/bin
+          curl -L -o $HOME/.local/bin/pkl https://github.com/apple/pkl/releases/download/${PKL_VERSION}/pkl-linux-amd64
+          curl -L -o $HOME/.local/bin/pkl-gen-go https://github.com/apple/pkl-go/releases/download/${PKL_GO_VERSION}/pkl-gen-go-linux-amd64.bin
+          chmod +x $HOME/.local/bin/pkl*
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Update version in pkl config
+        run: |
+          TAG=${{ github.ref_name }}
+          VERSION=${TAG#*@}
+          sed -i "s/version = \".*\"/version = \"${VERSION}\"/" pkl/PklProject
+        shell: bash
+
+      - name: Generate Go code and Package Pkl project
+        run: |
+          pkl-gen-go pkl/Pipelaner.pkl
+          pkl project package pkl
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: .out/${{ github.ref_name }}/*
