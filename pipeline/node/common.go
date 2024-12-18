@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 Alexey Khokhlov
+ */
+
 package node
 
 type Type string

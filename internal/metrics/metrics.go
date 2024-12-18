@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 Alexey Khokhlov
+ */
+
 package metrics
 
 import "github.com/prometheus/client_golang/prometheus"
