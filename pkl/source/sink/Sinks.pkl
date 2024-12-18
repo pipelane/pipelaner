@@ -1,0 +1,50 @@
+@go.Package { name = "github.com/pipelane/pipelaner/gen/source/sink" }
+module com.pipelaner.source.sinks
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+import ".../source/Common.pkl"
+import ".../settings/logger/LoggerConfig.pkl"
+
+abstract class Sink {
+  name: String
+  fixed sourceName: String
+  inputs: Listing<String>
+  threads: Int = read?("env:GOMAXPROCS")?.toInt() ?? 1
+}
+
+class Console extends Sink {
+  fixed sourceName = "console"
+  logFormat: LoggerConfig.LogFormat = "plain"
+}
+
+class Pipelaner extends Sink {
+  fixed sourceName = "pipelaner"
+  commonConfig: Common.Pipelaner
+}
+
+class Kafka extends Sink {
+  fixed sourceName = "kafka"
+  common: Common.Kafka
+  maxRequestSize: DataSize = 10.mib
+  lingerMs: Duration = 0.ms
+  batchNumMessages: Int = 100_000
+}
+
+class Clickhouse extends Sink {
+  fixed sourceName = "clickhouse"
+  address: String
+  user: String
+  password: String
+  database: String
+  tableName: String
+
+  asyncInsert: String = "1"
+  waitForAsyncInsert: String = "1"
+}
+
+typealias Method = "PATCH"|"POST"|"PUT"|"DELETE"|"GET"
+class Http extends Sink {
+  fixed sourceName = "http"
+  url: String
+  method: Method
+}

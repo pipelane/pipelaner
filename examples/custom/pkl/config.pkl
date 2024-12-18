@@ -1,0 +1,50 @@
+amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/Pipelaner.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/source/Components.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/source/sink/Sinks.pkl"
+import "custom.pkl"
+
+pipelines {
+  new Components.Pipeline {
+    name = "example-pipeline"
+    inputs {
+      new custom.ExampleGenInt {
+        name = "example-gen-int"
+        count = 10
+      }
+    }
+    transforms {
+      new custom.ExampleMul {
+        name = "example-mul"
+        inputs {
+          "example-gen-int"
+        }
+        mul = 2
+      }
+      new custom.ExampleMul {
+        threads = 10
+        name = "example-mul2"
+        inputs {
+          "example-mul"
+        }
+        mul = 5
+      }
+    }
+    sinks {
+      new Sinks.Console {
+        threads = 10
+        name = "console"
+        inputs {
+          "example-mul2"
+        }
+      }
+    }
+  }
+}
+
+settings {
+  gracefulShutdownDelay = 15.s
+  logger {
+    logLevel = "info"
+    logFormat = "json"
+  }
+}

@@ -7,72 +7,133 @@ package pipelaner
 import (
 	"context"
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
+	"time"
+
+	config "github.com/pipelane/pipelaner/gen/pipelaner"
+	"github.com/pipelane/pipelaner/internal/health"
+	"github.com/pipelane/pipelaner/internal/metrics"
+	"golang.org/x/sync/errgroup"
 )
 
 type Agent struct {
-	cfg     *Config
-	tree    *TreeLanes
-	hc      *HealthCheck
-	metrics *MetricsServer
-	ctx     context.Context
+	pipelaner *Pipelaner
+
+	hc      *health.Server
+	metrics *metrics.Server
 	cancel  context.CancelFunc
+	cfg     *config.Pipelaner
 }
 
-func NewAgent(
-	file string,
-) (*Agent, error) {
-	ctx, stop := signal.NotifyContext(
-		context.Background(),
-		os.Interrupt,
-		syscall.SIGTERM,
-	)
-
-	cfg, err := NewConfigFromFile(file)
+func NewAgent(file string) (*Agent, error) {
+	ctx := context.Background()
+	cfg, err := config.LoadFromPath(ctx, file)
 	if err != nil {
 		return nil, fmt.Errorf("read config: %w", err)
 	}
 
-	hc, err := NewHealthCheck(*cfg)
-	if err != nil {
-		return nil, fmt.Errorf("init healthcheck server: %w", err)
+	a := &Agent{
+		cfg: cfg,
 	}
-	m, err := NewMetricsServer(*cfg)
-	if err != nil {
-		return nil, fmt.Errorf("init metrics server: %w", err)
-	}
-	return &Agent{
-		tree:    nil,
-		ctx:     ctx,
-		hc:      hc,
-		metrics: m,
-		cancel:  stop,
-		cfg:     cfg,
-	}, err
-}
 
-func (a *Agent) Serve() {
-	if a.hc != nil {
-		a.hc.Serve()
+	inits := []func(cfg *config.Pipelaner) error{
+		a.initHealthCheck,
+		a.initMetricsServer,
+		a.initPipelaner,
 	}
-	go func() {
-		if a.metrics != nil {
-			err := a.metrics.Serve()
-			if err != nil {
-				panic(err)
-			}
+
+	for _, init := range inits {
+		if err = init(cfg); err != nil {
+			return nil, err
 		}
-	}()
-	t, err := NewTreeFromConfig(a.ctx, a.cfg)
-	if err != nil {
-		panic(fmt.Errorf("init tree from config: %w", err))
 	}
-	a.tree = t
-	<-a.ctx.Done()
+
+	return a, nil
 }
 
-func (a *Agent) Stop() {
+func (a *Agent) initHealthCheck(cfg *config.Pipelaner) error {
+	hcCfg := cfg.Settings.HealthCheck
+	if hcCfg != nil {
+		hc, err := health.NewHealthCheck(cfg)
+		if err != nil {
+			return fmt.Errorf("init health check: %w", err)
+		}
+		a.hc = hc
+	}
+	return nil
+}
+
+func (a *Agent) initMetricsServer(cfg *config.Pipelaner) error {
+	metricsCfg := cfg.Settings.Metrics
+	if metricsCfg != nil {
+		m, err := metrics.NewMetricsServer(metricsCfg)
+		if err != nil {
+			return fmt.Errorf("init metrics server: %w", err)
+		}
+		a.metrics = m
+	}
+	return nil
+}
+
+func (a *Agent) initPipelaner(cfg *config.Pipelaner) error {
+	pipelanerCfg := cfg.Pipelines
+	logCfg := cfg.Settings.Logger
+	metricsCfg := cfg.Settings.Metrics
+	mEnable := false
+	if metricsCfg != nil {
+		mEnable = true
+	}
+	p, err := NewPipelaner(
+		pipelanerCfg,
+		logCfg,
+		mEnable,
+		cfg.Settings.StartGCAfterMessageProcess,
+	)
+	if err != nil {
+		return fmt.Errorf("init pipeliner: %w", err)
+	}
+	a.pipelaner = p
+	return nil
+}
+
+func (a *Agent) Serve(ctx context.Context) error {
+	g := errgroup.Group{}
+	inputsCtx, cancel := context.WithCancel(ctx)
+	a.cancel = cancel
+	if a.hc != nil {
+		g.Go(func() error {
+			return a.hc.Serve(ctx)
+		})
+	}
+	if a.metrics != nil {
+		g.Go(func() error {
+			return a.metrics.Serve(ctx)
+		})
+	}
+
+	g.Go(func() error {
+		return a.pipelaner.Run(inputsCtx)
+	})
+
+	if err := g.Wait(); err != nil {
+		return fmt.Errorf("run agent: %w", err)
+	}
+	return nil
+}
+
+func (a *Agent) Shutdown(ctx context.Context) error {
 	a.cancel()
+	time.Sleep(a.cfg.Settings.GracefulShutdownDelay.GoDuration())
+	if a.metrics != nil {
+		err := a.metrics.Shutdown(ctx)
+		if err != nil {
+			return fmt.Errorf("shutdown metrics: %w", err)
+		}
+	}
+	if a.hc != nil {
+		err := a.hc.Shutdown()
+		if err != nil {
+			return fmt.Errorf("shutdown healthcheck: %w", err)
+		}
+	}
+	return nil
 }

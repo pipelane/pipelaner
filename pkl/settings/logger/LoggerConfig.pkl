@@ -1,0 +1,30 @@
+@go.Package { name = "github.com/pipelane/pipelaner/gen/settings/logger" }
+module com.pipelaner.settings.logger.config
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+
+typealias LogLevel = "error"|"warn"|"info"|"debug"|"trace"
+
+logLevel: LogLevel = "info"
+
+enableConsole: Boolean = true
+
+enableFile: Boolean = false
+
+fileDirectory: String?
+
+fileName: String?
+
+fileMaxSize: DataSize = 100.mb
+
+fileMaxBackups: Int? = 5
+
+fileMaxAge: Int? = 7
+
+fileCompress: Boolean? = false
+
+fileLocalFormat: Boolean? = false
+
+typealias LogFormat = "plain"|"json"
+
+logFormat: LogFormat = "json"

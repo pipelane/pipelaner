@@ -1,0 +1,56 @@
+@go.Package { name = "github.com/pipelane/pipelaner/gen/source/input" }
+module com.pipelaner.source.inputs
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+import ".../source/Common.pkl"
+
+abstract class Input {
+  name: String
+  fixed sourceName: String
+  threads: Int = read?("env:GOMAXPROCS")?.toInt() ?? 1
+  outputBufferSize: Int = 10 * threads
+}
+
+class Cmd extends Input {
+  fixed sourceName = "cmd"
+  exec: Listing<String>
+}
+
+typealias AutoOffsetReset = "earliest"|"latest"
+typealias Strategy = "range"|"round-robin"|"cooperative-sticky"|"sticky"
+
+class Kafka extends Input {
+  fixed sourceName = "kafka"
+  common: Common.Kafka
+  autoCommitEnabled: Boolean = true
+  consumerGroupID: String
+  autoOffsetReset: AutoOffsetReset = "earliest"
+  balancerStrategy: Listing<Strategy> = new Listing<Strategy> {
+    "cooperative-sticky"
+  }
+  // fetchMaxBytes > maxPartitionFetchBytes
+  maxPartitionFetchBytes: DataSize(validateBuffersSizes) = 1.mib
+  fetchMaxBytes: DataSize(validateBuffersSizes) = 50.mib
+  //
+  hidden validateBuffersSizes = (_) ->
+      if (fetchMaxBytes < maxPartitionFetchBytes)
+        throw("'fetchMaxBytes' should be more than 'maxPartitionFetchBytes'")
+      else true
+}
+
+typealias ConnectionType = "unix"|"http2"
+
+class Pipelaner extends Input {
+  fixed sourceName = "pipelaner"
+  commonConfig: Common.Pipelaner(isUnixScoketConnection)?
+  connectionType: ConnectionType = "http2"
+  unixSocketPath: String(isUnixPathSetted)?
+  hidden isUnixPathSetted = (_) ->
+      if (connectionType == "unix" && unixSocketPath == null)
+        throw("if you use unix socket, please set up 'unixSocketPath'")
+      else true
+  hidden isUnixScoketConnection= (_) ->
+      if (connectionType != "unix" && commonConfig == null)
+        throw("if you use http2 socket, please set up 'commonConfig'")
+      else true
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "resolvedDependencies": {
+    "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0": {
+      "type": "remote",
+      "uri": "projectpackage://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.10",
+      "checksums": {
+        "sha256": "a467f41a9bf9a2aaf6318aa4ae9a57455f5d71b1e57ad715c5116a93d77d0a0e"
+      }
+    }
+  }
+}

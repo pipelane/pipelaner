@@ -6,7 +6,7 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/pipelane/pipelaner/source/shared/proto/service";
+option go_package = "github.com/pipelane/pipelaner/sources/shared/proto/service";
 
 package pipelaner.service;
 

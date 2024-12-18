@@ -1,0 +1,43 @@
+@go.Package {name = "github.com/pipelane/pipelaner/gen/source/transform"}
+module com.pipelaner.source.transforms
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+
+abstract class Transform {
+  name: String
+  fixed sourceName: String
+  inputs: Listing<String>
+  threads: Int = read?("env:GOMAXPROCS")?.toInt() ?? 1
+  outputBufferSize: Int = 10 * threads
+}
+
+class Batch extends Transform {
+  fixed sourceName = "batch"
+  size: UInt32
+}
+
+class Chunk extends Transform {
+  fixed sourceName = "chunks"
+  maxChunkSize: UInt32
+  maxIdleTime: Duration
+}
+
+class Debounce extends Transform {
+  fixed sourceName = "debounce"
+  interval: Duration
+}
+
+class Throttling extends Transform {
+  fixed sourceName = "throttling"
+  interval: Duration
+}
+
+class Filter extends Transform {
+  fixed sourceName = "filter"
+  code: String
+}
+
+class Remap extends Transform {
+  fixed sourceName = "remap"
+  code: String
+}
