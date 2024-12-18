@@ -1,7 +1,7 @@
 
 # **Create custom generator/transform/sink in External Projects**
 
-This guide provides detailed instructions on how to integrate **Pkl** with **Pipelaner** in your external projects.
+This guide provides detailed instructions on how to create custom generators/transforms/sinks.
 
 ---
 
@@ -125,7 +125,7 @@ class ExampleConsole extends Sinks.Sink {
 If custom components were created, generate the required code using the following command:
 
 ```shell
-pkl-gen-go pkl/example.pkl
+pkl-gen-go pkl/custom.pkl
 ```
 
 ---
