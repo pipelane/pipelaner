@@ -27,9 +27,9 @@ Replace `x.x.x` with the required version of **Pipelaner**.
 Create a pipeline configuration file (e.g., `config.pkl`) with the following content:
 
 ```pkl
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/Pipelaner.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/source/Components.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/source/sink/Sinks.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/Pipelaner.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/source/Components.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/source/sink/Sinks.pkl"
 import "example.pkl"
 
 pipelines {
@@ -99,9 +99,9 @@ If you need custom components, create an implementation file (e.g., `pkl/custom.
 module pipelaner.source.example
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/source/input/Inputs.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/source/sink/Sinks.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.8#/source/transform/Transforms.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/source/input/Inputs.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/source/sink/Sinks.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/source/transform/Transforms.pkl"
 
 class ExampleGenInt extends Inputs.Input {
   fixed sourceName = "example-generator"

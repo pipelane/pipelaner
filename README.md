@@ -3,7 +3,7 @@
 
 **Pipelaner** is a high-performance and efficient **Framework and Agent** for creating data pipelines. The core of pipeline descriptions is based on the **_Configuration As Code_** concept and the [**Pkl**](https://github.com/apple/pkl) configuration language by **Apple**.
 
-Pipelaner manages data streams through three key entities: **Generator**, **Transform**, and **Sink**.
+Pipelaner manages data streams through three key entities: **Generator**, **Transform** and **Sink**.
 
 ---
 
@@ -20,6 +20,7 @@ Pipelaner manages data streams through three key entities: **Generator**, **Tran
 - [Scalability](#scalability)
   - [Single-Node Deployment](#single-node-deployment)
   - [Multi-Node Deployment](#multi-node-deployment)
+- [Examples](#examples)
 - [Support](#support)
 - [License](#license)
 
@@ -134,6 +135,27 @@ new Sinks.Kafka {
 ```
 
 ---
+## 🚀 **Examples**
+
+| **Examples**                                                                  | **Description**                                         |
+|-------------------------------------------------------------------------------|---------------------------------------------------------|
+| [**Basic Pipeline**](https://github.com/pipelane/pipelaner/tree/main/examples/basic)   | A simple example illustrating the creation of a basic pipeline with prebuilt components.                    |
+| [**Custom Components**](https://github.com/pipelane/pipelaner/tree/main/examples/custom) | An advanced example showing how to create and integrate custom Generators, Transforms, and Sinks. |
+---
+
+### **Overview**
+
+1. **🌟 Basic Pipeline**  
+   Learn the fundamentals of creating a pipeline with minimal configuration using ready-to-use components.
+
+2. **🛠 Custom Components**  
+   Extend **Pipelaner**’s functionality by developing your own Generators, Transforms, and Sinks.
+---
+
+Each example includes clear configuration files and explanations to help you get started quickly.
+
+💡 **Tip**: Use these examples as templates to customize and build your own pipelines efficiently.
+
 
 ## 🤝 **Support**
 

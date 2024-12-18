@@ -27,11 +27,11 @@ Replace `x.x.x` with the required version of **Pipelaner**.
 Create a pipeline configuration file (e.g., `config.pkl`) with the following content:
 
 ```pkl
-amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/Pipelaner.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/Components.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/sink/Sinks.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/input/Inputs.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@0.0.9#/source/transform/Transforms.pkl"
+amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/Pipelaner.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/source/Components.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/source/sink/Sinks.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/source/input/Inputs.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.0#/source/transform/Transforms.pkl"
 
 pipelines {
   new Components.Pipeline {
