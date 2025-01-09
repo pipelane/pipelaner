@@ -19,11 +19,6 @@ class Kafka extends Input {
   }
   maxPartitionFetchBytes: DataSize(validateBuffersSizes) = 1.mib
   fetchMaxBytes: DataSize(validateBuffersSizes) = 50.mib
-
-  hidden validateBuffersSizes = (_) ->
-      if (fetchMaxBytes.value < maxPartitionFetchBytes.value)
-        throw("'fetchMaxBytes' should be more than 'maxPartitionFetchBytes'")
-      else true
 }
 ```
 
@@ -36,24 +31,17 @@ The `common` attribute of the Kafka input component references the **Common.Kafk
 ### **Common.Kafka Config**
 
 ```pkl
-class Kafka {
-  saslEnabled: Boolean = false
-  saslMechanism: SASLMechanism(isSASLMechanizmSetted)?
-  saslUsername: String(isSASLEnabled)?
-  saslPassword: String(isSASLEnabled)?
-  brokers: Listing<String>
-  version: String?
-  topics: Listing<String>
+class KafkaAuth {
+   saslMechanism: SASLMechanism
+   saslUsername: String
+   saslPassword: String
+}
 
-  hidden isSASLMechanizmSetted = (_) ->
-      if (saslEnabled && saslMechanism == null)
-        throw("'saslMechanism' can not be null")
-      else true
-  hidden isSASLEnabled = (_) ->
-      if ((saslEnabled && saslUsername == null && saslPassword == null) ||
-          (saslEnabled && saslUsername == "" && saslPassword == ""))
-        throw("'saslUsername' and 'saslPassword' can not be empty string or null")
-      else true
+class Kafka {
+   saslAuth: KafkaAuth?
+   brokers: Listing<String>
+   version: String?
+   topics: Listing<String>
 }
 ```
 
@@ -61,7 +49,6 @@ class Kafka {
 
 | **Attribute**      | **Type**             | **Description**                                                                                       | **Default Value** |
 |---------------------|----------------------|-------------------------------------------------------------------------------------------------------|--------------------|
-| `saslEnabled`      | `Boolean`           | Enables or disables SASL authentication.                                                             | `false`           |
 | `saslMechanism`    | `SASLMechanism`     | SASL mechanism to use (`SCRAM-SHA-512` or `SCRAM-SHA-256`).                                           | `null`            |
 | `saslUsername`     | `String`            | SASL authentication username.                                                                        | `null`            |
 | `saslPassword`     | `String`            | SASL authentication password.                                                                        | `null`            |
@@ -72,13 +59,13 @@ class Kafka {
 ### **Validations**
 
 1. **SASL Mechanism Validation**
-    - If `saslEnabled` is `true` and `saslMechanism` is not set, the following error is thrown:
+    - If `saslAuth` is not null and `saslMechanism` is not set, the following error is thrown:
       ```
       'saslMechanism' can not be null
       ```
 
 2. **SASL Credentials Validation**
-    - If `saslEnabled` is `true`, both `saslUsername` and `saslPassword` must be provided. Otherwise, the following error is thrown:
+    -  If `saslAuth` is not null, both `saslUsername` and `saslPassword` must be provided. Otherwise, the following error is thrown:
       ```
       'saslUsername' and 'saslPassword' can not be empty string or null
       ```

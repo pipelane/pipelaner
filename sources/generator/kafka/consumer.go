@@ -67,13 +67,13 @@ func NewConsumer(
 		opts = append(opts, kgo.ConsumeResetOffset(kgo.NewOffset().AtEnd()))
 	}
 
-	if cfg.GetCommon().SaslEnabled {
+	if cfg.GetCommon().SaslAuth != nil {
 		auth := scram.Auth{
-			User: *cfg.GetCommon().SaslUsername,
-			Pass: *cfg.GetCommon().SaslPassword,
+			User: cfg.GetCommon().SaslAuth.SaslUsername,
+			Pass: cfg.GetCommon().SaslAuth.SaslPassword,
 		}
 		var authOpt kgo.Opt
-		switch *cfg.GetCommon().SaslMechanism {
+		switch cfg.GetCommon().SaslAuth.SaslMechanism {
 		case saslmechanism.SCRAMSHA512:
 			authOpt = kgo.SASL(auth.AsSha512Mechanism())
 		case saslmechanism.SCRAMSHA256:

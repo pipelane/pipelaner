@@ -31,19 +31,19 @@ func NewProducer(
 		kgo.MaxBufferedRecords(mSize),
 	}
 
-	if cfg.GetCommon().SaslEnabled {
+	if cfg.GetCommon().SaslAuth != nil {
 		auth := scram.Auth{
-			User: *cfg.GetCommon().SaslUsername,
-			Pass: *cfg.GetCommon().SaslPassword,
+			User: cfg.GetCommon().SaslAuth.SaslUsername,
+			Pass: cfg.GetCommon().SaslAuth.SaslPassword,
 		}
 		var authOpt kgo.Opt
-		switch *cfg.GetCommon().SaslMechanism {
+		switch cfg.GetCommon().SaslAuth.SaslMechanism {
 		case saslmechanism.SCRAMSHA512:
 			authOpt = kgo.SASL(auth.AsSha512Mechanism())
 		case saslmechanism.SCRAMSHA256:
 			authOpt = kgo.SASL(auth.AsSha512Mechanism())
 		default:
-			return nil, fmt.Errorf("unknown sasl mechanism: %s", cfg.GetCommon().SaslMechanism)
+			return nil, fmt.Errorf("unknown sasl mechanism: %s", cfg.GetCommon().SaslAuth.SaslMechanism)
 		}
 		opts = append(opts, authOpt)
 	}

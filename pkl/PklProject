@@ -2,7 +2,7 @@ amends "pkl:Project"
 
 package {
   name = "pipelaner"
-  version = "1.0.1"
+  version = "1.0.3"
   baseUri = "package://pipelane.github.com/pipelaner"
   sourceCode = "https://github.com/pipelane/pipelaner"
   packageZipUrl = "https://github.com/pipelane/pipelaner/releases/download/\(name)@\(version)/\(name)@\(version).zip"
