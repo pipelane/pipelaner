@@ -1,7 +1,7 @@
 @go.Package { name = "github.com/pipelane/pipelaner/gen/source/input" }
 module com.pipelaner.source.inputs
 
-import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.8.1#/go.pkl"
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.9.0#/go.pkl"
 import ".../source/Common.pkl"
 
 abstract class Input {
@@ -33,7 +33,7 @@ class Kafka extends Input {
   fetchMaxBytes: DataSize(validateBuffersSizes) = 50.mib
   //
   hidden validateBuffersSizes = (_) ->
-      if (fetchMaxBytes < maxPartitionFetchBytes)
+      if (fetchMaxBytes.value < maxPartitionFetchBytes.value)
         throw("'fetchMaxBytes' should be more than 'maxPartitionFetchBytes'")
       else true
 }
