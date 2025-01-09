@@ -21,7 +21,7 @@ class Kafka extends Input {
   fetchMaxBytes: DataSize(validateBuffersSizes) = 50.mib
 
   hidden validateBuffersSizes = (_) ->
-      if (fetchMaxBytes < maxPartitionFetchBytes)
+      if (fetchMaxBytes.value < maxPartitionFetchBytes.value)
         throw("'fetchMaxBytes' should be more than 'maxPartitionFetchBytes'")
       else true
 }

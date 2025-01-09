@@ -20,7 +20,7 @@ proto:
 
 .PHONY: install-pkl-go
 install-pkl-go:
-	go install github.com/apple/pkl-go/cmd/pkl-gen-go@v0.8.1
+	go install github.com/apple/pkl-go/cmd/pkl-gen-go@v0.9.0
 
 .PHONY: pkl-generate-go
 pkl-generate-go:
