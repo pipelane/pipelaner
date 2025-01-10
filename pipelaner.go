@@ -12,6 +12,7 @@ import (
 	logCfg "github.com/pipelane/pipelaner/gen/settings/logger"
 	"github.com/pipelane/pipelaner/internal/logger"
 	pipelines "github.com/pipelane/pipelaner/pipeline"
+	"github.com/rs/zerolog"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -21,6 +22,7 @@ type pipeline interface {
 
 type Pipelaner struct {
 	Pipelines []pipeline
+	l         *zerolog.Logger
 }
 
 func NewPipelaner(
@@ -44,6 +46,7 @@ func NewPipelaner(
 
 	return &Pipelaner{
 		Pipelines: pl,
+		l:         l,
 	}, nil
 }
 
@@ -51,7 +54,12 @@ func (p *Pipelaner) Run(ctx context.Context) error {
 	gr := errgroup.Group{}
 	for _, pipe := range p.Pipelines {
 		gr.Go(func() error {
-			return pipe.Run(ctx)
+			err := pipe.Run(ctx)
+			if err != nil {
+				p.l.Panic().Err(err).Msg("pipeline run")
+				return err
+			}
+			return nil
 		})
 	}
 	return gr.Wait()
