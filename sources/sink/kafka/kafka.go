@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	source.RegisterSink("kafka-producer", &Kafka{})
+	source.RegisterSink("kafka", &Kafka{})
 }
 
 type Kafka struct {
