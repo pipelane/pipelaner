@@ -40,6 +40,7 @@ func (c *Clickhouse) Init(cfg sink.Sink) error {
 		return fmt.Errorf("init clickhouse client: %w", err)
 	}
 	c.client = cli
+	c.clickConfig = clickCfg
 	return nil
 }
 

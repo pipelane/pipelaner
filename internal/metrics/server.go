@@ -35,7 +35,10 @@ func NewMetricsServer(cfg *metrics.Config) (*Server, error) {
 }
 
 func (m *Server) Serve(_ context.Context) error {
-	return m.server.ListenAndServe()
+	if err := m.server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		return err
+	}
+	return nil
 }
 
 func (m *Server) Shutdown(ctx context.Context) error {

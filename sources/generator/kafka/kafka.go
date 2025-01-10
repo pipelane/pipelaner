@@ -6,6 +6,7 @@ package kafka
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/pipelane/pipelaner/gen/source/input"
@@ -46,6 +47,9 @@ func (c *Kafka) Generate(ctx context.Context, input chan<- any) {
 			input <- record.Value
 			return nil
 		})
+		if errors.Is(err, context.Canceled) {
+			break
+		}
 		if err != nil {
 			l.Error().Err(err).Msg("consume error")
 		}
