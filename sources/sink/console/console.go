@@ -10,7 +10,7 @@ import (
 	config "github.com/pipelane/pipelaner/gen/settings/logger"
 	"github.com/pipelane/pipelaner/gen/settings/logger/loglevel"
 	"github.com/pipelane/pipelaner/gen/source/sink"
-	logger "github.com/pipelane/pipelaner/internal/logger"
+	"github.com/pipelane/pipelaner/internal/logger"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	"github.com/rs/zerolog"
 )
