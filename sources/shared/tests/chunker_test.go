@@ -38,7 +38,7 @@ func TestChunks(t *testing.T) {
 			chunk := chunker.NewChunks(tt.args.cfg)
 			chunk.Generator()
 			go func() {
-				for i := 0; i < tt.args.cfg.BufferSize; i++ {
+				for i := 0; i < int(tt.args.cfg.BufferSize); i++ {
 					chunk.SetValue(i)
 				}
 				chunk.Stop()
@@ -87,7 +87,7 @@ func TestChunksOfChunks(t *testing.T) {
 				ch := make(chan any, tt.args.cfg.BufferSize)
 				var slice []any
 				tStruct := testStructs{}
-				for i := 0; i < tt.args.cfg.BufferSize; i++ {
+				for i := 0; i < int(tt.args.cfg.BufferSize); i++ {
 					slice = append(slice, i)
 				}
 				tStruct.val = slice

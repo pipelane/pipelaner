@@ -14,23 +14,9 @@ type Config struct {
 
 	EnableConsole bool `pkl:"enableConsole"`
 
-	EnableFile bool `pkl:"enableFile"`
-
-	FileDirectory *string `pkl:"fileDirectory"`
-
-	FileName *string `pkl:"fileName"`
-
-	FileMaxSize *pkl.DataSize `pkl:"fileMaxSize"`
-
-	FileMaxBackups *int `pkl:"fileMaxBackups"`
-
-	FileMaxAge *int `pkl:"fileMaxAge"`
-
-	FileCompress *bool `pkl:"fileCompress"`
-
-	FileLocalFormat *bool `pkl:"fileLocalFormat"`
-
 	LogFormat logformat.LogFormat `pkl:"logFormat"`
+
+	FileParams *WriteFileParams `pkl:"fileParams"`
 }
 
 // LoadFromPath loads the pkl module at the given path and evaluates it into a Config

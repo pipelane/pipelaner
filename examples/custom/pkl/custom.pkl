@@ -2,9 +2,9 @@
 module pipelaner.source.examples.custom
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.9.0#/go.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.3#/source/input/Inputs.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.3#/source/sink/Sinks.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.3#/source/transform/Transforms.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.4#/source/input/Inputs.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.4#/source/sink/Sinks.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.4#/source/transform/Transforms.pkl"
 
 class ExampleGenInt extends Inputs.Input {
   fixed sourceName = "example-generator"

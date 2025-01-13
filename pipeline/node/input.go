@@ -25,7 +25,7 @@ const (
 
 type inputNodeCfg struct {
 	name          string
-	outBufferSize int
+	outBufferSize uint
 
 	*nodeCfg
 }
@@ -88,7 +88,7 @@ func (i *Input) GetName() string {
 	return i.cfg.name
 }
 
-func (i *Input) GetOutputBufferSize() int {
+func (i *Input) GetOutputBufferSize() uint {
 	return i.cfg.outBufferSize
 }
 
@@ -97,7 +97,7 @@ func (i *Input) Run(ctx context.Context) error {
 		return errors.New("no output channels configured")
 	}
 
-	input := make(chan any, i.cfg.outBufferSize*len(i.outChannels))
+	input := make(chan any, i.cfg.outBufferSize*uint(len(i.outChannels)))
 
 	go func() {
 		defer func() {

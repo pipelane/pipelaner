@@ -7,9 +7,9 @@ import ".../settings/logger/LoggerConfig.pkl"
 
 abstract class Sink {
   name: String(!isEmpty)
-  fixed sourceName: String
+  fixed sourceName: String(!isEmpty)
   inputs: Listing<String>(length > 0)
-  threads: Int = read?("env:GOMAXPROCS")?.toInt() ?? 1
+  threads: UInt(this >= 1) = read?("env:GOMAXPROCS")?.toInt() ?? 8
 }
 
 class Console extends Sink {

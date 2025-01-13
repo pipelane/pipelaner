@@ -23,7 +23,7 @@ type (
 		AddOutputChannel(ch chan any)
 
 		GetName() string
-		GetOutputBufferSize() int
+		GetOutputBufferSize() uint
 	}
 
 	transformNode interface {
@@ -33,7 +33,7 @@ type (
 
 		GetName() string
 		GetInputs() []string
-		GetOutputBufferSize() int
+		GetOutputBufferSize() uint
 	}
 
 	sinkNode interface {

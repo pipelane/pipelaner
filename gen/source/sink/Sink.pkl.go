@@ -8,5 +8,5 @@ type Sink interface {
 
 	GetInputs() []string
 
-	GetThreads() int
+	GetThreads() uint
 }

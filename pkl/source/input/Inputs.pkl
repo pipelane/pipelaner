@@ -6,9 +6,9 @@ import ".../source/Common.pkl"
 
 abstract class Input {
   name: String(!isEmpty)
-  fixed sourceName: String
-  threads: Int = read?("env:GOMAXPROCS")?.toInt() ?? 1
-  outputBufferSize: Int = 10 * threads
+  fixed sourceName: String(!isEmpty)
+  threads: UInt(this >= 1) = read?("env:GOMAXPROCS")?.toInt() ?? 1
+  outputBufferSize: UInt(this >= 1) = 10 * threads
 }
 
 class Cmd extends Input {

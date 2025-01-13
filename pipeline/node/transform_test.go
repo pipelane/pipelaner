@@ -47,11 +47,11 @@ func (t *testTransformCfgImpl) GetSourceName() string {
 	return "test_transform"
 }
 
-func (t *testTransformCfgImpl) GetThreads() int {
+func (t *testTransformCfgImpl) GetThreads() uint {
 	return 1
 }
 
-func (t *testTransformCfgImpl) GetOutputBufferSize() int {
+func (t *testTransformCfgImpl) GetOutputBufferSize() uint {
 	return 1
 }
 

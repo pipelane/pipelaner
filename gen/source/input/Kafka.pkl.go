@@ -47,9 +47,9 @@ type KafkaImpl struct {
 
 	Name string `pkl:"name"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 
-	OutputBufferSize int `pkl:"outputBufferSize"`
+	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
 func (rcv *KafkaImpl) GetSourceName() string {
@@ -88,10 +88,10 @@ func (rcv *KafkaImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *KafkaImpl) GetThreads() int {
+func (rcv *KafkaImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *KafkaImpl) GetOutputBufferSize() int {
+func (rcv *KafkaImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

@@ -23,7 +23,7 @@ const (
 type sinkNodeCfg struct {
 	name         string
 	inputs       []string
-	threadsCount int
+	threadsCount uint
 
 	*nodeCfg
 }

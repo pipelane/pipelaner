@@ -27,8 +27,8 @@ const (
 type transformNodeCfg struct {
 	name          string
 	inputs        []string
-	threadsCount  int
-	outBufferSize int
+	threadsCount  uint
+	outBufferSize uint
 
 	*nodeCfg
 }
@@ -111,7 +111,7 @@ func (t *Transform) GetName() string {
 	return t.cfg.name
 }
 
-func (t *Transform) GetOutputBufferSize() int {
+func (t *Transform) GetOutputBufferSize() uint {
 	return t.cfg.outBufferSize
 }
 

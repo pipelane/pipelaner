@@ -58,11 +58,11 @@ func (t *testInputCfgImpl) GetSourceName() string {
 	return "test_input"
 }
 
-func (t *testInputCfgImpl) GetThreads() int {
+func (t *testInputCfgImpl) GetThreads() uint {
 	return 1
 }
 
-func (t *testInputCfgImpl) GetOutputBufferSize() int {
+func (t *testInputCfgImpl) GetOutputBufferSize() uint {
 	return 1
 }
 

@@ -10,7 +10,7 @@ import (
 type Config struct {
 	Host string `pkl:"host"`
 
-	Port int `pkl:"port"`
+	Port uint `pkl:"port"`
 
 	Path string `pkl:"path"`
 

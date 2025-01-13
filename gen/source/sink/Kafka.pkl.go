@@ -35,7 +35,7 @@ type KafkaImpl struct {
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 }
 
 func (rcv *KafkaImpl) GetSourceName() string {
@@ -66,6 +66,6 @@ func (rcv *KafkaImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *KafkaImpl) GetThreads() int {
+func (rcv *KafkaImpl) GetThreads() uint {
 	return rcv.Threads
 }

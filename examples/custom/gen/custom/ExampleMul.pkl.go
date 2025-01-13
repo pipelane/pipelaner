@@ -20,9 +20,9 @@ type ExampleMulImpl struct {
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 
-	OutputBufferSize int `pkl:"outputBufferSize"`
+	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
 func (rcv *ExampleMulImpl) GetSourceName() string {
@@ -41,10 +41,10 @@ func (rcv *ExampleMulImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *ExampleMulImpl) GetThreads() int {
+func (rcv *ExampleMulImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *ExampleMulImpl) GetOutputBufferSize() int {
+func (rcv *ExampleMulImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

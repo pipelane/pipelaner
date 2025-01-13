@@ -12,8 +12,8 @@ import (
 )
 
 type Config struct {
-	MaxChunkSize int
-	BufferSize   int
+	MaxChunkSize uint
+	BufferSize   uint
 	MaxIdleTime  time.Duration
 }
 type Chunks struct {

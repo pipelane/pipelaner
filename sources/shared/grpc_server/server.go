@@ -22,7 +22,7 @@ const (
 
 type ServerConfig struct {
 	Host           string
-	Port           int
+	Port           uint
 	ConnectionType string
 	UnixSocketPath *string
 	Opts           []grpc.ServerOption

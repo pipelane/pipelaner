@@ -8,7 +8,7 @@ type Semaphore struct {
 	c chan struct{}
 }
 
-func NewSemaphore(n int) *Semaphore {
+func NewSemaphore(n uint) *Semaphore {
 	return &Semaphore{make(chan struct{}, n)}
 }
 
