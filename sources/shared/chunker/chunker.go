@@ -12,8 +12,8 @@ import (
 )
 
 type Config struct {
-	MaxChunkSize int
-	BufferSize   int
+	MaxChunkSize uint
+	BufferSize   uint
 	MaxIdleTime  time.Duration
 }
 type Chunks struct {
@@ -78,7 +78,7 @@ func (c *Chunks) Generator() {
 
 func (c *Chunks) startProcessing(onClose chan struct{}, timer *time.Timer) {
 	buffer := c.NewChunk()
-	counter := atomic.Int64{}
+	counter := atomic.Uint64{}
 	counter.Store(0)
 Loop:
 	for {
@@ -101,7 +101,7 @@ Loop:
 			timer.Reset(c.Cfg.MaxIdleTime)
 			buffer <- msg
 			counter.Add(1)
-			if counter.Load() == int64(c.Cfg.MaxChunkSize) {
+			if uint(counter.Load()) == c.Cfg.MaxChunkSize {
 				close(buffer)
 				counter.Store(0)
 				buffer = c.NewChunk()

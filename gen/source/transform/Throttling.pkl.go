@@ -20,9 +20,9 @@ type ThrottlingImpl struct {
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 
-	OutputBufferSize int `pkl:"outputBufferSize"`
+	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
 func (rcv *ThrottlingImpl) GetSourceName() string {
@@ -41,10 +41,10 @@ func (rcv *ThrottlingImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *ThrottlingImpl) GetThreads() int {
+func (rcv *ThrottlingImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *ThrottlingImpl) GetOutputBufferSize() int {
+func (rcv *ThrottlingImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

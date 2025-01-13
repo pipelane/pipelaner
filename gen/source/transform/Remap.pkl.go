@@ -18,9 +18,9 @@ type RemapImpl struct {
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 
-	OutputBufferSize int `pkl:"outputBufferSize"`
+	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
 func (rcv *RemapImpl) GetSourceName() string {
@@ -39,10 +39,10 @@ func (rcv *RemapImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *RemapImpl) GetThreads() int {
+func (rcv *RemapImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *RemapImpl) GetOutputBufferSize() int {
+func (rcv *RemapImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

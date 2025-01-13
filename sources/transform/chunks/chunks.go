@@ -29,7 +29,7 @@ func (c *Chunk) Init(cfg transform.Transform) error {
 	}
 
 	c.buffer = chunker.NewChunks(chunker.Config{
-		MaxChunkSize: int(chunkCfg.GetMaxChunkSize()),
+		MaxChunkSize: chunkCfg.GetMaxChunkSize(),
 		BufferSize:   chunkCfg.GetOutputBufferSize(),
 		MaxIdleTime:  chunkCfg.GetMaxIdleTime().GoDuration(),
 	})

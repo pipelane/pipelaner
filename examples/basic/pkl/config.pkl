@@ -1,8 +1,8 @@
-amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.3#/Pipelaner.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.3#/source/Components.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.3#/source/sink/Sinks.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.3#/source/input/Inputs.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.3#/source/transform/Transforms.pkl"
+amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.4#/Pipelaner.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.4#/source/Components.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.4#/source/sink/Sinks.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.4#/source/input/Inputs.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.4#/source/transform/Transforms.pkl"
 
 pipelines {
   new Components.Pipeline {

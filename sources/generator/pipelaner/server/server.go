@@ -42,7 +42,7 @@ func (s *PipelanerServer) SinkStream(stream service.Pipelaner_SinkStreamServer) 
 	return nil
 }
 
-func NewServer(logger *zerolog.Logger, bufferSize int64) *PipelanerServer {
+func NewServer(logger *zerolog.Logger, bufferSize uint) *PipelanerServer {
 	s := &PipelanerServer{logger: logger, buffer: make(chan *service.Message, bufferSize)}
 	return s
 }

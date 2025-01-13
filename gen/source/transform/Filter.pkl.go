@@ -18,9 +18,9 @@ type FilterImpl struct {
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 
-	OutputBufferSize int `pkl:"outputBufferSize"`
+	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
 func (rcv *FilterImpl) GetSourceName() string {
@@ -39,10 +39,10 @@ func (rcv *FilterImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *FilterImpl) GetThreads() int {
+func (rcv *FilterImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *FilterImpl) GetOutputBufferSize() int {
+func (rcv *FilterImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

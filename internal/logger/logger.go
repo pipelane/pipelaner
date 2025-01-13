@@ -40,7 +40,7 @@ func NewLoggerWithCfg(cfg *logger.Config) (*zerolog.Logger, error) {
 			})
 		}
 	}
-	if cfg.EnableFile {
+	if cfg.FileParams != nil {
 		writers = append(writers, newRollingFile(cfg))
 	}
 	mw := io.MultiWriter(writers...)
@@ -54,11 +54,11 @@ func NewLoggerWithCfg(cfg *logger.Config) (*zerolog.Logger, error) {
 
 func newRollingFile(cfg *logger.Config) io.Writer {
 	return &lumberjack.Logger{
-		Filename:   path.Join(*cfg.FileDirectory, *cfg.FileName),
-		MaxBackups: *cfg.FileMaxBackups,
-		MaxSize:    int(cfg.FileMaxSize.ToUnit(pkl.Megabytes).Value),
-		MaxAge:     *cfg.FileMaxAge,
-		Compress:   *cfg.FileCompress,
-		LocalTime:  *cfg.FileLocalFormat,
+		Filename:   path.Join(cfg.FileParams.Directory, cfg.FileParams.Name),
+		MaxBackups: cfg.FileParams.MaxBackups,
+		MaxSize:    int(cfg.FileParams.MaxSize.ToUnit(pkl.Megabytes).Value),
+		MaxAge:     cfg.FileParams.MaxAge,
+		Compress:   cfg.FileParams.Compress,
+		LocalTime:  cfg.FileParams.LocalFormat,
 	}
 }

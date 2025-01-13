@@ -18,9 +18,9 @@ type ExampleGenIntImpl struct {
 
 	Name string `pkl:"name"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 
-	OutputBufferSize int `pkl:"outputBufferSize"`
+	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
 func (rcv *ExampleGenIntImpl) GetSourceName() string {
@@ -35,10 +35,10 @@ func (rcv *ExampleGenIntImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *ExampleGenIntImpl) GetThreads() int {
+func (rcv *ExampleGenIntImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *ExampleGenIntImpl) GetOutputBufferSize() int {
+func (rcv *ExampleGenIntImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

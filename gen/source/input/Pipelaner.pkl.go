@@ -29,9 +29,9 @@ type PipelanerImpl struct {
 
 	Name string `pkl:"name"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 
-	OutputBufferSize int `pkl:"outputBufferSize"`
+	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
 func (rcv *PipelanerImpl) GetSourceName() string {
@@ -54,10 +54,10 @@ func (rcv *PipelanerImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *PipelanerImpl) GetThreads() int {
+func (rcv *PipelanerImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *PipelanerImpl) GetOutputBufferSize() int {
+func (rcv *PipelanerImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

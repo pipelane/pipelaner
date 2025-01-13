@@ -4,7 +4,7 @@ package transform
 type Batch interface {
 	Transform
 
-	GetSize() uint32
+	GetSize() uint
 }
 
 var _ Batch = (*BatchImpl)(nil)
@@ -12,22 +12,22 @@ var _ Batch = (*BatchImpl)(nil)
 type BatchImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	Size uint32 `pkl:"size"`
+	Size uint `pkl:"size"`
 
 	Name string `pkl:"name"`
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 
-	OutputBufferSize int `pkl:"outputBufferSize"`
+	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
 func (rcv *BatchImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *BatchImpl) GetSize() uint32 {
+func (rcv *BatchImpl) GetSize() uint {
 	return rcv.Size
 }
 
@@ -39,10 +39,10 @@ func (rcv *BatchImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *BatchImpl) GetThreads() int {
+func (rcv *BatchImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *BatchImpl) GetOutputBufferSize() int {
+func (rcv *BatchImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

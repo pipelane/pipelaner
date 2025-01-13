@@ -20,7 +20,7 @@ type PipelanerImpl struct {
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 }
 
 func (rcv *PipelanerImpl) GetSourceName() string {
@@ -39,6 +39,6 @@ func (rcv *PipelanerImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *PipelanerImpl) GetThreads() int {
+func (rcv *PipelanerImpl) GetThreads() uint {
 	return rcv.Threads
 }

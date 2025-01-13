@@ -20,9 +20,9 @@ type DebounceImpl struct {
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 
-	OutputBufferSize int `pkl:"outputBufferSize"`
+	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
 func (rcv *DebounceImpl) GetSourceName() string {
@@ -41,10 +41,10 @@ func (rcv *DebounceImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *DebounceImpl) GetThreads() int {
+func (rcv *DebounceImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *DebounceImpl) GetOutputBufferSize() int {
+func (rcv *DebounceImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

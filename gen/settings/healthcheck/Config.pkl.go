@@ -10,7 +10,7 @@ import (
 type Config struct {
 	Host string `pkl:"host"`
 
-	Port int `pkl:"port"`
+	Port uint `pkl:"port"`
 }
 
 // LoadFromPath loads the pkl module at the given path and evaluates it into a Config

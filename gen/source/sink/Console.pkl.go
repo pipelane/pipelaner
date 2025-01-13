@@ -20,7 +20,7 @@ type ConsoleImpl struct {
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 }
 
 func (rcv *ConsoleImpl) GetSourceName() string {
@@ -39,6 +39,6 @@ func (rcv *ConsoleImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *ConsoleImpl) GetThreads() int {
+func (rcv *ConsoleImpl) GetThreads() uint {
 	return rcv.Threads
 }

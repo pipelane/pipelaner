@@ -6,7 +6,7 @@ import "github.com/apple/pkl-go/pkl"
 type Chunk interface {
 	Transform
 
-	GetMaxChunkSize() uint32
+	GetMaxChunkSize() uint
 
 	GetMaxIdleTime() *pkl.Duration
 }
@@ -16,7 +16,7 @@ var _ Chunk = (*ChunkImpl)(nil)
 type ChunkImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	MaxChunkSize uint32 `pkl:"maxChunkSize"`
+	MaxChunkSize uint `pkl:"maxChunkSize"`
 
 	MaxIdleTime *pkl.Duration `pkl:"maxIdleTime"`
 
@@ -24,16 +24,16 @@ type ChunkImpl struct {
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 
-	OutputBufferSize int `pkl:"outputBufferSize"`
+	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
 func (rcv *ChunkImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *ChunkImpl) GetMaxChunkSize() uint32 {
+func (rcv *ChunkImpl) GetMaxChunkSize() uint {
 	return rcv.MaxChunkSize
 }
 
@@ -49,10 +49,10 @@ func (rcv *ChunkImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *ChunkImpl) GetThreads() int {
+func (rcv *ChunkImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *ChunkImpl) GetOutputBufferSize() int {
+func (rcv *ChunkImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

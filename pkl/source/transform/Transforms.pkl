@@ -5,20 +5,20 @@ import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.9.0#/go.pkl"
 
 abstract class Transform {
   name: String(!isEmpty)
-  fixed sourceName: String
+  fixed sourceName: String(!isEmpty)
   inputs: Listing<String>(length > 0)
-  threads: Int = read?("env:GOMAXPROCS")?.toInt() ?? 1
-  outputBufferSize: Int = 10 * threads
+  threads: UInt(this >= 1) = read?("env:GOMAXPROCS")?.toInt() ?? 8
+  outputBufferSize: UInt(this >= 1) = 10 * threads
 }
 
 class Batch extends Transform {
   fixed sourceName = "batch"
-  size: UInt32
+  size: UInt(this < 0)
 }
 
 class Chunk extends Transform {
   fixed sourceName = "chunks"
-  maxChunkSize: UInt32
+  maxChunkSize: UInt(this > 0)
   maxIdleTime: Duration
 }
 

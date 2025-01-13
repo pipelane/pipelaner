@@ -25,6 +25,6 @@ class TLSConfig {
 
 class Pipelaner {
   host: String = "localhost"
-  port: Int(this > 0)
+  port: UInt(this > 0)
   tls: TLSConfig?
 }

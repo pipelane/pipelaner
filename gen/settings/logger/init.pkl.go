@@ -5,4 +5,5 @@ import "github.com/apple/pkl-go/pkl"
 
 func init() {
 	pkl.RegisterMapping("com.pipelaner.settings.logger.config", Config{})
+	pkl.RegisterMapping("com.pipelaner.settings.logger.config#WriteFileParams", WriteFileParams{})
 }

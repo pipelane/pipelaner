@@ -24,7 +24,7 @@ type HttpImpl struct {
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 }
 
 func (rcv *HttpImpl) GetSourceName() string {
@@ -47,6 +47,6 @@ func (rcv *HttpImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *HttpImpl) GetThreads() int {
+func (rcv *HttpImpl) GetThreads() uint {
 	return rcv.Threads
 }

@@ -21,10 +21,9 @@ type Config struct {
 }
 
 type Batch struct {
-	mx sync.Mutex
-	ch chan any
-
-	size uint32
+	mx   sync.Mutex
+	ch   chan any
+	size uint
 }
 
 func (b *Batch) Init(cfg transform.Transform) error {

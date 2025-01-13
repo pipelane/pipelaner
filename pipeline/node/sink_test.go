@@ -71,7 +71,7 @@ func (s *fileSinkCollector) Sink(value any) {
 // configuration for fileSinkCollector.
 type fileSinkCfgImpl struct {
 	outFilePath string
-	threads     int
+	threads     uint
 }
 
 func (s *fileSinkCfgImpl) GetName() string {
@@ -82,7 +82,7 @@ func (s *fileSinkCfgImpl) GetSourceName() string {
 	return "test_file"
 }
 
-func (s *fileSinkCfgImpl) GetThreads() int {
+func (s *fileSinkCfgImpl) GetThreads() uint {
 	return s.threads
 }
 

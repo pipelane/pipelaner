@@ -3,6 +3,6 @@ module com.pipelaner.settings.healthcheck.config
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.9.0#/go.pkl"
 
-host: String = "localhost"
+host: String = ""
 
-port: Int(this > 0) = 82
+port: UInt(this > 0) = 82

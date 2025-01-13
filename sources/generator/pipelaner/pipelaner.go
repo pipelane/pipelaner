@@ -51,7 +51,7 @@ func (p *Pipelaner) Init(cfg input.Input) error {
 		UnixSocketPath: c.GetUnixSocketPath(),
 		Opts:           opts,
 	}, &l)
-	p.srv = server.NewServer(&l, int64(c.GetOutputBufferSize()))
+	p.srv = server.NewServer(&l, c.GetOutputBufferSize())
 	err := serv.Serve(func(s *grpc.Server) {
 		service.RegisterPipelanerServer(s, p.srv)
 	})

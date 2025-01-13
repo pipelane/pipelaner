@@ -42,7 +42,7 @@ type ClickhouseImpl struct {
 
 	Inputs []string `pkl:"inputs"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 }
 
 func (rcv *ClickhouseImpl) GetSourceName() string {
@@ -85,6 +85,6 @@ func (rcv *ClickhouseImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *ClickhouseImpl) GetThreads() int {
+func (rcv *ClickhouseImpl) GetThreads() uint {
 	return rcv.Threads
 }

@@ -4,27 +4,19 @@ module com.pipelaner.settings.logger.config
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.9.0#/go.pkl"
 
 typealias LogLevel = "error"|"warn"|"info"|"debug"|"trace"
-
-logLevel: LogLevel = "info"
-
-enableConsole: Boolean = true
-
-enableFile: Boolean = false
-
-fileDirectory: String?
-
-fileName: String?
-
-fileMaxSize: DataSize = 100.mb
-
-fileMaxBackups: Int? = 5
-
-fileMaxAge: Int? = 7
-
-fileCompress: Boolean? = false
-
-fileLocalFormat: Boolean? = false
-
 typealias LogFormat = "plain"|"json"
 
+class WriteFileParams {
+  directory: String
+  name: String
+  maxSize: DataSize = 100.mb
+  maxBackups: Int = 5
+  maxAge: Int = 7
+  compress: Boolean = false
+  localFormat: Boolean = false
+}
+
+logLevel: LogLevel = "info"
+enableConsole: Boolean = true
 logFormat: LogFormat = "json"
+fileParams: WriteFileParams?

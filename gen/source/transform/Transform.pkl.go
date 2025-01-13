@@ -8,7 +8,7 @@ type Transform interface {
 
 	GetInputs() []string
 
-	GetThreads() int
+	GetThreads() uint
 
-	GetOutputBufferSize() int
+	GetOutputBufferSize() uint
 }

@@ -6,7 +6,7 @@ type Input interface {
 
 	GetSourceName() string
 
-	GetThreads() int
+	GetThreads() uint
 
-	GetOutputBufferSize() int
+	GetOutputBufferSize() uint
 }

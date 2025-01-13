@@ -4,7 +4,7 @@ package common
 type Pipelaner struct {
 	Host string `pkl:"host"`
 
-	Port int `pkl:"port"`
+	Port uint `pkl:"port"`
 
 	Tls *TLSConfig `pkl:"tls"`
 }

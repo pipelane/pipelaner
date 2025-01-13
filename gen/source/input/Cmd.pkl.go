@@ -16,9 +16,9 @@ type CmdImpl struct {
 
 	Name string `pkl:"name"`
 
-	Threads int `pkl:"threads"`
+	Threads uint `pkl:"threads"`
 
-	OutputBufferSize int `pkl:"outputBufferSize"`
+	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
 func (rcv *CmdImpl) GetSourceName() string {
@@ -33,10 +33,10 @@ func (rcv *CmdImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *CmdImpl) GetThreads() int {
+func (rcv *CmdImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *CmdImpl) GetOutputBufferSize() int {
+func (rcv *CmdImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }
