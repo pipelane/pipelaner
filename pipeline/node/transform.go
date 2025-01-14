@@ -154,6 +154,7 @@ func (t *Transform) Run() error {
 					}
 					t.preSendMessageAction(len(ch), cap(ch))
 					ch <- mes
+					t.postSinkAction()
 				}
 			}()
 		}
@@ -205,10 +206,13 @@ func (t *Transform) prepareMessage(msg any) (any, error) {
 
 func (t *Transform) preSendMessageAction(length, capacity int) {
 	if t.cfg.enableMetrics {
-		metrics.TotalMessagesCount.WithLabelValues(transformNodeType, t.cfg.name)
+		metrics.TotalMessagesCount.WithLabelValues(transformNodeType, t.cfg.name).Inc()
 		metrics.BufferLength.WithLabelValues(transformNodeType, t.cfg.name).Set(float64(length))
 		metrics.BufferCapacity.WithLabelValues(transformNodeType, t.cfg.name).Set(float64(capacity))
 	}
+}
+
+func (t *Transform) postSinkAction() {
 	if t.cfg.callGC {
 		runtime.GC()
 	}

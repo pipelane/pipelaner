@@ -115,6 +115,7 @@ func (i *Input) Run(ctx context.Context) error {
 				}
 				i.preSendMessageAction(len(input), len(input))
 				ch <- m
+				i.postSinkAction()
 			}
 		}
 		i.logger.Debug().Msg("input channel closed")
@@ -161,6 +162,9 @@ func (i *Input) preSendMessageAction(length, capacity int) {
 		metrics.BufferLength.WithLabelValues(inputNodeType, i.cfg.name).Set(float64(length))
 		metrics.BufferCapacity.WithLabelValues(inputNodeType, i.cfg.name).Set(float64(capacity))
 	}
+}
+
+func (i *Input) postSinkAction() {
 	if i.cfg.callGC {
 		runtime.GC()
 	}

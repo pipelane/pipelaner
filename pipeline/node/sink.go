@@ -7,6 +7,7 @@ package node
 import (
 	"errors"
 	"fmt"
+	"runtime"
 
 	configsink "github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/internal/metrics"
@@ -121,11 +122,12 @@ func (s *Sink) preSinkAction(length, capacity int) {
 	if s.cfg.enableMetrics {
 		metrics.BufferLength.WithLabelValues(sinkNodeType, s.cfg.name).Set(float64(length))
 		metrics.BufferCapacity.WithLabelValues(sinkNodeType, s.cfg.name).Set(float64(capacity))
+		metrics.TotalMessagesCount.WithLabelValues(sinkNodeType, s.cfg.name).Inc()
 	}
 }
 
 func (s *Sink) postSinkAction() {
 	if s.cfg.callGC {
-		metrics.TotalMessagesCount.WithLabelValues(sinkNodeType, s.cfg.name).Inc()
+		runtime.GC()
 	}
 }
