@@ -47,4 +47,12 @@ class Http extends Sink {
   fixed sourceName = "http"
   url: String(!isEmpty)
   method: Method
+  headers: Mapping<String, String>?
+}
+
+
+hh = new Mapping {
+  ["Authorization"] {
+    "Bearer \(read("env:"))"
+  }
 }
