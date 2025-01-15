@@ -9,6 +9,8 @@ type Http interface {
 	GetUrl() string
 
 	GetMethod() method.Method
+
+	GetHeaders() *map[string]string
 }
 
 var _ Http = (*HttpImpl)(nil)
@@ -19,6 +21,8 @@ type HttpImpl struct {
 	Url string `pkl:"url"`
 
 	Method method.Method `pkl:"method"`
+
+	Headers *map[string]string `pkl:"headers"`
 
 	Name string `pkl:"name"`
 
@@ -37,6 +41,10 @@ func (rcv *HttpImpl) GetUrl() string {
 
 func (rcv *HttpImpl) GetMethod() method.Method {
 	return rcv.Method
+}
+
+func (rcv *HttpImpl) GetHeaders() *map[string]string {
+	return rcv.Headers
 }
 
 func (rcv *HttpImpl) GetName() string {

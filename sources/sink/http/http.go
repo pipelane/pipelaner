@@ -29,7 +29,6 @@ func (c *Client) Init(cfg sink.Sink) error {
 	if !ok {
 		return fmt.Errorf("invalid http client config %T", cfg)
 	}
-
 	c.cfg = httpCfg
 	c.cli = resty.New()
 	return nil
@@ -40,6 +39,9 @@ func (c *Client) Sink(val any) {
 	switch c.cfg.GetMethod() {
 	case method.POST, method.PUT, method.PATCH, method.DELETE:
 		r.SetBody(val)
+	}
+	if c.cfg.GetHeaders() != nil {
+		r = r.SetHeaders(*c.cfg.GetHeaders())
 	}
 	m := c.method(r)
 	resp, err := m(c.cfg.GetUrl())
