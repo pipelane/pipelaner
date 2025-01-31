@@ -333,7 +333,7 @@ func (c *Clickhouse) Sink(val any) {
 	case chan any:
 		chData = v
 	default:
-		c.Log().Error().Err(errors.New("unknown type val"))
+		c.Log().Error().Err(errors.New("unknown type val")).Msg("failed write clickhouse")
 		return
 	}
 	if err := c.write(context.Background(), chData); err != nil {
