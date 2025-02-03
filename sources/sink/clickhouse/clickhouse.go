@@ -272,6 +272,10 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 				Value:     c.clickConfig.GetWaitForAsyncInsert(),
 				Important: true,
 			},
+			{
+				Key:   "max_partitions_per_insert_block",
+				Value: fmt.Sprintf("%d", c.clickConfig.GetMaxPartitionsPerInsertBlock()),
+			},
 		},
 		OnInput: func(_ context.Context) error {
 			input.Reset()
