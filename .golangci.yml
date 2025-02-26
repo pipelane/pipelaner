@@ -10,12 +10,9 @@ output:
   # Must have. Easier to understand the output.
   print-linter-name: true
 
-  # No, no skips, everything should be reported.
-  uniq-by-line: false
-
-
   # Slightly easier to follow the results + getting deterministic output.
   sort-results: true
+
 
 
 linters:
@@ -54,7 +51,7 @@ linters:
     - sqlclosecheck
     - staticcheck
     - tagliatelle
-    - tenv
+    - usetesting
     - testableexamples
     - thelper
     - tparallel
@@ -122,6 +119,9 @@ linters-settings:
         mapstructure: snake
 
 issues:
+  # No, no skips, everything should be reported.
+  uniq-by-line: false
+
   max-issues-per-linter: 0
 
   max-same-issues: 0
