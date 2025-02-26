@@ -52,10 +52,15 @@ func (p *Pipelaner) Init(cfg input.Input) error {
 		Opts:           opts,
 	}, &l)
 	p.srv = server.NewServer(&l, c.GetOutputBufferSize())
-	err := serv.Serve(func(s *grpc.Server) {
-		service.RegisterPipelanerServer(s, p.srv)
-	})
-	return err
+	go func() {
+		err := serv.Serve(func(s *grpc.Server) {
+			service.RegisterPipelanerServer(s, p.srv)
+		})
+		if err != nil {
+			p.Log().Fatal().Err(err).Msg("Failed to start server")
+		}
+	}()
+	return nil
 }
 
 func (p *Pipelaner) Generate(ctx context.Context, input chan<- any) {
