@@ -24,7 +24,7 @@ jobs:
         run: |
           go mod tidy
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@0a603e49e5e9870f5f9f2035bcbe42cd9620a9d5
+        uses: golangci/golangci-lint-action@v6
         with:
           version: v1.64.5
           args: --timeout=5m --config=.golangci.yml
