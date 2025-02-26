@@ -7,7 +7,6 @@ output:
   print-issued-lines: false
   formats:
        - format: colored-line-number
-         path: stdout
 
   # Must have. Easier to understand the output.
   print-linter-name: true
