@@ -5,15 +5,15 @@ run:
 
 output:
   print-issued-lines: false
-  formats: colored-line-number
+  formats:
+       - format: colored-line-number
+         path: stdout
 
   # Must have. Easier to understand the output.
   print-linter-name: true
 
   # Slightly easier to follow the results + getting deterministic output.
   sort-results: true
-
-
 
 linters:
   disable-all: true
