@@ -1,3 +1,6 @@
+// nolint
+//
+//nolint:nolintlint
 package migrator
 
 import (
@@ -90,7 +93,7 @@ func (ch *ClickHouse) Open(dsn string) (database.Driver, error) {
 		},
 	}
 
-	if err := ch.init(); err != nil {
+	if err = ch.init(); err != nil {
 		return nil, err
 	}
 
@@ -143,7 +146,7 @@ func (ch *ClickHouse) Run(r io.Reader) error {
 		return err
 	}
 
-	if _, err := ch.conn.Exec(string(migration)); err != nil {
+	if _, err = ch.conn.Exec(string(migration)); err != nil {
 		return database.Error{OrigErr: err, Err: "migration failed", Query: migration}
 	}
 

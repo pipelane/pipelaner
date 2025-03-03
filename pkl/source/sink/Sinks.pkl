@@ -30,8 +30,6 @@ class Kafka extends Sink {
   batchNumMessages: Int = 100_000
 }
 
-
-
 class Clickhouse extends Sink {
   fixed sourceName = "clickhouse"
   credentials: Common.ChCredentials

@@ -4,11 +4,12 @@
 package migrator
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
+
 	"github.com/pipelane/pipelaner/gen/settings/migrations"
 )
 
@@ -49,10 +50,10 @@ func (m *Click) Run(migrationsDir string) error {
 	if err != nil {
 		return err
 	}
-	if err := migration.Up(); err != nil && err != migrate.ErrNoChange {
+	if err = migration.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return err
 	}
-	if err := d.Close(); err != nil {
+	if err = d.Close(); err != nil {
 		return err
 	}
 	return nil
