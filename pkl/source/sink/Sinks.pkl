@@ -30,14 +30,12 @@ class Kafka extends Sink {
   batchNumMessages: Int = 100_000
 }
 
+
+
 class Clickhouse extends Sink {
   fixed sourceName = "clickhouse"
-  address: String(!isEmpty)
-  user: String(!isEmpty)
-  password: String(!isEmpty)
-  database: String(!isEmpty)
+  credentials: Common.ChCredentials
   tableName: String(!isEmpty)
-
   asyncInsert: String = "1"
   waitForAsyncInsert: String = "1"
   maxPartitionsPerInsertBlock: Int = 1000
