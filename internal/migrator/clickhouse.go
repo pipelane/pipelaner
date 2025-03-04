@@ -20,13 +20,13 @@ import (
 	"github.com/hashicorp/go-multierror"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 var (
 	multiStmtDelimiter = []byte(";")
 
 	DefaultMigrationsTable       = "schema_migrations"
-	DefaultMigrationsTableEngine = "TinyLog"
 	DefaultMultiStatementMaxSize = 10 * 1 << 20 // 10 MB
 
 	ErrNilConfig = fmt.Errorf("no config")
@@ -76,7 +76,7 @@ func (ch *ClickHouse) Open(dsn string) (database.Driver, error) {
 		}
 	}
 
-	migrationsTableEngine := DefaultMigrationsTableEngine
+	migrationsTableEngine := ch.config.MigrationsTableEngine
 	if s := purl.Query().Get("x-migrations-table-engine"); len(s) > 0 {
 		migrationsTableEngine = s
 	}
@@ -113,10 +113,6 @@ func (ch *ClickHouse) init() error {
 
 	if ch.config.MultiStatementMaxSize <= 0 {
 		ch.config.MultiStatementMaxSize = DefaultMultiStatementMaxSize
-	}
-
-	if len(ch.config.MigrationsTableEngine) == 0 {
-		ch.config.MigrationsTableEngine = DefaultMigrationsTableEngine
 	}
 
 	return ch.ensureVersionTable()
