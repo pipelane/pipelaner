@@ -32,13 +32,14 @@ func NewMigrateClick(cfg migrations.Clickhouse) *Click {
 func (m *Click) Run(migrationsDir string) error {
 	p := &ClickHouse{}
 	a := strings.Split(m.cfg.GetCredentials().Address, ":")
+	e := m.cfg.GetEngine()
 	addr := clickhouseConnectionString(
 		m.cfg.GetCredentials().User,
 		m.cfg.GetCredentials().Password,
 		a[0],
 		a[1],
 		m.cfg.GetCredentials().Database,
-		m.cfg.GetEngine(),
+		&e,
 	)
 	d, err := p.Open(addr)
 	if err != nil {
