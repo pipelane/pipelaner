@@ -11,7 +11,7 @@ type Clickhouse interface {
 
 	GetCredentials() *common.ChCredentials
 
-	GetEngine() *string
+	GetEngine() string
 }
 
 var _ Clickhouse = (*ClickhouseImpl)(nil)
@@ -23,7 +23,7 @@ type ClickhouseImpl struct {
 
 	Credentials *common.ChCredentials `pkl:"credentials"`
 
-	Engine *string `pkl:"engine"`
+	Engine string `pkl:"engine"`
 }
 
 func (rcv *ClickhouseImpl) GetDriver() driver.Driver {
@@ -38,6 +38,6 @@ func (rcv *ClickhouseImpl) GetCredentials() *common.ChCredentials {
 	return rcv.Credentials
 }
 
-func (rcv *ClickhouseImpl) GetEngine() *string {
+func (rcv *ClickhouseImpl) GetEngine() string {
 	return rcv.Engine
 }
