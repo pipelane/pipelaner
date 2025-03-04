@@ -8,7 +8,6 @@ import (
 )
 
 type Config struct {
-	Migrations *[]Migration `pkl:"migrations"`
 }
 
 // LoadFromPath loads the pkl module at the given path and evaluates it into a Config

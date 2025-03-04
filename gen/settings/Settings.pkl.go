@@ -18,7 +18,7 @@ type Settings struct {
 
 	Metrics *metrics.Config `pkl:"metrics"`
 
-	Migrations *migrations.Config `pkl:"migrations"`
+	Migrations *[]migrations.Migration `pkl:"migrations"`
 
 	StartGCAfterMessageProcess bool `pkl:"startGCAfterMessageProcess"`
 

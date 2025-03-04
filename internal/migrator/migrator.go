@@ -12,9 +12,9 @@ import (
 )
 
 type Migrator struct {
-	logger     *zerolog.Logger
-	cfg        migrations.Config
-	migrations map[driver.Driver]MigrationInterface
+	logger    *zerolog.Logger
+	mList     []migrations.Migration
+	mByDriver map[driver.Driver]MigrationInterface
 }
 
 func NewMigrator(
@@ -26,7 +26,7 @@ func NewMigrator(
 	}
 	c := cfg.Settings.Migrations
 	migrators := map[driver.Driver]MigrationInterface{}
-	for _, m := range *c.Migrations {
+	for _, m := range *c {
 		switch m.GetDriver() {
 		case driver.Clickhouse:
 			c, ok := m.(migrations.Clickhouse)
@@ -35,20 +35,20 @@ func NewMigrator(
 			}
 			migrators[m.GetDriver()] = NewMigrateClick(c)
 		case driver.Empty:
-			return nil, fmt.Errorf("empty migrations not supported")
+			return nil, fmt.Errorf("empty mByDriver not supported")
 		}
 	}
 	return &Migrator{
-		cfg:        *c,
-		migrations: migrators,
-		logger:     l,
+		mList:     *c,
+		mByDriver: migrators,
+		logger:    l,
 	}, nil
 }
 func (m *Migrator) Migrate() error {
 	gr := errgroup.Group{}
-	for _, mgr := range *m.cfg.Migrations {
+	for _, mgr := range m.mList {
 		m.logger.Info().Msgf("Starting migration: %s", mgr.GetDriver())
-		migrator := m.migrations[mgr.GetDriver()]
+		migrator := m.mByDriver[mgr.GetDriver()]
 		gr.Go(func() error {
 			err := migrator.Run(mgr.GetPath())
 			if err != nil {
