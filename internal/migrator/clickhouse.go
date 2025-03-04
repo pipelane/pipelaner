@@ -49,6 +49,7 @@ type ClickHouse struct {
 	conn     *sql.DB
 	config   *Config
 	isLocked atomic.Bool
+	engine   string
 }
 
 func (ch *ClickHouse) Open(dsn string) (database.Driver, error) {
@@ -76,7 +77,7 @@ func (ch *ClickHouse) Open(dsn string) (database.Driver, error) {
 		}
 	}
 
-	migrationsTableEngine := ch.config.MigrationsTableEngine
+	migrationsTableEngine := ch.engine
 	if s := purl.Query().Get("x-migrations-table-engine"); len(s) > 0 {
 		migrationsTableEngine = s
 	}
