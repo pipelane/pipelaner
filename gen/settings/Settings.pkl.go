@@ -8,6 +8,7 @@ import (
 	"github.com/pipelane/pipelaner/gen/settings/healthcheck"
 	"github.com/pipelane/pipelaner/gen/settings/logger"
 	"github.com/pipelane/pipelaner/gen/settings/metrics"
+	"github.com/pipelane/pipelaner/gen/settings/migrations"
 )
 
 type Settings struct {
@@ -16,6 +17,8 @@ type Settings struct {
 	HealthCheck *healthcheck.Config `pkl:"healthCheck"`
 
 	Metrics *metrics.Config `pkl:"metrics"`
+
+	Migrations *migrations.Config `pkl:"migrations"`
 
 	StartGCAfterMessageProcess bool `pkl:"startGCAfterMessageProcess"`
 

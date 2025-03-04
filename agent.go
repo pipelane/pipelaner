@@ -12,6 +12,7 @@ import (
 	config "github.com/pipelane/pipelaner/gen/pipelaner"
 	"github.com/pipelane/pipelaner/internal/health"
 	"github.com/pipelane/pipelaner/internal/metrics"
+	"github.com/pipelane/pipelaner/internal/migrator"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -36,6 +37,7 @@ func NewAgent(file string) (*Agent, error) {
 	}
 
 	inits := []func(cfg *config.Pipelaner) error{
+		a.initAndMigrate,
 		a.initHealthCheck,
 		a.initMetricsServer,
 		a.initPipelaner,
@@ -48,6 +50,21 @@ func NewAgent(file string) (*Agent, error) {
 	}
 
 	return a, nil
+}
+
+func (a *Agent) initAndMigrate(cfg *config.Pipelaner) error {
+	mCfg := cfg.Settings.Migrations
+	if mCfg != nil {
+		m, err := migrator.NewMigrator(cfg)
+		if err != nil {
+			return fmt.Errorf("migration: %w", err)
+		}
+		err = m.Migrate()
+		if err != nil {
+			return fmt.Errorf("migrate: %w", err)
+		}
+	}
+	return nil
 }
 
 func (a *Agent) initHealthCheck(cfg *config.Pipelaner) error {

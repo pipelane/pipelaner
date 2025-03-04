@@ -8,16 +8,20 @@ The **Clickhouse** sink component writes incoming messages to a Clickhouse datab
 ## **Config Definition**
 
 ```pkl
-class Clickhouse extends Sink {
-  fixed sourceName = "clickhouse"
-  address: String
-  user: String
-  password: String
-  database: String
-  tableName: String
+class ChCredentials {
+   address: String(!isEmpty)
+   user: String(!isEmpty)
+   password: String(!isEmpty)
+   database: String(!isEmpty)
+}
 
-  asyncInsert: String = "1"
-  waitForAsyncInsert: String = "1"
+class Clickhouse extends Sink {
+   fixed sourceName = "clickhouse"
+   credentials: Common.ChCredentials
+   tableName: String(!isEmpty)
+   asyncInsert: String = "1"
+   waitForAsyncInsert: String = "1"
+   maxPartitionsPerInsertBlock: Int = 1000
 }
 ```
 
@@ -25,21 +29,19 @@ class Clickhouse extends Sink {
 
 ## **Attributes**
 
-| **Attribute**        | **Type**   | **Description**                                                              | **Default Value** |
-|-----------------------|------------|------------------------------------------------------------------------------|--------------------|
-| `address`            | `String`   | The address of the Clickhouse server.                                        | **Required**      |
-| `user`               | `String`   | The username for authentication.                                             | **Required**      |
-| `password`           | `String`   | The password for authentication.                                             | **Required**      |
-| `database`           | `String`   | The target database to write to.                                             | **Required**      |
-| `tableName`          | `String`   | The target table to write to within the database.                            | **Required**      |
-| `asyncInsert`        | `String`   | Enables asynchronous insertion (1 for enabled, 0 for disabled).              | `"1"`             |
-| `waitForAsyncInsert` | `String`   | Specifies whether to wait for asynchronous insert completion (1 for yes, 0 for no). | `"1"`             |
+| **Attribute**                        | **Type**             | **Description**                                                              | **Default Value** |
+|---------------------------------------|----------------------|------------------------------------------------------------------------------|--------------------|
+| `credentials`                         | `Common.ChCredentials` | Reusable credentials for Clickhouse connection.                             | **Required**      |
+| `tableName`                           | `String`            | The target table to write to within the database.                            | **Required**      |
+| `asyncInsert`                         | `String`            | Enables asynchronous insertion (1 for enabled, 0 for disabled).              | `"1"`             |
+| `waitForAsyncInsert`                  | `String`            | Specifies whether to wait for asynchronous insert completion (1 for yes, 0 for no). | `"1"`             |
+| `maxPartitionsPerInsertBlock`         | `Int`               | The maximum number of partitions per insert block.                          | `1000`            |
 
 ---
 
 ## **I/O Types**
 
-- **Input Type:** `map[string]any`, where `key` is a name of column, `value` is a value of column.
+- **Input Type:** `map[string]any`, where `key` is a column name, and `value` is the column value.
 - **Output:** Writes messages to the specified Clickhouse database and table.
 
 ---
@@ -50,10 +52,12 @@ class Clickhouse extends Sink {
 ```pkl
 new Clickhouse {
   name = "example-clickhouse"
-  address = "http://127.0.0.1:8123"
-  user = "default"
-  password = "password"
-  database = "example_db"
+  credentials = new Common.ChCredentials {
+    address = "http://127.0.0.1:8123"
+    user = "default"
+    password = "password"
+    database = "example_db"
+  }
   tableName = "example_table"
 }
 ```
@@ -62,13 +66,16 @@ new Clickhouse {
 ```pkl
 new Clickhouse {
   name = "example-clickhouse-async"
-  address = "http://127.0.0.1:8123"
-  user = "default"
-  password = "password"
-  database = "example_db"
+  credentials = new Common.ChCredentials {
+    address = "http://127.0.0.1:8123"
+    user = "default"
+    password = "password"
+    database = "example_db"
+  }
   tableName = "example_table"
   asyncInsert = "1"
   waitForAsyncInsert = "0"
+  maxPartitionsPerInsertBlock = 500
 }
 ```
 
@@ -85,13 +92,16 @@ new Transforms.Chunks {
 
 new Sinks.Clickhouse {
   name = "example-clickhouse-batched"
-  address = "http://127.0.0.1:8123"
-  user = "default"
-  password = "password"
-  database = "example_db"
+  credentials = new Common.ChCredentials {
+    address = "http://127.0.0.1:8123"
+    user = "default"
+    password = "password"
+    database = "example_db"
+  }
   tableName = "example_table"
   asyncInsert = "1"
   waitForAsyncInsert = "0"
+  maxPartitionsPerInsertBlock = 500
   inputs {
     "example-chunks"
   }
@@ -113,18 +123,21 @@ The **Clickhouse** sink allows efficient insertion of pipeline messages into a C
 ### **Use Cases**
 
 1. **Data Storage**
-    - Persist pipeline data to a Clickhouse table for further analysis.
+   - Persist pipeline data to a Clickhouse table for further analysis.
 2. **High Performance Insertion**
-    - Use asynchronous insert mode to optimize throughput.
+   - Use asynchronous insert mode to optimize throughput.
 3. **Batch Optimization**
-    - Combine with the `Chunks` transform to batch messages for efficient database insertion.
+   - Combine with the `Chunks` transform to batch messages for efficient database insertion.
 
 ---
 
 ## **Notes**
 
-- Ensure that the `address`, `user`, `password`, `database`, and `tableName` attributes are correctly configured.
+- Ensure that the `credentials` attribute is correctly configured with valid Clickhouse connection parameters.
 - Asynchronous insertion improves performance but requires `waitForAsyncInsert` to be configured appropriately based on use case.
 - Use **Transform Chunks** for optimal performance by aggregating messages into large batches.
+- Adjust `maxPartitionsPerInsertBlock` to optimize insert performance for large datasets.
 
 ---
+
+If you have additional questions or need further clarification, feel free to reach out!

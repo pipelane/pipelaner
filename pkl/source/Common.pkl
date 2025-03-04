@@ -28,3 +28,10 @@ class Pipelaner {
   port: UInt(this > 0)
   tls: TLSConfig?
 }
+
+class ChCredentials {
+  address: String(!isEmpty)
+  user: String(!isEmpty)
+  password: String(!isEmpty)
+  database: String(!isEmpty)
+}

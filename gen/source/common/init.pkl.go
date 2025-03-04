@@ -9,4 +9,5 @@ func init() {
 	pkl.RegisterMapping("com.pipelaner.source.common", Common{})
 	pkl.RegisterMapping("com.pipelaner.source.common#TLSConfig", TLSConfig{})
 	pkl.RegisterMapping("com.pipelaner.source.common#Pipelaner", Pipelaner{})
+	pkl.RegisterMapping("com.pipelaner.source.common#ChCredentials", ChCredentials{})
 }

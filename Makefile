@@ -24,6 +24,7 @@ install-pkl-go:
 
 .PHONY: pkl-generate-go
 pkl-generate-go:
+	rm -rf ./gen
 	pkl-gen-go pkl/Pipelaner.pkl
 
 .PHONY: pkl-build

@@ -20,10 +20,10 @@ type Client struct {
 func NewClickhouseClient(ctx context.Context, cfg sink.Clickhouse) (*Client, error) {
 	conn, err := chpool.Dial(ctx, chpool.Options{
 		ClientOptions: ch.Options{
-			Address:          cfg.GetAddress(),
-			Database:         cfg.GetDatabase(),
-			User:             cfg.GetUser(),
-			Password:         cfg.GetPassword(),
+			Address:          cfg.GetCredentials().Address,
+			Database:         cfg.GetCredentials().Database,
+			User:             cfg.GetCredentials().User,
+			Password:         cfg.GetCredentials().Password,
 			Compression:      ch.CompressionLZ4,
 			DialTimeout:      5 * time.Second,
 			HandshakeTimeout: 10 * time.Second,
