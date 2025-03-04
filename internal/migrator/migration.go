@@ -30,7 +30,9 @@ func NewMigrateClick(cfg migrations.Clickhouse) *Click {
 }
 
 func (m *Click) Run(migrationsDir string) error {
-	p := &ClickHouse{}
+	p := &ClickHouse{
+		engine: m.cfg.GetEngine(),
+	}
 	a := strings.Split(m.cfg.GetCredentials().Address, ":")
 	e := m.cfg.GetEngine()
 	addr := clickhouseConnectionString(
