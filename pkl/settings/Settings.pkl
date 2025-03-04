@@ -10,6 +10,6 @@ import "migrations/MigrationsConfig.pkl"
 logger: LoggerConfig
 healthCheck: HealthcheckConfig?
 metrics: MetricsConfig?
-migrations:MigrationsConfig?
+migrations:Listing<MigrationsConfig.Migration>?
 startGCAfterMessageProcess: Boolean = false
 gracefulShutdownDelay:Duration = 15.s

@@ -17,5 +17,3 @@ class Clickhouse extends Migration {
   credentials: Common.ChCredentials
   engine: String?
 }
-
-migrations: Listing<Migration>?
