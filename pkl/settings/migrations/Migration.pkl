@@ -15,5 +15,5 @@ class Clickhouse extends Migration {
   fixed driver = "clickhouse"
   path = "/migrations/clickhouse"
   credentials: Common.ChCredentials
-  engine: String?
+  engine: String = "TinyLog"
 }
