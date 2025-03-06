@@ -49,7 +49,6 @@ type ClickHouse struct {
 	conn     *sql.DB
 	config   *Config
 	isLocked atomic.Bool
-	engine   string
 }
 
 func (ch *ClickHouse) Open(dsn string) (database.Driver, error) {
@@ -76,17 +75,11 @@ func (ch *ClickHouse) Open(dsn string) (database.Driver, error) {
 			return nil, err
 		}
 	}
-
-	migrationsTableEngine := ch.engine
-	if s := purl.Query().Get("x-migrations-table-engine"); len(s) > 0 {
-		migrationsTableEngine = s
-	}
-
 	ch = &ClickHouse{
 		conn: conn,
 		config: &Config{
 			MigrationsTable:       purl.Query().Get("x-migrations-table"),
-			MigrationsTableEngine: migrationsTableEngine,
+			MigrationsTableEngine: purl.Query().Get("x-migrations-table-engine"),
 			DatabaseName:          database,
 			ClusterName:           purl.Query().Get("x-cluster-name"),
 			MultiStatementEnabled: purl.Query().Get("x-multi-statement") == "true",

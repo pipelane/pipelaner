@@ -12,6 +12,8 @@ type Clickhouse interface {
 	GetCredentials() *common.ChCredentials
 
 	GetEngine() string
+
+	GetClusterName() *string
 }
 
 var _ Clickhouse = (*ClickhouseImpl)(nil)
@@ -24,6 +26,8 @@ type ClickhouseImpl struct {
 	Credentials *common.ChCredentials `pkl:"credentials"`
 
 	Engine string `pkl:"engine"`
+
+	ClusterName *string `pkl:"clusterName"`
 }
 
 func (rcv *ClickhouseImpl) GetDriver() driver.Driver {
@@ -40,4 +44,8 @@ func (rcv *ClickhouseImpl) GetCredentials() *common.ChCredentials {
 
 func (rcv *ClickhouseImpl) GetEngine() string {
 	return rcv.Engine
+}
+
+func (rcv *ClickhouseImpl) GetClusterName() *string {
+	return rcv.ClusterName
 }
