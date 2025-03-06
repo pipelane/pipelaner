@@ -30,9 +30,7 @@ func NewMigrateClick(cfg migrations.Clickhouse) *Click {
 }
 
 func (m *Click) Run(migrationsDir string) error {
-	p := &ClickHouse{
-		engine: m.cfg.GetEngine(),
-	}
+	p := &ClickHouse{}
 	a := strings.Split(m.cfg.GetCredentials().Address, ":")
 	e := m.cfg.GetEngine()
 	addr := clickhouseConnectionString(
@@ -42,6 +40,7 @@ func (m *Click) Run(migrationsDir string) error {
 		a[1],
 		m.cfg.GetCredentials().Database,
 		&e,
+		m.cfg.GetClusterName(),
 	)
 	d, err := p.Open(addr)
 	if err != nil {
@@ -62,13 +61,15 @@ func (m *Click) Run(migrationsDir string) error {
 	return nil
 }
 
-func clickhouseConnectionString(user, password, host, port, db string, engine *string) string {
-	if engine != nil {
-		return fmt.Sprintf(
-			"clickhouse://%s:%s@%v:%v/%s?x-multi-statement=true&x-migrations-table-engine=%v&debug=false",
-			user, password, host, port, db, *engine)
-	}
-	return fmt.Sprintf(
+func clickhouseConnectionString(user, password, host, port, db string, engine, cluster *string) string {
+	url := fmt.Sprintf(
 		"clickhouse://%s:%s@%v:%v/%s?x-multi-statement=true&debug=false",
 		user, password, host, port, db)
+	if engine != nil {
+		url += fmt.Sprintf("&x-migrations-table-engine=%s", *engine)
+	}
+	if cluster != nil {
+		url += fmt.Sprintf("&x-cluster-name=%s", *cluster)
+	}
+	return url
 }

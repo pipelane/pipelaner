@@ -4,7 +4,7 @@ module com.pipelaner.settings.migrations.config
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.9.0#/go.pkl"
 import ".../source/Common.pkl"
 
-typealias Driver = "clickhouse" | ""
+typealias Driver = "clickhouse"|""
 
 abstract class Migration {
   fixed driver: Driver
@@ -16,4 +16,5 @@ class Clickhouse extends Migration {
   path = "/migrations/clickhouse"
   credentials: Common.ChCredentials
   engine: String = "TinyLog"
+  clusterName: String?
 }
