@@ -9,6 +9,7 @@ import (
 	"github.com/pipelane/pipelaner/gen/settings/logger"
 	"github.com/pipelane/pipelaner/gen/settings/metrics"
 	"github.com/pipelane/pipelaner/gen/settings/migrations"
+	"github.com/pipelane/pipelaner/gen/settings/pprof"
 )
 
 type Settings struct {
@@ -23,6 +24,8 @@ type Settings struct {
 	StartGCAfterMessageProcess bool `pkl:"startGCAfterMessageProcess"`
 
 	GracefulShutdownDelay *pkl.Duration `pkl:"gracefulShutdownDelay"`
+
+	Pprof *pprof.Config `pkl:"pprof"`
 }
 
 // LoadFromPath loads the pkl module at the given path and evaluates it into a Settings

@@ -13,6 +13,7 @@ import (
 	"github.com/pipelane/pipelaner/internal/health"
 	"github.com/pipelane/pipelaner/internal/metrics"
 	"github.com/pipelane/pipelaner/internal/migrator"
+	"github.com/pipelane/pipelaner/internal/pprof"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -21,6 +22,7 @@ type Agent struct {
 
 	hc      *health.Server
 	metrics *metrics.Server
+	pprof   *pprof.Server
 	cancel  context.CancelFunc
 	cfg     *config.Pipelaner
 }
@@ -40,6 +42,7 @@ func NewAgent(file string) (*Agent, error) {
 		a.initAndMigrate,
 		a.initHealthCheck,
 		a.initMetricsServer,
+		a.initPprofServer,
 		a.initPipelaner,
 	}
 
@@ -91,6 +94,15 @@ func (a *Agent) initMetricsServer(cfg *config.Pipelaner) error {
 	return nil
 }
 
+func (a *Agent) initPprofServer(cfg *config.Pipelaner) error {
+	pprofCfg := cfg.Settings.Pprof
+	if pprofCfg != nil {
+		p := pprof.NewServer(pprofCfg)
+		a.pprof = p
+	}
+	return nil
+}
+
 func (a *Agent) initPipelaner(cfg *config.Pipelaner) error {
 	pipelanerCfg := cfg.Pipelines
 	logCfg := cfg.Settings.Logger
@@ -121,12 +133,16 @@ func (a *Agent) Serve(ctx context.Context) error {
 			return a.hc.Serve(ctx)
 		})
 	}
+	if a.pprof != nil {
+		g.Go(func() error {
+			return a.pprof.Serve(ctx)
+		})
+	}
 	if a.metrics != nil {
 		g.Go(func() error {
 			return a.metrics.Serve(ctx)
 		})
 	}
-
 	g.Go(func() error {
 		return a.pipelaner.Run(inputsCtx)
 	})
@@ -140,6 +156,12 @@ func (a *Agent) Serve(ctx context.Context) error {
 func (a *Agent) Shutdown(ctx context.Context) error {
 	a.cancel()
 	time.Sleep(a.cfg.Settings.GracefulShutdownDelay.GoDuration())
+	if a.pprof != nil {
+		err := a.pprof.Shutdown(ctx)
+		if err != nil {
+			return fmt.Errorf("shutdown pprof: %w", err)
+		}
+	}
 	if a.metrics != nil {
 		err := a.metrics.Shutdown(ctx)
 		if err != nil {

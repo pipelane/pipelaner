@@ -1,4 +1,4 @@
-@go.Package {name = "github.com/pipelane/pipelaner/gen/settings"}
+@go.Package { name = "github.com/pipelane/pipelaner/gen/settings" }
 module com.pipelaner.settings.settings
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.9.0#/go.pkl"
@@ -6,10 +6,12 @@ import "healthcheck/HealthcheckConfig.pkl"
 import "logger/LoggerConfig.pkl"
 import "metrics/MetricsConfig.pkl"
 import "migrations/Migration.pkl"
+import "pprof/PProf.pkl"
 
 logger: LoggerConfig
 healthCheck: HealthcheckConfig?
 metrics: MetricsConfig?
-migrations:Listing<Migration.Migration>?
+migrations: Listing<Migration.Migration>?
 startGCAfterMessageProcess: Boolean = false
-gracefulShutdownDelay:Duration = 15.s
+gracefulShutdownDelay: Duration = 15.s
+pprof: PProf?
