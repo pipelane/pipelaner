@@ -1,36 +1,38 @@
-/*
- * Copyright (c) 2024 Alexey Khokhlov
- */
-
-package metrics
+package pprof
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"net/http"
+	"net/http/pprof"
+	_ "net/http/pprof" //nolint:gosec
 	"time"
 
-	"github.com/pipelane/pipelaner/gen/settings/metrics"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	pprofCfg "github.com/pipelane/pipelaner/gen/settings/pprof"
 )
 
 type Server struct {
 	server *http.Server
+	cfg    *pprofCfg.Config
 }
 
-func NewMetricsServer(cfg *metrics.Config) (*Server, error) {
-	if cfg == nil {
-		return nil, errors.New("config is required")
-	}
-	http.Handle(cfg.Path, promhttp.Handler())
+func NewServer(cfg *pprofCfg.Config) *Server {
+	r := http.NewServeMux()
+	r.HandleFunc(cfg.Path, pprof.Index)
+	r.HandleFunc(cfg.Path+"/cmdline", pprof.Cmdline)
+	r.HandleFunc(cfg.Path+"/profile", pprof.Profile)
+	r.HandleFunc(cfg.Path+"/symbol", pprof.Symbol)
+	r.HandleFunc(cfg.Path+"/trace", pprof.Trace)
 	server := &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
 		ReadHeaderTimeout: 10 * time.Second,
+		Handler:           r,
 	}
 	return &Server{
 		server: server,
-	}, nil
+		cfg:    cfg,
+	}
 }
 
 func (m *Server) Serve(_ context.Context) error {

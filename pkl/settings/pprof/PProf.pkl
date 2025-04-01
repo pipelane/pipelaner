@@ -1,0 +1,8 @@
+@go.Package { name = "github.com/pipelane/pipelaner/gen/settings/pprof" }
+module com.pipelaner.settings.pprof.config
+
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.9.0#/go.pkl"
+
+host: String = ""
+port: UInt(this > 0) = 8081
+path: String = "/debug/pprof"
