@@ -2,13 +2,17 @@
 package transform
 
 type Sequencer interface {
-	SequencerImp
+	Transform
+
+	GetIsSequencer() bool
 }
 
 var _ Sequencer = (*SequencerImpl)(nil)
 
 type SequencerImpl struct {
 	SourceName string `pkl:"sourceName"`
+
+	IsSequencer bool `pkl:"isSequencer"`
 
 	Name string `pkl:"name"`
 
@@ -21,6 +25,10 @@ type SequencerImpl struct {
 
 func (rcv *SequencerImpl) GetSourceName() string {
 	return rcv.SourceName
+}
+
+func (rcv *SequencerImpl) GetIsSequencer() bool {
+	return rcv.IsSequencer
 }
 
 func (rcv *SequencerImpl) GetName() string {

@@ -93,13 +93,13 @@ func (s *Sequencer) Run() error {
 			go func() {
 				defer wg.Done()
 				defer sema.Release()
-				switch msg.(type) {
+				switch v := msg.(type) {
 				case []any:
-					for _, mV := range msg.([]any) {
+					for _, mV := range v {
 						s.processingMessage(mV)
 					}
 				default:
-					s.processingMessage(msg)
+					s.processingMessage(v)
 				}
 			}()
 		}

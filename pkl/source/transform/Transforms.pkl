@@ -12,11 +12,9 @@ abstract class Transform {
   outputBufferSize: UInt(this >= 1) = 10 * threads
 }
 
-abstract class sequencerImp extends Transform {
+class Sequencer extends Transform {
   fixed sourceName = "sequencer"
-}
-
-class Sequencer extends sequencerImp {
+  isSequencer:Boolean = true
 }
 
 class Batch extends Transform {
