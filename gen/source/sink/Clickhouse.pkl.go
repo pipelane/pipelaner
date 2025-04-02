@@ -15,6 +15,8 @@ type Clickhouse interface {
 	GetWaitForAsyncInsert() string
 
 	GetMaxPartitionsPerInsertBlock() int
+
+	GetChannelBuffersize() uint
 }
 
 var _ Clickhouse = (*ClickhouseImpl)(nil)
@@ -31,6 +33,8 @@ type ClickhouseImpl struct {
 	WaitForAsyncInsert string `pkl:"waitForAsyncInsert"`
 
 	MaxPartitionsPerInsertBlock int `pkl:"maxPartitionsPerInsertBlock"`
+
+	ChannelBuffersize uint `pkl:"channelBuffersize"`
 
 	Name string `pkl:"name"`
 
@@ -61,6 +65,10 @@ func (rcv *ClickhouseImpl) GetWaitForAsyncInsert() string {
 
 func (rcv *ClickhouseImpl) GetMaxPartitionsPerInsertBlock() int {
 	return rcv.MaxPartitionsPerInsertBlock
+}
+
+func (rcv *ClickhouseImpl) GetChannelBuffersize() uint {
+	return rcv.ChannelBuffersize
 }
 
 func (rcv *ClickhouseImpl) GetName() string {
