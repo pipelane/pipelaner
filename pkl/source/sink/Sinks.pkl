@@ -37,7 +37,6 @@ class Clickhouse extends Sink {
   asyncInsert: String = "1"
   waitForAsyncInsert: String = "1"
   maxPartitionsPerInsertBlock: Int = 1000
-  channelBuffersize: UInt = 10_000
 }
 
 typealias Method = "PATCH"|"POST"|"PUT"|"DELETE"|"GET"

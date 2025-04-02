@@ -27,6 +27,9 @@ type Transform interface {
 	Init(cfg transform.Transform) error
 	Transform(val any) any
 }
+type Sequencer interface {
+	Init(cfg transform.Sequencer) error
+}
 
 type Sink interface {
 	Init(cfg sink.Sink) error

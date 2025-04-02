@@ -5,6 +5,7 @@ import "github.com/apple/pkl-go/pkl"
 
 func init() {
 	pkl.RegisterMapping("com.pipelaner.source.transforms", Transforms{})
+	pkl.RegisterMapping("com.pipelaner.source.transforms#Sequencer", SequencerImpl{})
 	pkl.RegisterMapping("com.pipelaner.source.transforms#Batch", BatchImpl{})
 	pkl.RegisterMapping("com.pipelaner.source.transforms#Chunk", ChunkImpl{})
 	pkl.RegisterMapping("com.pipelaner.source.transforms#Debounce", DebounceImpl{})

@@ -1,7 +1,8 @@
-@go.Package {name = "github.com/pipelane/pipelaner/gen/source/transform"}
+@go.Package { name = "github.com/pipelane/pipelaner/gen/source/transform" }
 module com.pipelaner.source.transforms
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.9.0#/go.pkl"
+
 
 abstract class Transform {
   name: String(!isEmpty)
@@ -9,6 +10,13 @@ abstract class Transform {
   inputs: Listing<String>(length > 0)
   threads: UInt(this >= 1) = read?("env:GOMAXPROCS")?.toInt() ?? 8
   outputBufferSize: UInt(this >= 1) = 10 * threads
+}
+
+abstract class sequencerImp extends Transform {
+  fixed sourceName = "sequencer"
+}
+
+class Sequencer extends sequencerImp {
 }
 
 class Batch extends Transform {
