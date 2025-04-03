@@ -9,6 +9,7 @@ import (
 	_ "github.com/pipelane/pipelaner/sources/generator/cmd"
 	_ "github.com/pipelane/pipelaner/sources/generator/kafka"
 	_ "github.com/pipelane/pipelaner/sources/generator/pipelaner"
+	_ "github.com/pipelane/pipelaner/sources/sequencer"
 	_ "github.com/pipelane/pipelaner/sources/sink/clickhouse"
 	_ "github.com/pipelane/pipelaner/sources/sink/console"
 	_ "github.com/pipelane/pipelaner/sources/sink/http"

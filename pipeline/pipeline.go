@@ -138,12 +138,19 @@ func (p *Pipeline) initTransformNodes(
 	opts ...node.Option,
 ) error {
 	transformNodes := make([]transformNode, 0, len(transformConfigs))
+	var transformsNode transformNode
+	var err error
 	for _, cfg := range transformConfigs {
-		transformNode, err := node.NewTransform(cfg, logger, opts...)
+		switch cfg.(type) {
+		case transform.Sequencer:
+			transformsNode, err = node.NewSequencer(cfg, logger, opts...)
+		case transform.Transform:
+			transformsNode, err = node.NewTransform(cfg, logger, opts...)
+		}
 		if err != nil {
 			return fmt.Errorf("new transform node: %w", err)
 		}
-		transformNodes = append(transformNodes, transformNode)
+		transformNodes = append(transformNodes, transformsNode)
 	}
 	p.transforms = transformNodes
 	return nil

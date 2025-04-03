@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"sync"
 	"time"
 
 	"github.com/ClickHouse/ch-go"
@@ -336,29 +335,7 @@ func (c *Clickhouse) Sink(val any) {
 		chData <- v
 		close(chData)
 	case chan any:
-		newCh := make(chan any, c.clickConfig.GetChannelBuffersize())
-		wg := sync.WaitGroup{}
-		for vals := range v {
-			wg.Add(1)
-			switch item := vals.(type) {
-			case []map[string]interface{}:
-				go func() {
-					for _, chV := range item {
-						newCh <- chV
-					}
-					wg.Done()
-				}()
-				continue
-			default:
-				newCh <- vals
-				wg.Done()
-			}
-		}
-		go func() {
-			wg.Wait()
-			close(newCh)
-		}()
-		chData = newCh
+		chData = v
 	default:
 		c.Log().Error().Err(errors.New("unknown type val")).Msg("failed write clickhouse")
 		return
