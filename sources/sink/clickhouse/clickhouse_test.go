@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ClickHouse/ch-go/proto"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -85,6 +86,23 @@ func TestBuildProtoInput(t *testing.T) {
 					proto.InputColumn{Name: "string_array", Data: new(proto.ColArr[string])},
 					proto.InputColumn{Name: "float", Data: new(proto.ColFloat64)},
 					proto.InputColumn{Name: "time", Data: new(proto.ColDateTime64)},
+				},
+			},
+		},
+		{
+			name:   "build decimal",
+			fields: fields{},
+			args: args{
+				values: map[string]any{
+					"decimal": decimal.NewFromFloat(1.2),
+				},
+			},
+			want: want{
+				mapColumns: map[string]*column{
+					"decimal": {dcml: new(proto.ColDecimal256)},
+				},
+				input: proto.Input{
+					proto.InputColumn{Name: "decimal", Data: new(proto.ColDecimal256)},
 				},
 			},
 		},

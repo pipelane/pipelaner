@@ -6,10 +6,12 @@ package clickhouse
 
 import (
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"math/big"
 	"time"
 
 	"github.com/ClickHouse/ch-go"
@@ -18,6 +20,7 @@ import (
 	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
+	"github.com/shopspring/decimal"
 )
 
 func init() {
@@ -66,13 +69,16 @@ type column struct {
 	str          *proto.ColStr
 	flt          *proto.ColFloat64
 	integer      *proto.ColInt64
+	dcml         *proto.ColDecimal256
 	boolean      *proto.ColBool
 	strArr       *proto.ColArr[string]
 	intArr       *proto.ColArr[int64]
+	dcmlArr      *proto.ColArr[proto.Decimal256]
 	fltArr       *proto.ColArr[float64]
 	boolArr      *proto.ColArr[bool]
 	arrStrArray  *proto.ColArr[[]string]
 	arrIntArray  *proto.ColArr[[]int64]
+	arrDcmlArray *proto.ColArr[[]proto.Decimal256]
 	arrFltArray  *proto.ColArr[[]float64]
 	arrBoolArray *proto.ColArr[[]bool]
 	uid          *proto.ColUUID
@@ -139,6 +145,30 @@ func (c *column) Append(v any) error {
 		if c.timestamp != nil {
 			c.timestamp.Append(val)
 		}
+	case decimal.Decimal:
+		if c.dcml != nil {
+			decimal256, err := ConvertToDecimal256(val, 10) // TODO: col scale
+			if err != nil {
+				return err
+			}
+			c.dcml.Append(decimal256)
+		}
+	case []decimal.Decimal:
+		if c.dcmlArr != nil {
+			arr := make([]proto.Decimal256, 0, len(val))
+			for _, d := range val {
+				decimal256, err := ConvertToDecimal256(d, 10) // TODO: col scale
+				if err != nil {
+					return err
+				}
+				arr = append(arr, decimal256)
+			}
+			c.dcmlArr.Append(arr)
+		}
+	case [][]decimal.Decimal:
+		if c.arrDcmlArray != nil {
+			c.arrDcmlArray.Append([][]proto.Decimal256{})
+		}
 	default:
 		return errors.New("unknown type")
 	}
@@ -163,6 +193,9 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 		case float64:
 			col.flt = new(proto.ColFloat64)
 			input = AppendInput(input, k, col.flt)
+		case decimal.Decimal:
+			col.dcml = new(proto.ColDecimal256)
+			input = append(input, proto.InputColumn{Name: k, Data: proto.Alias(col.dcml, "Decimal(76, 10)")})
 		case int64:
 			col.integer = new(proto.ColInt64)
 			input = AppendInput(input, k, col.integer)
@@ -178,6 +211,9 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 		case []int64:
 			col.intArr = proto.NewArray[int64](new(proto.ColInt64))
 			input = AppendArrayInput(input, k, col.intArr)
+		case []decimal.Decimal:
+			col.dcmlArr = proto.NewArray[proto.Decimal256](new(proto.ColDecimal256))
+			input = append(input, proto.InputColumn{Name: k, Data: proto.Alias(col.dcmlArr, "Array(Decimal(76, 10))")})
 		case []bool:
 			col.boolArr = proto.NewArray[bool](new(proto.ColBool))
 			input = AppendArrayInput(input, k, col.boolArr)
@@ -187,6 +223,9 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 		case [][]int64:
 			col.arrIntArray = proto.NewArray[[]int64](proto.NewArray[int64](new(proto.ColInt64)))
 			input = AppendArrayInput(input, k, col.arrIntArray)
+		case [][]decimal.Decimal:
+			col.arrDcmlArray = proto.NewArray[[]proto.Decimal256](proto.NewArray[proto.Decimal256](new(proto.ColDecimal256)))
+			input = append(input, proto.InputColumn{Name: k, Data: proto.Alias(col.arrDcmlArray, "Array(Array(Decimal(76, 10)))")})
 		case [][]float64:
 			col.arrFltArray = proto.NewArray[[]float64](proto.NewArray[float64](new(proto.ColFloat64)))
 			input = AppendArrayInput(input, k, col.arrFltArray)
@@ -207,6 +246,44 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 	}
 
 	return columns, input, nil
+}
+
+func ConvertToDecimal256(v decimal.Decimal, targetScale int32) (proto.Decimal256, error) {
+	var bi *big.Int
+	bi = decimal.NewFromBigInt(v.Coefficient(), v.Exponent()+targetScale).BigInt()
+	dest := make([]byte, 32)
+	bigIntToRaw(dest, bi)
+	return proto.Decimal256{
+		Low: proto.UInt128{
+			Low:  binary.LittleEndian.Uint64(dest[0 : 64/8]),
+			High: binary.LittleEndian.Uint64(dest[64/8 : 128/8]),
+		},
+		High: proto.UInt128{
+			Low:  binary.LittleEndian.Uint64(dest[128/8 : 192/8]),
+			High: binary.LittleEndian.Uint64(dest[192/8 : 256/8]),
+		},
+	}, nil
+}
+
+func bigIntToRaw(dest []byte, v *big.Int) {
+	var sign int
+	if v.Sign() < 0 {
+		v.Not(v).FillBytes(dest)
+		sign = -1
+	} else {
+		v.FillBytes(dest)
+	}
+	endianSwap(dest, sign < 0)
+}
+
+func endianSwap(src []byte, not bool) {
+	for i := 0; i < len(src)/2; i++ {
+		if not {
+			src[i], src[len(src)-i-1] = ^src[len(src)-i-1], ^src[i]
+		} else {
+			src[i], src[len(src)-i-1] = src[len(src)-i-1], src[i]
+		}
+	}
 }
 
 func (c *Clickhouse) getMap(val any) (map[string]any, error) {
@@ -259,7 +336,7 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 		}
 	}
 	shouldEnd := false
-	if err = conn.Do(ctx, ch.Query{
+	query := ch.Query{
 		Body: input.Into(c.clickConfig.GetTableName()),
 		Settings: []ch.Setting{
 			{
@@ -304,7 +381,8 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 			return nil
 		},
 		Input: input,
-	}); err != nil {
+	}
+	if err = conn.Do(ctx, query); err != nil {
 		return fmt.Errorf("write batch: %w", err)
 	}
 	return nil
