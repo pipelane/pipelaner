@@ -167,7 +167,21 @@ func (c *column) Append(v any) error {
 		}
 	case [][]decimal.Decimal:
 		if c.arrDcmlArray != nil {
-			c.arrDcmlArray.Append([][]proto.Decimal256{})
+			doubleArr := make([][]proto.Decimal256, 0, len(val))
+			for _, arr := range val {
+				nestedArr := make([]proto.Decimal256, 0, len(arr))
+				for _, d := range arr {
+					decimal256, err := ConvertToDecimal256(d, 10)
+					if err != nil {
+						return err
+					}
+					nestedArr = append(nestedArr, decimal256)
+				}
+
+				doubleArr = append(doubleArr, nestedArr)
+			}
+
+			c.arrDcmlArray.Append(doubleArr)
 		}
 	default:
 		return errors.New("unknown type")
