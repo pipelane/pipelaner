@@ -147,38 +147,17 @@ func (c *column) Append(v any) error {
 		}
 	case decimal.Decimal:
 		if c.dcml != nil {
-			decimal256, err := ConvertToDecimal256(val, 10) // TODO: col scale
-			if err != nil {
-				return err
-			}
-			c.dcml.Append(decimal256)
+			c.dcml.Append(decimalToProto(val, 10)) // TODO: col scale
 		}
 	case []decimal.Decimal:
 		if c.dcmlArr != nil {
-			arr := make([]proto.Decimal256, 0, len(val))
-			for _, d := range val {
-				decimal256, err := ConvertToDecimal256(d, 10) // TODO: col scale
-				if err != nil {
-					return err
-				}
-				arr = append(arr, decimal256)
-			}
-			c.dcmlArr.Append(arr)
+			c.dcmlArr.Append(decimalArrToProto(val, 10))
 		}
 	case [][]decimal.Decimal:
 		if c.arrDcmlArray != nil {
 			doubleArr := make([][]proto.Decimal256, 0, len(val))
 			for _, arr := range val {
-				nestedArr := make([]proto.Decimal256, 0, len(arr))
-				for _, d := range arr {
-					decimal256, err := ConvertToDecimal256(d, 10)
-					if err != nil {
-						return err
-					}
-					nestedArr = append(nestedArr, decimal256)
-				}
-
-				doubleArr = append(doubleArr, nestedArr)
+				doubleArr = append(doubleArr, decimalArrToProto(arr, 10))
 			}
 
 			c.arrDcmlArray.Append(doubleArr)
@@ -262,9 +241,18 @@ func (c *Clickhouse) buildProtoInput(m map[string]any) (map[string]*column, prot
 	return columns, input, nil
 }
 
-func ConvertToDecimal256(v decimal.Decimal, targetScale int32) (proto.Decimal256, error) {
-	var bi *big.Int
-	bi = decimal.NewFromBigInt(v.Coefficient(), v.Exponent()+targetScale).BigInt()
+func decimalArrToProto(arr []decimal.Decimal, targetScale int32) []proto.Decimal256 {
+	res := make([]proto.Decimal256, 0, len(arr))
+	for _, elem := range arr {
+		decimal256 := decimalToProto(elem, targetScale)
+		res = append(res, decimal256)
+	}
+
+	return res
+}
+
+func decimalToProto(v decimal.Decimal, targetScale int32) proto.Decimal256 {
+	bi := decimal.NewFromBigInt(v.Coefficient(), v.Exponent()+targetScale).BigInt()
 	dest := make([]byte, 32)
 	bigIntToRaw(dest, bi)
 	return proto.Decimal256{
@@ -276,7 +264,7 @@ func ConvertToDecimal256(v decimal.Decimal, targetScale int32) (proto.Decimal256
 			Low:  binary.LittleEndian.Uint64(dest[128/8 : 192/8]),
 			High: binary.LittleEndian.Uint64(dest[192/8 : 256/8]),
 		},
-	}, nil
+	}
 }
 
 func bigIntToRaw(dest []byte, v *big.Int) {
