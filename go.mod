@@ -2,8 +2,6 @@ module github.com/pipelane/pipelaner
 
 go 1.23.8
 
-toolchain go1.23.11
-
 require (
 	github.com/ClickHouse/ch-go v0.66.1
 	github.com/ClickHouse/clickhouse-go/v2 v2.37.2
