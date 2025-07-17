@@ -124,7 +124,7 @@ func TestInput_Run(t *testing.T) {
 		outChan := make(chan any, 1)
 		inputNode.AddOutputChannel(outChan)
 
-		assert.NoError(t, inputNode.Run(context.Background()))
+		assert.NoError(t, inputNode.Run(t.Context()))
 		<-outChan
 		assert.True(t, bytes.Contains(logBuffer.Bytes(), []byte("received nil message")))
 	})
@@ -141,7 +141,7 @@ func TestInput_Run(t *testing.T) {
 		outChan := make(chan any, 1)
 		inputNode.AddOutputChannel(outChan)
 
-		assert.NoError(t, inputNode.Run(context.Background()))
+		assert.NoError(t, inputNode.Run(t.Context()))
 		<-outChan
 		assert.True(t, bytes.Contains(logBuffer.Bytes(), []byte("received error")))
 	})
@@ -162,7 +162,7 @@ func TestInput_Run(t *testing.T) {
 		outChan2 := make(chan any, messagesCount)
 		inputNode.AddOutputChannel(outChan2)
 
-		assert.NoError(t, inputNode.Run(context.Background()))
+		assert.NoError(t, inputNode.Run(t.Context()))
 
 		var wg sync.WaitGroup
 		wg.Add(1)
