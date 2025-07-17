@@ -36,7 +36,18 @@ func NewLoggerWithCfg(cfg *logger.Config) (*zerolog.Logger, error) {
 			writers = append(writers, os.Stdout)
 		} else {
 			writers = append(writers, zerolog.ConsoleWriter{
-				Out: os.Stderr,
+				Out:        os.Stdout,
+				TimeFormat: time.RFC3339Nano,
+				FieldsOrder: []string{
+					"time",
+					zerolog.LevelFieldName,
+					zerolog.ErrorFieldName,
+					"type",
+					"lane_name",
+					"source",
+					zerolog.MessageFieldName,
+					zerolog.CallerFieldName,
+				},
 			})
 		}
 	}
@@ -55,6 +66,7 @@ func NewLoggerWithCfg(cfg *logger.Config) (*zerolog.Logger, error) {
 func newRollingFile(cfg *logger.Config) io.Writer {
 	val := cfg.FileParams.MaxSize
 	orig := (val.Value * float64(val.Unit)) / pkl.Megabytes
+
 	return &lumberjack.Logger{
 		Filename:   path.Join(cfg.FileParams.Directory, cfg.FileParams.Name),
 		MaxBackups: cfg.FileParams.MaxBackups,
