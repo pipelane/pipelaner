@@ -34,8 +34,9 @@ func (d *Debounce) Init(cfg transform.Transform) error {
 		return fmt.Errorf("invalid debounce config type: %T", cfg)
 	}
 
-	d.interval = dConfig.GetInterval().GoDuration()
-	d.timer = time.NewTimer(dConfig.GetInterval().GoDuration())
+	interval := dConfig.GetInterval()
+	d.interval = interval.GoDuration()
+	d.timer = time.NewTimer(interval.GoDuration())
 	return nil
 }
 

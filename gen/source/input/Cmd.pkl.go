@@ -7,7 +7,7 @@ type Cmd interface {
 	GetExec() []string
 }
 
-var _ Cmd = (*CmdImpl)(nil)
+var _ Cmd = CmdImpl{}
 
 type CmdImpl struct {
 	SourceName string `pkl:"sourceName"`
@@ -21,22 +21,22 @@ type CmdImpl struct {
 	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
-func (rcv *CmdImpl) GetSourceName() string {
+func (rcv CmdImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *CmdImpl) GetExec() []string {
+func (rcv CmdImpl) GetExec() []string {
 	return rcv.Exec
 }
 
-func (rcv *CmdImpl) GetName() string {
+func (rcv CmdImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *CmdImpl) GetThreads() uint {
+func (rcv CmdImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *CmdImpl) GetOutputBufferSize() uint {
+func (rcv CmdImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

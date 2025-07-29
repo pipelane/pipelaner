@@ -4,5 +4,5 @@ package settings
 import "github.com/apple/pkl-go/pkl"
 
 func init() {
-	pkl.RegisterMapping("com.pipelaner.settings.settings", Settings{})
+	pkl.RegisterStrictMapping("com.pipelaner.settings.settings", Settings{})
 }

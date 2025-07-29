@@ -31,7 +31,7 @@ func newConfig(
 		unit, err := pkl.ToDurationUnit(matches[2])
 		assert.NoError(t, err)
 		return &transform.ThrottlingImpl{
-			Interval: &pkl.Duration{
+			Interval: pkl.Duration{
 				Value: value,
 				Unit:  unit,
 			},

@@ -10,7 +10,7 @@ import (
 type Components interface {
 }
 
-var _ Components = (*ComponentsImpl)(nil)
+var _ Components = ComponentsImpl{}
 
 type ComponentsImpl struct {
 }
@@ -19,7 +19,7 @@ type ComponentsImpl struct {
 func LoadFromPath(ctx context.Context, path string) (ret Components, err error) {
 	evaluator, err := pkl.NewEvaluator(ctx, pkl.PreconfiguredOptions)
 	if err != nil {
-		return nil, err
+		return ret, err
 	}
 	defer func() {
 		cerr := evaluator.Close()
@@ -34,8 +34,6 @@ func LoadFromPath(ctx context.Context, path string) (ret Components, err error) 
 // Load loads the pkl module at the given source and evaluates it with the given evaluator into a Components
 func Load(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (Components, error) {
 	var ret ComponentsImpl
-	if err := evaluator.EvaluateModule(ctx, source, &ret); err != nil {
-		return nil, err
-	}
-	return &ret, nil
+	err := evaluator.EvaluateModule(ctx, source, &ret)
+	return ret, err
 }

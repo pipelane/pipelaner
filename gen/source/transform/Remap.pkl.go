@@ -7,7 +7,7 @@ type Remap interface {
 	GetCode() string
 }
 
-var _ Remap = (*RemapImpl)(nil)
+var _ Remap = RemapImpl{}
 
 type RemapImpl struct {
 	SourceName string `pkl:"sourceName"`
@@ -23,26 +23,26 @@ type RemapImpl struct {
 	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
-func (rcv *RemapImpl) GetSourceName() string {
+func (rcv RemapImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *RemapImpl) GetCode() string {
+func (rcv RemapImpl) GetCode() string {
 	return rcv.Code
 }
 
-func (rcv *RemapImpl) GetName() string {
+func (rcv RemapImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *RemapImpl) GetInputs() []string {
+func (rcv RemapImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *RemapImpl) GetThreads() uint {
+func (rcv RemapImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *RemapImpl) GetOutputBufferSize() uint {
+func (rcv RemapImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

@@ -13,7 +13,7 @@ type Http interface {
 	GetHeaders() *map[string]string
 }
 
-var _ Http = (*HttpImpl)(nil)
+var _ Http = HttpImpl{}
 
 type HttpImpl struct {
 	SourceName string `pkl:"sourceName"`
@@ -31,30 +31,30 @@ type HttpImpl struct {
 	Threads uint `pkl:"threads"`
 }
 
-func (rcv *HttpImpl) GetSourceName() string {
+func (rcv HttpImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *HttpImpl) GetUrl() string {
+func (rcv HttpImpl) GetUrl() string {
 	return rcv.Url
 }
 
-func (rcv *HttpImpl) GetMethod() method.Method {
+func (rcv HttpImpl) GetMethod() method.Method {
 	return rcv.Method
 }
 
-func (rcv *HttpImpl) GetHeaders() *map[string]string {
+func (rcv HttpImpl) GetHeaders() *map[string]string {
 	return rcv.Headers
 }
 
-func (rcv *HttpImpl) GetName() string {
+func (rcv HttpImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *HttpImpl) GetInputs() []string {
+func (rcv HttpImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *HttpImpl) GetThreads() uint {
+func (rcv HttpImpl) GetThreads() uint {
 	return rcv.Threads
 }

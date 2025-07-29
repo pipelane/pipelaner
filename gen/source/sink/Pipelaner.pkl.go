@@ -6,15 +6,15 @@ import "github.com/pipelane/pipelaner/gen/source/common"
 type Pipelaner interface {
 	Sink
 
-	GetCommonConfig() *common.Pipelaner
+	GetCommonConfig() common.Pipelaner
 }
 
-var _ Pipelaner = (*PipelanerImpl)(nil)
+var _ Pipelaner = PipelanerImpl{}
 
 type PipelanerImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	CommonConfig *common.Pipelaner `pkl:"commonConfig"`
+	CommonConfig common.Pipelaner `pkl:"commonConfig"`
 
 	Name string `pkl:"name"`
 
@@ -23,22 +23,22 @@ type PipelanerImpl struct {
 	Threads uint `pkl:"threads"`
 }
 
-func (rcv *PipelanerImpl) GetSourceName() string {
+func (rcv PipelanerImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *PipelanerImpl) GetCommonConfig() *common.Pipelaner {
+func (rcv PipelanerImpl) GetCommonConfig() common.Pipelaner {
 	return rcv.CommonConfig
 }
 
-func (rcv *PipelanerImpl) GetName() string {
+func (rcv PipelanerImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *PipelanerImpl) GetInputs() []string {
+func (rcv PipelanerImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *PipelanerImpl) GetThreads() uint {
+func (rcv PipelanerImpl) GetThreads() uint {
 	return rcv.Threads
 }

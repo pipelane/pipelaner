@@ -6,7 +6,7 @@ import "github.com/pipelane/pipelaner/gen/source/common"
 type Clickhouse interface {
 	Sink
 
-	GetCredentials() *common.ChCredentials
+	GetCredentials() common.ChCredentials
 
 	GetTableName() string
 
@@ -17,12 +17,12 @@ type Clickhouse interface {
 	GetMaxPartitionsPerInsertBlock() int
 }
 
-var _ Clickhouse = (*ClickhouseImpl)(nil)
+var _ Clickhouse = ClickhouseImpl{}
 
 type ClickhouseImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	Credentials *common.ChCredentials `pkl:"credentials"`
+	Credentials common.ChCredentials `pkl:"credentials"`
 
 	TableName string `pkl:"tableName"`
 
@@ -39,38 +39,38 @@ type ClickhouseImpl struct {
 	Threads uint `pkl:"threads"`
 }
 
-func (rcv *ClickhouseImpl) GetSourceName() string {
+func (rcv ClickhouseImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *ClickhouseImpl) GetCredentials() *common.ChCredentials {
+func (rcv ClickhouseImpl) GetCredentials() common.ChCredentials {
 	return rcv.Credentials
 }
 
-func (rcv *ClickhouseImpl) GetTableName() string {
+func (rcv ClickhouseImpl) GetTableName() string {
 	return rcv.TableName
 }
 
-func (rcv *ClickhouseImpl) GetAsyncInsert() string {
+func (rcv ClickhouseImpl) GetAsyncInsert() string {
 	return rcv.AsyncInsert
 }
 
-func (rcv *ClickhouseImpl) GetWaitForAsyncInsert() string {
+func (rcv ClickhouseImpl) GetWaitForAsyncInsert() string {
 	return rcv.WaitForAsyncInsert
 }
 
-func (rcv *ClickhouseImpl) GetMaxPartitionsPerInsertBlock() int {
+func (rcv ClickhouseImpl) GetMaxPartitionsPerInsertBlock() int {
 	return rcv.MaxPartitionsPerInsertBlock
 }
 
-func (rcv *ClickhouseImpl) GetName() string {
+func (rcv ClickhouseImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *ClickhouseImpl) GetInputs() []string {
+func (rcv ClickhouseImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *ClickhouseImpl) GetThreads() uint {
+func (rcv ClickhouseImpl) GetThreads() uint {
 	return rcv.Threads
 }

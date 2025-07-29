@@ -33,7 +33,7 @@ func (c *Console) Init(cfg sink.Sink) error {
 		EnableConsole: true,
 		LogFormat:     cCfg.GetLogFormat(),
 	}
-	l, err := logger.NewLoggerWithCfg(&lCfg)
+	l, err := logger.NewLoggerWithCfg(lCfg)
 	if err != nil {
 		return err
 	}

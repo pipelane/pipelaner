@@ -6,15 +6,15 @@ import "github.com/apple/pkl-go/pkl"
 type Debounce interface {
 	Transform
 
-	GetInterval() *pkl.Duration
+	GetInterval() pkl.Duration
 }
 
-var _ Debounce = (*DebounceImpl)(nil)
+var _ Debounce = DebounceImpl{}
 
 type DebounceImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	Interval *pkl.Duration `pkl:"interval"`
+	Interval pkl.Duration `pkl:"interval"`
 
 	Name string `pkl:"name"`
 
@@ -25,26 +25,26 @@ type DebounceImpl struct {
 	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
-func (rcv *DebounceImpl) GetSourceName() string {
+func (rcv DebounceImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *DebounceImpl) GetInterval() *pkl.Duration {
+func (rcv DebounceImpl) GetInterval() pkl.Duration {
 	return rcv.Interval
 }
 
-func (rcv *DebounceImpl) GetName() string {
+func (rcv DebounceImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *DebounceImpl) GetInputs() []string {
+func (rcv DebounceImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *DebounceImpl) GetThreads() uint {
+func (rcv DebounceImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *DebounceImpl) GetOutputBufferSize() uint {
+func (rcv DebounceImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

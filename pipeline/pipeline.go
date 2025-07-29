@@ -52,7 +52,7 @@ type Pipeline struct {
 }
 
 func NewPipeline(
-	cfg *config.Pipeline,
+	cfg config.Pipeline,
 	logger *zerolog.Logger,
 	enableMetrics, startGCAfterProcess bool,
 ) (*Pipeline, error) {
@@ -97,7 +97,7 @@ func (p *Pipeline) Run(ctx context.Context) error {
 	return nil
 }
 
-func (p *Pipeline) initNodes(cfg *config.Pipeline, logger *zerolog.Logger, opts ...node.Option) error {
+func (p *Pipeline) initNodes(cfg config.Pipeline, logger *zerolog.Logger, opts ...node.Option) error {
 	if err := p.initSinkNodes(cfg.Sinks, logger, opts...); err != nil {
 		return fmt.Errorf("init sink nodes: %w", err)
 	}

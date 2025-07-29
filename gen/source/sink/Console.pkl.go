@@ -9,7 +9,7 @@ type Console interface {
 	GetLogFormat() logformat.LogFormat
 }
 
-var _ Console = (*ConsoleImpl)(nil)
+var _ Console = ConsoleImpl{}
 
 type ConsoleImpl struct {
 	SourceName string `pkl:"sourceName"`
@@ -23,22 +23,22 @@ type ConsoleImpl struct {
 	Threads uint `pkl:"threads"`
 }
 
-func (rcv *ConsoleImpl) GetSourceName() string {
+func (rcv ConsoleImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *ConsoleImpl) GetLogFormat() logformat.LogFormat {
+func (rcv ConsoleImpl) GetLogFormat() logformat.LogFormat {
 	return rcv.LogFormat
 }
 
-func (rcv *ConsoleImpl) GetName() string {
+func (rcv ConsoleImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *ConsoleImpl) GetInputs() []string {
+func (rcv ConsoleImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *ConsoleImpl) GetThreads() uint {
+func (rcv ConsoleImpl) GetThreads() uint {
 	return rcv.Threads
 }

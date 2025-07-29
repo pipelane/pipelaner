@@ -4,8 +4,8 @@ package input
 import "github.com/apple/pkl-go/pkl"
 
 func init() {
-	pkl.RegisterMapping("com.pipelaner.source.inputs", Inputs{})
-	pkl.RegisterMapping("com.pipelaner.source.inputs#Cmd", CmdImpl{})
-	pkl.RegisterMapping("com.pipelaner.source.inputs#Kafka", KafkaImpl{})
-	pkl.RegisterMapping("com.pipelaner.source.inputs#Pipelaner", PipelanerImpl{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.inputs", Inputs{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.inputs#Cmd", CmdImpl{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.inputs#Kafka", KafkaImpl{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.inputs#Pipelaner", PipelanerImpl{})
 }

@@ -4,6 +4,6 @@ package components
 import "github.com/apple/pkl-go/pkl"
 
 func init() {
-	pkl.RegisterMapping("com.pipelaner.source.components#Pipeline", Pipeline{})
-	pkl.RegisterMapping("com.pipelaner.source.components", ComponentsImpl{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.components#Pipeline", Pipeline{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.components", ComponentsImpl{})
 }

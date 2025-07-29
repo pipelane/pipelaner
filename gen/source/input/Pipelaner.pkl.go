@@ -16,7 +16,7 @@ type Pipelaner interface {
 	GetUnixSocketPath() *string
 }
 
-var _ Pipelaner = (*PipelanerImpl)(nil)
+var _ Pipelaner = PipelanerImpl{}
 
 type PipelanerImpl struct {
 	SourceName string `pkl:"sourceName"`
@@ -34,30 +34,30 @@ type PipelanerImpl struct {
 	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
-func (rcv *PipelanerImpl) GetSourceName() string {
+func (rcv PipelanerImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *PipelanerImpl) GetCommonConfig() *common.Pipelaner {
+func (rcv PipelanerImpl) GetCommonConfig() *common.Pipelaner {
 	return rcv.CommonConfig
 }
 
-func (rcv *PipelanerImpl) GetConnectionType() connectiontype.ConnectionType {
+func (rcv PipelanerImpl) GetConnectionType() connectiontype.ConnectionType {
 	return rcv.ConnectionType
 }
 
-func (rcv *PipelanerImpl) GetUnixSocketPath() *string {
+func (rcv PipelanerImpl) GetUnixSocketPath() *string {
 	return rcv.UnixSocketPath
 }
 
-func (rcv *PipelanerImpl) GetName() string {
+func (rcv PipelanerImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *PipelanerImpl) GetThreads() uint {
+func (rcv PipelanerImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *PipelanerImpl) GetOutputBufferSize() uint {
+func (rcv PipelanerImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

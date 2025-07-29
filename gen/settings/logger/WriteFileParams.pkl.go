@@ -8,7 +8,7 @@ type WriteFileParams struct {
 
 	Name string `pkl:"name"`
 
-	MaxSize *pkl.DataSize `pkl:"maxSize"`
+	MaxSize pkl.DataSize `pkl:"maxSize"`
 
 	MaxBackups int `pkl:"maxBackups"`
 

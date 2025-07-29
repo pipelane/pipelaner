@@ -6,8 +6,8 @@ on:
       - 'pipelaner@*'
 
 env:
-  PKL_VERSION: 0.27.1
-  PKL_GO_VERSION: v0.9.0
+  PKL_VERSION: 0.29.0
+  PKL_GO_VERSION: v0.11.0
 
 jobs:
   pkl-create-release:

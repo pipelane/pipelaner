@@ -19,7 +19,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func NewLoggerWithCfg(cfg *logger.Config) (*zerolog.Logger, error) {
+func NewLoggerWithCfg(cfg logger.Config) (*zerolog.Logger, error) {
 	var writers []io.Writer
 
 	if cfg.LogLevel == "" {
@@ -63,7 +63,7 @@ func NewLoggerWithCfg(cfg *logger.Config) (*zerolog.Logger, error) {
 	return &l, nil
 }
 
-func newRollingFile(cfg *logger.Config) io.Writer {
+func newRollingFile(cfg logger.Config) io.Writer {
 	val := cfg.FileParams.MaxSize
 	orig := (val.Value * float64(val.Unit)) / pkl.Megabytes
 

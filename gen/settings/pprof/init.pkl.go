@@ -4,5 +4,5 @@ package pprof
 import "github.com/apple/pkl-go/pkl"
 
 func init() {
-	pkl.RegisterMapping("com.pipelaner.settings.pprof.config", Config{})
+	pkl.RegisterStrictMapping("com.pipelaner.settings.pprof.config", Config{})
 }

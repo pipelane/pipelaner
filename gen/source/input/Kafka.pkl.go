@@ -11,7 +11,7 @@ import (
 type Kafka interface {
 	Input
 
-	GetCommon() *common.Kafka
+	GetCommon() common.Kafka
 
 	GetAutoCommitEnabled() bool
 
@@ -21,17 +21,17 @@ type Kafka interface {
 
 	GetBalancerStrategy() []strategy.Strategy
 
-	GetMaxPartitionFetchBytes() *pkl.DataSize
+	GetMaxPartitionFetchBytes() pkl.DataSize
 
-	GetFetchMaxBytes() *pkl.DataSize
+	GetFetchMaxBytes() pkl.DataSize
 }
 
-var _ Kafka = (*KafkaImpl)(nil)
+var _ Kafka = KafkaImpl{}
 
 type KafkaImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	Common *common.Kafka `pkl:"common"`
+	Common common.Kafka `pkl:"common"`
 
 	AutoCommitEnabled bool `pkl:"autoCommitEnabled"`
 
@@ -41,9 +41,9 @@ type KafkaImpl struct {
 
 	BalancerStrategy []strategy.Strategy `pkl:"balancerStrategy"`
 
-	MaxPartitionFetchBytes *pkl.DataSize `pkl:"maxPartitionFetchBytes"`
+	MaxPartitionFetchBytes pkl.DataSize `pkl:"maxPartitionFetchBytes"`
 
-	FetchMaxBytes *pkl.DataSize `pkl:"fetchMaxBytes"`
+	FetchMaxBytes pkl.DataSize `pkl:"fetchMaxBytes"`
 
 	Name string `pkl:"name"`
 
@@ -52,46 +52,46 @@ type KafkaImpl struct {
 	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
-func (rcv *KafkaImpl) GetSourceName() string {
+func (rcv KafkaImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *KafkaImpl) GetCommon() *common.Kafka {
+func (rcv KafkaImpl) GetCommon() common.Kafka {
 	return rcv.Common
 }
 
-func (rcv *KafkaImpl) GetAutoCommitEnabled() bool {
+func (rcv KafkaImpl) GetAutoCommitEnabled() bool {
 	return rcv.AutoCommitEnabled
 }
 
-func (rcv *KafkaImpl) GetConsumerGroupID() string {
+func (rcv KafkaImpl) GetConsumerGroupID() string {
 	return rcv.ConsumerGroupID
 }
 
-func (rcv *KafkaImpl) GetAutoOffsetReset() autooffsetreset.AutoOffsetReset {
+func (rcv KafkaImpl) GetAutoOffsetReset() autooffsetreset.AutoOffsetReset {
 	return rcv.AutoOffsetReset
 }
 
-func (rcv *KafkaImpl) GetBalancerStrategy() []strategy.Strategy {
+func (rcv KafkaImpl) GetBalancerStrategy() []strategy.Strategy {
 	return rcv.BalancerStrategy
 }
 
-func (rcv *KafkaImpl) GetMaxPartitionFetchBytes() *pkl.DataSize {
+func (rcv KafkaImpl) GetMaxPartitionFetchBytes() pkl.DataSize {
 	return rcv.MaxPartitionFetchBytes
 }
 
-func (rcv *KafkaImpl) GetFetchMaxBytes() *pkl.DataSize {
+func (rcv KafkaImpl) GetFetchMaxBytes() pkl.DataSize {
 	return rcv.FetchMaxBytes
 }
 
-func (rcv *KafkaImpl) GetName() string {
+func (rcv KafkaImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *KafkaImpl) GetThreads() uint {
+func (rcv KafkaImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *KafkaImpl) GetOutputBufferSize() uint {
+func (rcv KafkaImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

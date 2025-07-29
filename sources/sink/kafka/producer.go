@@ -24,10 +24,11 @@ func NewProducer(
 	logger *zerolog.Logger,
 ) (*Producer, error) {
 	mSize := cfg.GetBatchNumMessages()
+	ms := cfg.GetLingerMs()
 	opts := []kgo.Opt{
 		kgo.SeedBrokers(cfg.GetCommon().Brokers...),
 		kgo.WithLogger(kzerolog.New(logger)),
-		kgo.ProducerLinger(cfg.GetLingerMs().GoDuration()),
+		kgo.ProducerLinger(ms.GoDuration()),
 		kgo.MaxBufferedRecords(mSize),
 	}
 

@@ -4,5 +4,5 @@ package healthcheck
 import "github.com/apple/pkl-go/pkl"
 
 func init() {
-	pkl.RegisterMapping("com.pipelaner.settings.healthcheck.config", Config{})
+	pkl.RegisterStrictMapping("com.pipelaner.settings.healthcheck.config", Config{})
 }

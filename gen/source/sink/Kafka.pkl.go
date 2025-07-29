@@ -9,25 +9,25 @@ import (
 type Kafka interface {
 	Sink
 
-	GetCommon() *common.Kafka
+	GetCommon() common.Kafka
 
-	GetMaxRequestSize() *pkl.DataSize
+	GetMaxRequestSize() pkl.DataSize
 
-	GetLingerMs() *pkl.Duration
+	GetLingerMs() pkl.Duration
 
 	GetBatchNumMessages() int
 }
 
-var _ Kafka = (*KafkaImpl)(nil)
+var _ Kafka = KafkaImpl{}
 
 type KafkaImpl struct {
 	SourceName string `pkl:"sourceName"`
 
-	Common *common.Kafka `pkl:"common"`
+	Common common.Kafka `pkl:"common"`
 
-	MaxRequestSize *pkl.DataSize `pkl:"maxRequestSize"`
+	MaxRequestSize pkl.DataSize `pkl:"maxRequestSize"`
 
-	LingerMs *pkl.Duration `pkl:"lingerMs"`
+	LingerMs pkl.Duration `pkl:"lingerMs"`
 
 	BatchNumMessages int `pkl:"batchNumMessages"`
 
@@ -38,34 +38,34 @@ type KafkaImpl struct {
 	Threads uint `pkl:"threads"`
 }
 
-func (rcv *KafkaImpl) GetSourceName() string {
+func (rcv KafkaImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *KafkaImpl) GetCommon() *common.Kafka {
+func (rcv KafkaImpl) GetCommon() common.Kafka {
 	return rcv.Common
 }
 
-func (rcv *KafkaImpl) GetMaxRequestSize() *pkl.DataSize {
+func (rcv KafkaImpl) GetMaxRequestSize() pkl.DataSize {
 	return rcv.MaxRequestSize
 }
 
-func (rcv *KafkaImpl) GetLingerMs() *pkl.Duration {
+func (rcv KafkaImpl) GetLingerMs() pkl.Duration {
 	return rcv.LingerMs
 }
 
-func (rcv *KafkaImpl) GetBatchNumMessages() int {
+func (rcv KafkaImpl) GetBatchNumMessages() int {
 	return rcv.BatchNumMessages
 }
 
-func (rcv *KafkaImpl) GetName() string {
+func (rcv KafkaImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *KafkaImpl) GetInputs() []string {
+func (rcv KafkaImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *KafkaImpl) GetThreads() uint {
+func (rcv KafkaImpl) GetThreads() uint {
 	return rcv.Threads
 }
