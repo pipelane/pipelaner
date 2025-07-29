@@ -7,7 +7,7 @@ type Batch interface {
 	GetSize() uint
 }
 
-var _ Batch = (*BatchImpl)(nil)
+var _ Batch = BatchImpl{}
 
 type BatchImpl struct {
 	SourceName string `pkl:"sourceName"`
@@ -23,26 +23,26 @@ type BatchImpl struct {
 	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
-func (rcv *BatchImpl) GetSourceName() string {
+func (rcv BatchImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *BatchImpl) GetSize() uint {
+func (rcv BatchImpl) GetSize() uint {
 	return rcv.Size
 }
 
-func (rcv *BatchImpl) GetName() string {
+func (rcv BatchImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *BatchImpl) GetInputs() []string {
+func (rcv BatchImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *BatchImpl) GetThreads() uint {
+func (rcv BatchImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *BatchImpl) GetOutputBufferSize() uint {
+func (rcv BatchImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

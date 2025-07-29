@@ -11,10 +11,10 @@ type Transforms struct {
 }
 
 // LoadFromPath loads the pkl module at the given path and evaluates it into a Transforms
-func LoadFromPath(ctx context.Context, path string) (ret *Transforms, err error) {
+func LoadFromPath(ctx context.Context, path string) (ret Transforms, err error) {
 	evaluator, err := pkl.NewEvaluator(ctx, pkl.PreconfiguredOptions)
 	if err != nil {
-		return nil, err
+		return ret, err
 	}
 	defer func() {
 		cerr := evaluator.Close()
@@ -27,10 +27,8 @@ func LoadFromPath(ctx context.Context, path string) (ret *Transforms, err error)
 }
 
 // Load loads the pkl module at the given source and evaluates it with the given evaluator into a Transforms
-func Load(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (*Transforms, error) {
+func Load(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (Transforms, error) {
 	var ret Transforms
-	if err := evaluator.EvaluateModule(ctx, source, &ret); err != nil {
-		return nil, err
-	}
-	return &ret, nil
+	err := evaluator.EvaluateModule(ctx, source, &ret)
+	return ret, err
 }

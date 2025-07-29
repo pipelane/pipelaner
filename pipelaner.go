@@ -26,8 +26,8 @@ type Pipelaner struct {
 }
 
 func NewPipelaner(
-	configs []*components.Pipeline,
-	loggerCfg *logCfg.Config,
+	configs []components.Pipeline,
+	loggerCfg logCfg.Config,
 	metricsEnabled, gcAfterProcess bool,
 ) (*Pipelaner, error) {
 	pl := make([]pipeline, 0, len(configs))

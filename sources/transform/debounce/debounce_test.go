@@ -24,7 +24,7 @@ func newCfg(
 		t.Fatal(err)
 	}
 	return &transform.DebounceImpl{
-		Interval: &pkl.Duration{
+		Interval: pkl.Duration{
 			Unit:  uni,
 			Value: duration,
 		},

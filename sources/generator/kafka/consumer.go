@@ -27,8 +27,10 @@ func NewConsumer(
 	cfg input.Kafka,
 	logger *zerolog.Logger,
 ) (*Consumer, error) {
-	v := cfg.GetMaxPartitionFetchBytes().ToUnit(pkl.Bytes).Value
-	maxByteFetch := cfg.GetFetchMaxBytes().ToUnit(pkl.Bytes).Value
+	maxPartitionFetchBytes := cfg.GetMaxPartitionFetchBytes()
+	v := maxPartitionFetchBytes.ToUnit(pkl.Bytes).Value
+	fetchMaxBytes := cfg.GetFetchMaxBytes()
+	maxByteFetch := fetchMaxBytes.ToUnit(pkl.Bytes).Value
 
 	opts := []kgo.Opt{
 		kgo.SeedBrokers(cfg.GetCommon().Brokers...),

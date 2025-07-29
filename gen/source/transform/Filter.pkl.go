@@ -7,7 +7,7 @@ type Filter interface {
 	GetCode() string
 }
 
-var _ Filter = (*FilterImpl)(nil)
+var _ Filter = FilterImpl{}
 
 type FilterImpl struct {
 	SourceName string `pkl:"sourceName"`
@@ -23,26 +23,26 @@ type FilterImpl struct {
 	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
-func (rcv *FilterImpl) GetSourceName() string {
+func (rcv FilterImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *FilterImpl) GetCode() string {
+func (rcv FilterImpl) GetCode() string {
 	return rcv.Code
 }
 
-func (rcv *FilterImpl) GetName() string {
+func (rcv FilterImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *FilterImpl) GetInputs() []string {
+func (rcv FilterImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *FilterImpl) GetThreads() uint {
+func (rcv FilterImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *FilterImpl) GetOutputBufferSize() uint {
+func (rcv FilterImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

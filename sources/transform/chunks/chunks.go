@@ -28,10 +28,11 @@ func (c *Chunk) Init(cfg transform.Transform) error {
 		return fmt.Errorf("invalid chunk config type: %T", cfg)
 	}
 
+	time := chunkCfg.GetMaxIdleTime()
 	c.buffer = chunker.NewChunks(chunker.Config{
 		MaxChunkSize: chunkCfg.GetMaxChunkSize(),
 		BufferSize:   chunkCfg.GetOutputBufferSize(),
-		MaxIdleTime:  chunkCfg.GetMaxIdleTime().GoDuration(),
+		MaxIdleTime:  time.GoDuration(),
 	})
 	c.buffer.Generator()
 	return nil

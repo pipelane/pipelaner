@@ -7,7 +7,7 @@ type Sequencer interface {
 	GetIsSequencer() bool
 }
 
-var _ Sequencer = (*SequencerImpl)(nil)
+var _ Sequencer = SequencerImpl{}
 
 type SequencerImpl struct {
 	SourceName string `pkl:"sourceName"`
@@ -23,26 +23,26 @@ type SequencerImpl struct {
 	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
-func (rcv *SequencerImpl) GetSourceName() string {
+func (rcv SequencerImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *SequencerImpl) GetIsSequencer() bool {
+func (rcv SequencerImpl) GetIsSequencer() bool {
 	return rcv.IsSequencer
 }
 
-func (rcv *SequencerImpl) GetName() string {
+func (rcv SequencerImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *SequencerImpl) GetInputs() []string {
+func (rcv SequencerImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *SequencerImpl) GetThreads() uint {
+func (rcv SequencerImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *SequencerImpl) GetOutputBufferSize() uint {
+func (rcv SequencerImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

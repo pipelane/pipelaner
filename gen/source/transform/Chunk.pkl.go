@@ -8,17 +8,17 @@ type Chunk interface {
 
 	GetMaxChunkSize() uint
 
-	GetMaxIdleTime() *pkl.Duration
+	GetMaxIdleTime() pkl.Duration
 }
 
-var _ Chunk = (*ChunkImpl)(nil)
+var _ Chunk = ChunkImpl{}
 
 type ChunkImpl struct {
 	SourceName string `pkl:"sourceName"`
 
 	MaxChunkSize uint `pkl:"maxChunkSize"`
 
-	MaxIdleTime *pkl.Duration `pkl:"maxIdleTime"`
+	MaxIdleTime pkl.Duration `pkl:"maxIdleTime"`
 
 	Name string `pkl:"name"`
 
@@ -29,30 +29,30 @@ type ChunkImpl struct {
 	OutputBufferSize uint `pkl:"outputBufferSize"`
 }
 
-func (rcv *ChunkImpl) GetSourceName() string {
+func (rcv ChunkImpl) GetSourceName() string {
 	return rcv.SourceName
 }
 
-func (rcv *ChunkImpl) GetMaxChunkSize() uint {
+func (rcv ChunkImpl) GetMaxChunkSize() uint {
 	return rcv.MaxChunkSize
 }
 
-func (rcv *ChunkImpl) GetMaxIdleTime() *pkl.Duration {
+func (rcv ChunkImpl) GetMaxIdleTime() pkl.Duration {
 	return rcv.MaxIdleTime
 }
 
-func (rcv *ChunkImpl) GetName() string {
+func (rcv ChunkImpl) GetName() string {
 	return rcv.Name
 }
 
-func (rcv *ChunkImpl) GetInputs() []string {
+func (rcv ChunkImpl) GetInputs() []string {
 	return rcv.Inputs
 }
 
-func (rcv *ChunkImpl) GetThreads() uint {
+func (rcv ChunkImpl) GetThreads() uint {
 	return rcv.Threads
 }
 
-func (rcv *ChunkImpl) GetOutputBufferSize() uint {
+func (rcv ChunkImpl) GetOutputBufferSize() uint {
 	return rcv.OutputBufferSize
 }

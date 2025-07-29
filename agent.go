@@ -35,7 +35,7 @@ func NewAgent(file string) (*Agent, error) {
 	}
 
 	a := &Agent{
-		cfg: cfg,
+		cfg: &cfg,
 	}
 
 	inits := []func(cfg *config.Pipelaner) error{
@@ -47,7 +47,7 @@ func NewAgent(file string) (*Agent, error) {
 	}
 
 	for _, init := range inits {
-		if err = init(cfg); err != nil {
+		if err = init(&cfg); err != nil {
 			return nil, err
 		}
 	}

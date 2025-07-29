@@ -33,8 +33,9 @@ func (t *Throttling) Init(cfg transform.Transform) error {
 	if !ok {
 		return fmt.Errorf("invalid transform config type: %T", cfg)
 	}
-	t.interval = tCfg.GetInterval().GoDuration()
-	t.timer = time.NewTimer(tCfg.GetInterval().GoDuration())
+	interval := tCfg.GetInterval()
+	t.interval = interval.GoDuration()
+	t.timer = time.NewTimer(interval.GoDuration())
 	return nil
 }
 

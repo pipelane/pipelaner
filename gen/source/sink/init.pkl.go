@@ -4,10 +4,10 @@ package sink
 import "github.com/apple/pkl-go/pkl"
 
 func init() {
-	pkl.RegisterMapping("com.pipelaner.source.sinks", Sinks{})
-	pkl.RegisterMapping("com.pipelaner.source.sinks#Console", ConsoleImpl{})
-	pkl.RegisterMapping("com.pipelaner.source.sinks#Pipelaner", PipelanerImpl{})
-	pkl.RegisterMapping("com.pipelaner.source.sinks#Kafka", KafkaImpl{})
-	pkl.RegisterMapping("com.pipelaner.source.sinks#Clickhouse", ClickhouseImpl{})
-	pkl.RegisterMapping("com.pipelaner.source.sinks#Http", HttpImpl{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.sinks", Sinks{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.sinks#Console", ConsoleImpl{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.sinks#Pipelaner", PipelanerImpl{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.sinks#Kafka", KafkaImpl{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.sinks#Clickhouse", ClickhouseImpl{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.sinks#Http", HttpImpl{})
 }

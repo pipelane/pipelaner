@@ -13,7 +13,7 @@ import (
 )
 
 type Settings struct {
-	Logger *logger.Config `pkl:"logger"`
+	Logger logger.Config `pkl:"logger"`
 
 	HealthCheck *healthcheck.Config `pkl:"healthCheck"`
 
@@ -23,16 +23,16 @@ type Settings struct {
 
 	StartGCAfterMessageProcess bool `pkl:"startGCAfterMessageProcess"`
 
-	GracefulShutdownDelay *pkl.Duration `pkl:"gracefulShutdownDelay"`
+	GracefulShutdownDelay pkl.Duration `pkl:"gracefulShutdownDelay"`
 
 	Pprof *pprof.Config `pkl:"pprof"`
 }
 
 // LoadFromPath loads the pkl module at the given path and evaluates it into a Settings
-func LoadFromPath(ctx context.Context, path string) (ret *Settings, err error) {
+func LoadFromPath(ctx context.Context, path string) (ret Settings, err error) {
 	evaluator, err := pkl.NewEvaluator(ctx, pkl.PreconfiguredOptions)
 	if err != nil {
-		return nil, err
+		return ret, err
 	}
 	defer func() {
 		cerr := evaluator.Close()
@@ -45,10 +45,8 @@ func LoadFromPath(ctx context.Context, path string) (ret *Settings, err error) {
 }
 
 // Load loads the pkl module at the given source and evaluates it with the given evaluator into a Settings
-func Load(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (*Settings, error) {
+func Load(ctx context.Context, evaluator pkl.Evaluator, source *pkl.ModuleSource) (Settings, error) {
 	var ret Settings
-	if err := evaluator.EvaluateModule(ctx, source, &ret); err != nil {
-		return nil, err
-	}
-	return &ret, nil
+	err := evaluator.EvaluateModule(ctx, source, &ret)
+	return ret, err
 }

@@ -9,43 +9,43 @@ import (
 type Clickhouse interface {
 	Migration
 
-	GetCredentials() *common.ChCredentials
+	GetCredentials() common.ChCredentials
 
 	GetEngine() string
 
 	GetClusterName() *string
 }
 
-var _ Clickhouse = (*ClickhouseImpl)(nil)
+var _ Clickhouse = ClickhouseImpl{}
 
 type ClickhouseImpl struct {
 	Driver driver.Driver `pkl:"driver"`
 
 	Path string `pkl:"path"`
 
-	Credentials *common.ChCredentials `pkl:"credentials"`
+	Credentials common.ChCredentials `pkl:"credentials"`
 
 	Engine string `pkl:"engine"`
 
 	ClusterName *string `pkl:"clusterName"`
 }
 
-func (rcv *ClickhouseImpl) GetDriver() driver.Driver {
+func (rcv ClickhouseImpl) GetDriver() driver.Driver {
 	return rcv.Driver
 }
 
-func (rcv *ClickhouseImpl) GetPath() string {
+func (rcv ClickhouseImpl) GetPath() string {
 	return rcv.Path
 }
 
-func (rcv *ClickhouseImpl) GetCredentials() *common.ChCredentials {
+func (rcv ClickhouseImpl) GetCredentials() common.ChCredentials {
 	return rcv.Credentials
 }
 
-func (rcv *ClickhouseImpl) GetEngine() string {
+func (rcv ClickhouseImpl) GetEngine() string {
 	return rcv.Engine
 }
 
-func (rcv *ClickhouseImpl) GetClusterName() *string {
+func (rcv ClickhouseImpl) GetClusterName() *string {
 	return rcv.ClusterName
 }

@@ -4,10 +4,10 @@ package common
 import "github.com/apple/pkl-go/pkl"
 
 func init() {
-	pkl.RegisterMapping("com.pipelaner.source.common#Kafka", Kafka{})
-	pkl.RegisterMapping("com.pipelaner.source.common#KafkaAuth", KafkaAuth{})
-	pkl.RegisterMapping("com.pipelaner.source.common", Common{})
-	pkl.RegisterMapping("com.pipelaner.source.common#TLSConfig", TLSConfig{})
-	pkl.RegisterMapping("com.pipelaner.source.common#Pipelaner", Pipelaner{})
-	pkl.RegisterMapping("com.pipelaner.source.common#ChCredentials", ChCredentials{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.common#Kafka", Kafka{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.common#KafkaAuth", KafkaAuth{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.common", Common{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.common#TLSConfig", TLSConfig{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.common#Pipelaner", Pipelaner{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.common#ChCredentials", ChCredentials{})
 }

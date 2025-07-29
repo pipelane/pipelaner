@@ -4,5 +4,5 @@ package metrics
 import "github.com/apple/pkl-go/pkl"
 
 func init() {
-	pkl.RegisterMapping("com.pipelaner.settings.metrics.config", Config{})
+	pkl.RegisterStrictMapping("com.pipelaner.settings.metrics.config", Config{})
 }
