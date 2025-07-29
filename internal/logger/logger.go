@@ -64,13 +64,11 @@ func NewLoggerWithCfg(cfg logger.Config) (*zerolog.Logger, error) {
 }
 
 func newRollingFile(cfg logger.Config) io.Writer {
-	val := cfg.FileParams.MaxSize
-	orig := (val.Value * float64(val.Unit)) / pkl.Megabytes
-
+	maxSize := cfg.FileParams.MaxSize.ToUnit(pkl.Megabytes)
 	return &lumberjack.Logger{
 		Filename:   path.Join(cfg.FileParams.Directory, cfg.FileParams.Name),
 		MaxBackups: cfg.FileParams.MaxBackups,
-		MaxSize:    int(orig),
+		MaxSize:    int(maxSize.Value),
 		MaxAge:     cfg.FileParams.MaxAge,
 		Compress:   cfg.FileParams.Compress,
 		LocalTime:  cfg.FileParams.LocalFormat,
