@@ -1,7 +1,7 @@
 @go.Package { name = "github.com/pipelane/pipelaner/gen/source/transform" }
 module com.pipelaner.source.transforms
 
-import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.11.0#/go.pkl"
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.11.1#/go.pkl"
 
 
 abstract class Transform {
