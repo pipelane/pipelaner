@@ -21,7 +21,7 @@ func (s *testSinkAtomic) Init(_ sink.Sink) error {
 
 func (s *testSinkAtomic) Sink(val any) error {
 	switch v := val.(type) {
-	case AtomicMessage:
+	case AtomicData:
 		v.Success() <- v
 		return nil
 	default:
@@ -69,7 +69,7 @@ func (t *testTransformAtomic) Init(_ transform.Transform) error {
 
 func (t *testTransformAtomic) Transform(val any) any {
 	switch v := val.(type) {
-	case AtomicMessage:
+	case AtomicData:
 		vals := t.Transform(v.Data())
 		if vs, ok := vals.(error); ok {
 			return vs
@@ -117,7 +117,7 @@ func TestNodes_Run(t *testing.T) {
 
 		assert.NoError(t, transformNode.Run())
 		assert.NoError(t, sinkNode.Run())
-		success := make(chan AtomicMessage, messagesCount)
+		success := make(chan AtomicData, messagesCount)
 		ids := map[string]int{}
 		go func() {
 			for i := 0; i < messagesCount; i++ {
@@ -127,7 +127,7 @@ func TestNodes_Run(t *testing.T) {
 			}
 			close(inputChan)
 		}()
-		res := make([]AtomicMessage, 0, messagesCount)
+		res := make([]AtomicData, 0, messagesCount)
 		counter := 0
 		for v := range success {
 			res = append(res, v)
@@ -167,7 +167,7 @@ func TestNodes_Run(t *testing.T) {
 
 		assert.NoError(t, transformNode.Run())
 		assert.NoError(t, sinkNode.Run())
-		success := make(chan AtomicMessage, messagesCount)
+		success := make(chan AtomicData, messagesCount)
 		ids := map[string]int{}
 		mx := sync.RWMutex{}
 		go func() {
@@ -190,7 +190,7 @@ func TestNodes_Run(t *testing.T) {
 			}
 			close(inputChan2)
 		}()
-		res := make([]AtomicMessage, 0, messagesCount*2)
+		res := make([]AtomicData, 0, messagesCount*2)
 		counter := 0
 		for v := range success {
 			res = append(res, v)

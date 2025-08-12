@@ -203,8 +203,8 @@ func TestTransformAtomicMessage_Run(t *testing.T) {
 
 		countMessages1 := 10
 		countMessages2 := 10
-		success := make(chan AtomicMessage, countMessages2+countMessages1)
-		errs := make(chan AtomicMessage, countMessages2+countMessages1)
+		success := make(chan AtomicData, countMessages2+countMessages1)
+		errs := make(chan AtomicData, countMessages2+countMessages1)
 		go func() {
 			defer close(inputChan1)
 			for i := 0; i < countMessages1; i++ {
@@ -243,8 +243,8 @@ func TestTransformAtomicMessage_Run(t *testing.T) {
 		assert.NoError(t, transformNode.Run())
 
 		messagesCount := 10
-		success := make(chan AtomicMessage, messagesCount)
-		errs := make(chan AtomicMessage, messagesCount)
+		success := make(chan AtomicData, messagesCount)
+		errs := make(chan AtomicData, messagesCount)
 		go func() {
 			defer close(inputChan)
 			for i := 0; i < messagesCount; i++ {

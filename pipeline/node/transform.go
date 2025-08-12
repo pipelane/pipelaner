@@ -116,9 +116,9 @@ func (t *Transform) Run() error {
 					if t.cfg.enableMetrics {
 						metrics.TotalTransformationError.WithLabelValues(transformNodeType, t.cfg.name).Inc()
 					}
-					if m, oks := msg.(AtomicMessage); oks {
-						if m.errorCh != nil {
-							m.errorCh <- tmpMsg
+					if m, oks := msg.(AtomicData); oks {
+						if m.Error() != nil {
+							m.Error() <- tmpMsg
 						}
 					}
 					t.logger.Debug().Err(e).Msg("received error")
@@ -128,7 +128,7 @@ func (t *Transform) Run() error {
 					var mes any
 					var err error
 					switch ms := msg.(type) {
-					case AtomicMessage:
+					case AtomicData:
 						mes, err = t.prepareMessage(ms.Data())
 						mes = ms.MessageFrom(mes)
 					default:

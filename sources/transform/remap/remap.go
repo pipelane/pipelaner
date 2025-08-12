@@ -56,7 +56,7 @@ func (e *Remap) Transform(val any) any {
 		v = value
 	case map[string][]any:
 		v = value
-	case node.AtomicMessage:
+	case node.AtomicData:
 		newV := e.Transform(value.Data())
 		if err, ok := newV.(error); ok {
 			return err

@@ -60,7 +60,7 @@ func (p *Pipelaner) Init(cfg sink.Sink) error {
 func (p *Pipelaner) Sink(val any) error {
 	var m *service2.Message
 	switch v := val.(type) {
-	case node.AtomicMessage:
+	case node.AtomicData:
 		err := p.Sink(v.Data())
 		if err != nil {
 			v.Error() <- v

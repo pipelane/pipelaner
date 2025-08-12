@@ -68,7 +68,7 @@ func (k *Kafka) Sink(val any) error {
 	var err error
 
 	switch v := val.(type) {
-	case node.AtomicMessage:
+	case node.AtomicData:
 		err = k.Sink(v.Data())
 		if err != nil {
 			v.Error() <- v
@@ -80,7 +80,7 @@ func (k *Kafka) Sink(val any) error {
 		message = v
 	case string:
 		message = []byte(v)
-	case chan node.AtomicMessage:
+	case chan node.AtomicData:
 		for msg := range v {
 			_ = k.Sink(msg) //nolint: errcheck
 		}

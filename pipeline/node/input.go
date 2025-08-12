@@ -111,7 +111,7 @@ func (i *Input) Run(ctx context.Context) error {
 				var mes any
 				var err error
 				switch ms := msg.(type) {
-				case AtomicMessage:
+				case AtomicData:
 					mes, err = i.prepareMessage(ms.Data())
 					mes = ms.MessageFrom(mes)
 				default:

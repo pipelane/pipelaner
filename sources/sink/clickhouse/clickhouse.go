@@ -293,7 +293,7 @@ func (c *Clickhouse) getMap(val any) (map[string]any, error) {
 	var d map[string]any
 	var vals any
 	switch v := val.(type) {
-	case node.AtomicMessage:
+	case node.AtomicData:
 		vals = v.Data()
 	default:
 		vals = v
@@ -446,7 +446,7 @@ func (c *Clickhouse) Sink(val any) error {
 func (c *Clickhouse) sendAtomicError(chData chan any) {
 	for chV := range chData {
 		switch vals := chV.(type) {
-		case node.AtomicMessage:
+		case node.AtomicData:
 			vals.Error() <- vals
 		default:
 			break
@@ -457,7 +457,7 @@ func (c *Clickhouse) sendAtomicError(chData chan any) {
 func (c *Clickhouse) sendAtomicSuccess(chData chan any) {
 	for chV := range chData {
 		switch vals := chV.(type) {
-		case node.AtomicMessage:
+		case node.AtomicData:
 			vals.Success() <- vals
 		default:
 			break

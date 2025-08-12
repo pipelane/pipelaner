@@ -51,7 +51,7 @@ func (t *Filter) Transform(val any) any {
 	switch value := val.(type) {
 	case map[string]any:
 		v = value
-	case node.AtomicMessage:
+	case node.AtomicData:
 		newV := t.Transform(value.Data())
 		if err, ok := newV.(error); ok {
 			return err

@@ -49,7 +49,7 @@ func (c *Console) Init(cfg sink.Sink) error {
 
 func (c *Console) Sink(val any) error {
 	switch v := val.(type) {
-	case node.AtomicMessage:
+	case node.AtomicData:
 		err := c.Sink(v.Data())
 		if err != nil {
 			v.Error() <- v
@@ -57,7 +57,7 @@ func (c *Console) Sink(val any) error {
 		}
 		v.Success() <- v
 		return nil
-	case chan node.AtomicMessage:
+	case chan node.AtomicData:
 		for vals := range v {
 			err := c.Sink(vals.Data())
 			if err != nil {

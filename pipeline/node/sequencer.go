@@ -128,7 +128,7 @@ func (s *Sequencer) processingMessage(msg any) {
 		var mes any
 		var err error
 		switch ms := msg.(type) {
-		case AtomicMessage:
+		case AtomicData:
 			mes, err = s.prepareMessage(ms.Data())
 			mes = ms.MessageFrom(mes)
 		default:
