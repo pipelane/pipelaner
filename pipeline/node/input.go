@@ -108,13 +108,21 @@ func (i *Input) Run(ctx context.Context) error {
 
 		for msg := range input {
 			for _, ch := range i.outChannels {
-				m, err := i.prepareMessage(msg)
+				var mes any
+				var err error
+				switch ms := msg.(type) {
+				case AtomicMessage:
+					mes, err = i.prepareMessage(ms.Data())
+					mes = ms.MessageFrom(mes)
+				default:
+					mes, err = i.prepareMessage(ms)
+				}
 				if err != nil {
 					i.logger.Debug().Err(err).Msg("prepare message failed")
 					continue
 				}
 				i.preSendMessageAction(len(input), len(input))
-				ch <- m
+				ch <- mes
 				i.postSinkAction()
 			}
 		}

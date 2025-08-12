@@ -99,16 +99,25 @@ func (s *Sink) Run() error {
 
 	inChannel := utils.MergeInputs(s.inputChannels...)
 	sema := utils.NewSemaphore(s.cfg.threadsCount)
-
 	go func() {
 		s.logger.Debug().Msg("start sink")
 		for msg := range inChannel {
-			// process message in separated goroutine
 			sema.Acquire()
 			go func() {
 				defer sema.Release()
+				var err error
+				if tc, ok := s.impl.(components.TypeChecker); ok && !tc.IsValidType(msg) {
+					s.logger.Error().
+						Err(errors.New("unsupported message type")).
+						Str("type", fmt.Sprintf("%T", msg)).
+						Msg("sink failed")
+					return
+				}
 				s.preSinkAction(len(inChannel), cap(inChannel))
-				s.impl.Sink(msg)
+				err = s.impl.Sink(msg)
+				if err != nil {
+					s.logger.Error().Err(err).Msg("sink failed")
+				}
 				s.postSinkAction()
 			}()
 		}

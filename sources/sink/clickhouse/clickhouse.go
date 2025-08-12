@@ -19,6 +19,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/pipeline/components"
+	"github.com/pipelane/pipelaner/pipeline/node"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	"github.com/shopspring/decimal"
 )
@@ -290,8 +291,14 @@ func endianSwap(src []byte, not bool) {
 
 func (c *Clickhouse) getMap(val any) (map[string]any, error) {
 	var d map[string]any
-
+	var vals any
 	switch v := val.(type) {
+	case node.AtomicMessage:
+		vals = v.Data()
+	default:
+		vals = v
+	}
+	switch v := vals.(type) {
 	case json.RawMessage:
 		if err := json.Unmarshal(v, &d); err != nil {
 			return nil, fmt.Errorf("RawMessage unmarshal")
@@ -307,8 +314,9 @@ func (c *Clickhouse) getMap(val any) (map[string]any, error) {
 	return d, nil
 }
 
-func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
-	conn, err := c.client.GetConn(ctx)
+func (c *Clickhouse) write(chData <-chan any, finished chan<- any) error {
+	var err error
+	conn, err := c.client.GetConn(context.Background())
 	if err != nil {
 		return fmt.Errorf("failed get conn: %w", err)
 	}
@@ -318,44 +326,43 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 		input   proto.Input
 		columns map[string]*column
 		data    map[string]any
+		v       any
 	)
 
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case v, ok := <-chData:
-		if !ok && v == nil {
-			return nil
-		}
-		data, err = c.getMap(v)
-		if err != nil {
-			return err
-		}
+	v, ok := <-chData
+	if !ok && v == nil {
+		return nil
+	}
+	finished <- v
+	data, err = c.getMap(v)
+	if err != nil {
+		return err
+	}
 
-		columns, input, err = c.buildProtoInput(data)
-		if err != nil {
-			return fmt.Errorf("build proto input: %w", err)
-		}
+	columns, input, err = c.buildProtoInput(data)
+	if err != nil {
+		return fmt.Errorf("build proto input: %w", err)
 	}
 	shouldEnd := false
-	query := ch.Query{
-		Body: input.Into(c.clickConfig.GetTableName()),
-		Settings: []ch.Setting{
-			{
-				Key:       "async_insert",
-				Value:     c.clickConfig.GetAsyncInsert(),
-				Important: true,
-			},
-			{
-				Key:       "wait_for_async_insert",
-				Value:     c.clickConfig.GetWaitForAsyncInsert(),
-				Important: true,
-			},
-			{
-				Key:   "max_partitions_per_insert_block",
-				Value: fmt.Sprintf("%d", c.clickConfig.GetMaxPartitionsPerInsertBlock()),
-			},
+	settings := []ch.Setting{
+		{
+			Key:       "async_insert",
+			Value:     c.clickConfig.GetAsyncInsert(),
+			Important: true,
 		},
+		{
+			Key:       "wait_for_async_insert",
+			Value:     c.clickConfig.GetWaitForAsyncInsert(),
+			Important: true,
+		},
+		{
+			Key:   "max_partitions_per_insert_block",
+			Value: fmt.Sprintf("%d", c.clickConfig.GetMaxPartitionsPerInsertBlock()),
+		},
+	}
+	query := ch.Query{
+		Body:     input.Into(c.clickConfig.GetTableName()),
+		Settings: settings,
 		OnInput: func(_ context.Context) error {
 			input.Reset()
 			if shouldEnd {
@@ -370,11 +377,12 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 					return err
 				}
 			}
-			newData, ok := <-chData
-			if !ok && newData == nil {
+			newData, oks := <-chData
+			if !oks && newData == nil {
 				shouldEnd = true
 				return nil
 			}
+			finished <- newData
 			data, err = c.getMap(newData)
 			if err != nil {
 				return err
@@ -384,21 +392,22 @@ func (c *Clickhouse) write(ctx context.Context, chData chan any) error {
 		},
 		Input: input,
 	}
-	if err = conn.Do(ctx, query); err != nil {
+	if err = conn.Do(context.Background(), query); err != nil {
 		return fmt.Errorf("write batch: %w", err)
 	}
 	return nil
 }
 
-func (c *Clickhouse) Sink(val any) {
+func (c *Clickhouse) Sink(val any) error {
 	data := make(map[string]any)
 	var chData chan any
+	var finished chan any
 	switch v := val.(type) {
 	case json.RawMessage:
 		chData = make(chan any, 1)
 		if err := json.Unmarshal(v, &data); err != nil {
 			c.Log().Error().Err(err).Msgf("channel RawMessage unmarshal")
-			return
+			return err
 		}
 		chData <- data
 		close(chData)
@@ -406,7 +415,7 @@ func (c *Clickhouse) Sink(val any) {
 		chData = make(chan any, 1)
 		if err := json.Unmarshal(v, &data); err != nil {
 			c.Log().Error().Err(err).Msgf("channel []byte unmarshal")
-			return
+			return err
 		}
 		chData <- data
 		close(chData)
@@ -417,10 +426,50 @@ func (c *Clickhouse) Sink(val any) {
 	case chan any:
 		chData = v
 	default:
-		c.Log().Error().Err(errors.New("unknown type val")).Msg("failed write clickhouse")
-		return
+		e := errors.New("unknown type val")
+		c.Log().Error().Err(e).Msg("failed write clickhouse")
+		return e
 	}
-	if err := c.write(context.Background(), chData); err != nil {
+	finished = make(chan any, cap(chData))
+	err := c.write(chData, finished)
+	close(finished)
+	if err != nil {
 		c.Log().Error().Err(err).Msg("write")
+		c.sendAtomicError(chData)
+		c.sendAtomicSuccess(finished)
+		return err
+	}
+	c.sendAtomicSuccess(finished)
+	return nil
+}
+
+func (c *Clickhouse) sendAtomicError(chData chan any) {
+	for chV := range chData {
+		switch vals := chV.(type) {
+		case node.AtomicMessage:
+			vals.Error() <- vals
+		default:
+			break
+		}
+	}
+}
+
+func (c *Clickhouse) sendAtomicSuccess(chData chan any) {
+	for chV := range chData {
+		switch vals := chV.(type) {
+		case node.AtomicMessage:
+			vals.Success() <- vals
+		default:
+			break
+		}
+	}
+}
+
+func (c *Clickhouse) IsValidType(val any) bool {
+	switch val.(type) {
+	case json.RawMessage, []byte, map[string]any, chan any:
+		return true
+	default:
+		return false
 	}
 }

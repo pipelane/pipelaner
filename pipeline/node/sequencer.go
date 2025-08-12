@@ -98,6 +98,10 @@ func (s *Sequencer) Run() error {
 					for _, mV := range v {
 						s.processingMessage(mV)
 					}
+				case chan any:
+					for mV := range v {
+						s.processingMessage(mV)
+					}
 				default:
 					s.processingMessage(v)
 				}
@@ -121,7 +125,15 @@ func (s *Sequencer) processingMessage(msg any) {
 		return
 	}
 	for _, ch := range s.outChannels {
-		mes, err := s.prepareMessage(msg)
+		var mes any
+		var err error
+		switch ms := msg.(type) {
+		case AtomicMessage:
+			mes, err = s.prepareMessage(ms.Data())
+			mes = ms.MessageFrom(mes)
+		default:
+			mes, err = s.prepareMessage(ms)
+		}
 		if err != nil {
 			s.logger.Debug().Err(err).Msg("skip nil message sequencer")
 			continue

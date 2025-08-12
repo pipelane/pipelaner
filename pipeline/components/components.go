@@ -33,7 +33,11 @@ type Sequencer interface {
 
 type Sink interface {
 	Init(cfg sink.Sink) error
-	Sink(val any)
+	Sink(val any) error
+}
+
+type TypeChecker interface {
+	IsValidType(val any) bool
 }
 
 type Logger struct {

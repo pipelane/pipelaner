@@ -79,6 +79,7 @@ func (t *commonTransform) prepareMessage(msg any) (any, error) {
 	if msg == nil {
 		return nil, fmt.Errorf("received nil message")
 	}
+
 	kind := reflect.TypeOf(msg).Kind()
 	switch kind {
 	case reflect.Pointer, reflect.Slice, reflect.Map, reflect.Struct:

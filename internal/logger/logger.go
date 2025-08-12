@@ -34,9 +34,11 @@ func NewLoggerWithCfg(cfg logger.Config) (*zerolog.Logger, error) {
 	if cfg.EnableConsole {
 		if cfg.LogFormat == logformat.Json {
 			writers = append(writers, os.Stdout)
+			if cfg.FileParams != nil {
+				writers = append(writers, newRollingFile(cfg))
+			}
 		} else {
-			writers = append(writers, zerolog.ConsoleWriter{
-				Out:        os.Stdout,
+			writer := zerolog.ConsoleWriter{
 				TimeFormat: time.RFC3339Nano,
 				FieldsOrder: []string{
 					"time",
@@ -48,11 +50,14 @@ func NewLoggerWithCfg(cfg logger.Config) (*zerolog.Logger, error) {
 					zerolog.MessageFieldName,
 					zerolog.CallerFieldName,
 				},
-			})
+			}
+			writer.Out = os.Stdout
+			writers = append(writers, writer)
+			if cfg.FileParams != nil {
+				writer.Out = newRollingFile(cfg)
+				writers = append(writers, writer)
+			}
 		}
-	}
-	if cfg.FileParams != nil {
-		writers = append(writers, newRollingFile(cfg))
 	}
 	mw := io.MultiWriter(writers...)
 	l := zerolog.

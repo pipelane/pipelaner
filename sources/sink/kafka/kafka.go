@@ -11,6 +11,7 @@ import (
 
 	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/pipeline/components"
+	"github.com/pipelane/pipelaner/pipeline/node"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
@@ -19,10 +20,18 @@ func init() {
 	source.RegisterSink("kafka", &Kafka{})
 }
 
+type producer interface {
+	Produce(
+		ctx context.Context,
+		r *kgo.Record,
+		promise func(*kgo.Record, error),
+	)
+}
+
 type Kafka struct {
 	components.Logger
 	cfg  sink.Kafka
-	prod *Producer
+	prod producer
 }
 
 func (k *Kafka) Init(cfg sink.Sink) error {
@@ -54,37 +63,53 @@ func (k *Kafka) write(ctx context.Context, message []byte) {
 	}
 }
 
-func (k *Kafka) Sink(val any) {
+func (k *Kafka) Sink(val any) error {
 	var message []byte
+	var err error
 
 	switch v := val.(type) {
+	case node.AtomicMessage:
+		err = k.Sink(v.Data())
+		if err != nil {
+			v.Error() <- v
+			return err
+		}
+		v.Success() <- v
+		return nil
 	case []byte:
 		message = v
 	case string:
 		message = []byte(v)
+	case chan node.AtomicMessage:
+		for msg := range v {
+			_ = k.Sink(msg) //nolint: errcheck
+		}
+		return nil
 	case chan []byte:
-		for vls := range v {
-			k.Sink(vls)
+		for msg := range v {
+			_ = k.Sink(msg) //nolint: errcheck
 		}
-		return
+		return nil
+
 	case chan string:
-		for vls := range v {
-			k.Sink(vls)
+		for msg := range v {
+			_ = k.Sink(msg) //nolint: errcheck
 		}
-		return
+		return nil
+
 	case chan any:
-		for vls := range v {
-			k.Sink(vls)
+		for msg := range v {
+			_ = k.Sink(msg) //nolint: errcheck
 		}
-		return
+		return nil
 	default:
-		data, err := json.Marshal(val)
-		if err != nil {
-			k.Log().Error().Err(err).Msgf("marshall val")
-			return
+		data, errs := json.Marshal(val)
+		if errs != nil {
+			k.Log().Error().Err(errs).Msgf("marshal val")
+			return errs
 		}
 		message = data
 	}
-
 	k.write(context.Background(), message)
+	return nil
 }

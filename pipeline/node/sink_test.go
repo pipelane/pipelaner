@@ -49,7 +49,7 @@ func (s *fileSinkCollector) Init(cfg sink.Sink) error {
 	return nil
 }
 
-func (s *fileSinkCollector) Sink(value any) {
+func (s *fileSinkCollector) Sink(value any) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 
@@ -66,6 +66,7 @@ func (s *fileSinkCollector) Sink(value any) {
 	if _, err = f.WriteString(sValue + "\n"); err != nil {
 		panic(fmt.Errorf("write out file: %w", err))
 	}
+	return nil
 }
 
 // configuration for fileSinkCollector.

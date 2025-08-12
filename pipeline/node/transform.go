@@ -108,6 +108,7 @@ func (t *Transform) Run() error {
 			wg.Add(1)
 			sema.Acquire()
 			go func() {
+				var tmpMsg AtomicMessage
 				defer wg.Done()
 				defer sema.Release()
 				msg = t.impl.Transform(msg)
@@ -115,11 +116,24 @@ func (t *Transform) Run() error {
 					if t.cfg.enableMetrics {
 						metrics.TotalTransformationError.WithLabelValues(transformNodeType, t.cfg.name).Inc()
 					}
+					if m, oks := msg.(AtomicMessage); oks {
+						if m.errorCh != nil {
+							m.errorCh <- tmpMsg
+						}
+					}
 					t.logger.Debug().Err(e).Msg("received error")
 					return
 				}
 				for _, ch := range t.outChannels {
-					mes, err := t.prepareMessage(msg)
+					var mes any
+					var err error
+					switch ms := msg.(type) {
+					case AtomicMessage:
+						mes, err = t.prepareMessage(ms.Data())
+						mes = ms.MessageFrom(mes)
+					default:
+						mes, err = t.prepareMessage(ms)
+					}
 					if err != nil {
 						t.logger.Debug().Err(err).Msg("skip nil message transform")
 						continue

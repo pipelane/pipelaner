@@ -12,6 +12,7 @@ import (
 	"github.com/expr-lang/expr"
 	"github.com/expr-lang/expr/vm"
 	"github.com/pipelane/pipelaner/gen/source/transform"
+	"github.com/pipelane/pipelaner/pipeline/node"
 	"github.com/pipelane/pipelaner/pipeline/source"
 )
 
@@ -50,6 +51,12 @@ func (t *Filter) Transform(val any) any {
 	switch value := val.(type) {
 	case map[string]any:
 		v = value
+	case node.AtomicMessage:
+		newV := t.Transform(value.Data())
+		if err, ok := newV.(error); ok {
+			return err
+		}
+		return value.MessageFrom(newV)
 	case string:
 		b := []byte(value)
 		err := json.Unmarshal(b, &v)
