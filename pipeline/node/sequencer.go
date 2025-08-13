@@ -8,7 +8,7 @@ import (
 
 	configtransform "github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/internal/metrics"
-	"github.com/pipelane/pipelaner/internal/utils"
+	"github.com/pipelane/pipelaner/internal/synchronization"
 	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	"github.com/rs/zerolog"
@@ -81,8 +81,8 @@ func (s *Sequencer) Run() error {
 		return fmt.Errorf("no output channels configured for '%s'", s.cfg.name)
 	}
 
-	sema := utils.NewSemaphore(s.cfg.threadsCount)
-	inChannel := utils.MergeInputs(s.inputChannels...)
+	sema := synchronization.NewSemaphore(s.cfg.threadsCount)
+	inChannel := synchronization.MergeInputs(s.inputChannels...)
 
 	go func() {
 		s.logger.Debug().Msg("starting sequencing messages")

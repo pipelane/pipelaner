@@ -12,7 +12,7 @@ import (
 
 	configtransform "github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/internal/metrics"
-	"github.com/pipelane/pipelaner/internal/utils"
+	"github.com/pipelane/pipelaner/internal/synchronization"
 	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	"github.com/rs/zerolog"
@@ -97,8 +97,8 @@ func (t *Transform) Run() error {
 		return fmt.Errorf("no output channels configured for '%s'", t.cfg.name)
 	}
 
-	sema := utils.NewSemaphore(t.cfg.threadsCount)
-	inChannel := utils.MergeInputs(t.inputChannels...)
+	sema := synchronization.NewSemaphore(t.cfg.threadsCount)
+	inChannel := synchronization.MergeInputs(t.inputChannels...)
 
 	go func() {
 		t.logger.Debug().Msg("starting transform")

@@ -45,12 +45,12 @@ var (
 	errHealthcheckNotInitialized = errors.New("healthcheck server not initialized")
 )
 
-func (p *Server) Serve(_ context.Context) error {
+func (p *Server) Serve(ctx context.Context) error {
 	if p.serv == nil {
 		return errHealthcheckNotInitialized
 	}
 
-	return p.serv.Serve(func(s *grpc.Server) {
+	return p.serv.Serve(ctx, func(s *grpc.Server) {
 		grpc_health_v1.RegisterHealthServer(s, health.NewServer())
 	})
 }

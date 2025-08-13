@@ -24,7 +24,7 @@ func (a *Nullable) Store(v any) {
 func (a *Nullable) Load() any {
 	v, ok := a.val.Load().(atomicNullableStoredValue)
 	if !ok {
-		panic(errors.New("Atomic nullable stored value not initialized"))
+		panic(errors.New("atomic nullable stored value not initialized"))
 	}
 	return v.val
 }
