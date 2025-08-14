@@ -5,6 +5,7 @@ import (
 	"github.com/apple/pkl-go/pkl"
 	"github.com/pipelane/pipelaner/gen/source/common"
 	"github.com/pipelane/pipelaner/gen/source/input/autooffsetreset"
+	"github.com/pipelane/pipelaner/gen/source/input/isolationlevel"
 	"github.com/pipelane/pipelaner/gen/source/input/strategy"
 )
 
@@ -20,6 +21,8 @@ type Kafka interface {
 	GetAutoOffsetReset() autooffsetreset.AutoOffsetReset
 
 	GetBalancerStrategy() []strategy.Strategy
+
+	GetIsolationLevel() isolationlevel.IsolationLevel
 
 	GetMaxPartitionFetchBytes() pkl.DataSize
 
@@ -40,6 +43,8 @@ type KafkaImpl struct {
 	AutoOffsetReset autooffsetreset.AutoOffsetReset `pkl:"autoOffsetReset"`
 
 	BalancerStrategy []strategy.Strategy `pkl:"balancerStrategy"`
+
+	IsolationLevel isolationlevel.IsolationLevel `pkl:"isolationLevel"`
 
 	MaxPartitionFetchBytes pkl.DataSize `pkl:"maxPartitionFetchBytes"`
 
@@ -74,6 +79,10 @@ func (rcv KafkaImpl) GetAutoOffsetReset() autooffsetreset.AutoOffsetReset {
 
 func (rcv KafkaImpl) GetBalancerStrategy() []strategy.Strategy {
 	return rcv.BalancerStrategy
+}
+
+func (rcv KafkaImpl) GetIsolationLevel() isolationlevel.IsolationLevel {
+	return rcv.IsolationLevel
 }
 
 func (rcv KafkaImpl) GetMaxPartitionFetchBytes() pkl.DataSize {

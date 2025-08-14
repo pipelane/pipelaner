@@ -13,6 +13,7 @@ import (
 	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/node"
 	"github.com/pipelane/pipelaner/pipeline/source"
+	"github.com/twmb/franz-go/pkg/kerr"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
@@ -26,6 +27,11 @@ type producer interface {
 		r *kgo.Record,
 		promise func(*kgo.Record, error),
 	)
+	BeginTransaction() error
+	Flush(ctx context.Context) error
+	EndTransaction(ctx context.Context, commit kgo.TransactionEndTry) error
+	AbortBufferedRecords(ctx context.Context) error
+	ProduceSync(ctx context.Context, rs ...*kgo.Record) kgo.ProduceResults
 }
 
 type Kafka struct {
@@ -63,6 +69,117 @@ func (k *Kafka) write(ctx context.Context, message []byte) {
 	}
 }
 
+func (k *Kafka) writeSync(ctx context.Context, message any) error {
+	var messageBytes []byte
+	var err error
+	switch byteVal := message.(type) {
+	case []byte:
+		messageBytes = byteVal
+	case string:
+		messageBytes = []byte(byteVal)
+	default:
+		messageBytes, err = json.Marshal(message)
+		if err != nil {
+			k.Log().Error().Err(err).Msg("marshal val")
+			return err
+		}
+	}
+	for _, topic := range k.cfg.GetCommon().Topics {
+		err := k.prod.ProduceSync(ctx, &kgo.Record{
+			Value: messageBytes,
+			Topic: topic,
+		}).FirstErr()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (k *Kafka) transactionalWrite(ctx context.Context, message any) error {
+	if err := k.prod.BeginTransaction(); err != nil {
+		return fmt.Errorf("error beginning transaction: %w", err)
+	}
+	var finishChan chan node.AtomicData
+	switch msg := message.(type) {
+	case chan node.AtomicData:
+		finishChan = make(chan node.AtomicData, cap(msg))
+		var err error
+		for v := range msg {
+			err = k.writeSync(ctx, v)
+			if err != nil {
+				e := k.rollback(ctx)
+				if e != nil {
+					k.Log().Error().Err(e).Msg("error rolling back")
+				}
+				finishChan <- v
+				break
+			}
+			finishChan <- v
+		}
+		close(finishChan)
+		if err != nil {
+			k.sendAtomicError(msg)
+			k.sendAtomicError(finishChan)
+			return err
+		}
+	case chan []byte:
+		for v := range msg {
+			err := k.writeSync(ctx, v)
+			if err != nil {
+				e := k.rollback(ctx)
+				if e != nil {
+					k.Log().Error().Err(e).Msg("error rolling back")
+				}
+				return err
+			}
+		}
+	case chan string:
+		for v := range msg {
+			err := k.writeSync(ctx, v)
+			if err != nil {
+				e := k.rollback(ctx)
+				if e != nil {
+					k.Log().Error().Err(e).Msg("error rolling back")
+				}
+				return err
+			}
+		}
+	case chan any:
+		for v := range msg {
+			err := k.writeSync(ctx, v)
+			if err != nil {
+				e := k.rollback(ctx)
+				if e != nil {
+					k.Log().Error().Err(e).Msg("error rolling back")
+				}
+				return err
+			}
+		}
+	default:
+		err := k.rollback(ctx)
+		if err != nil {
+			return err
+		}
+		return fmt.Errorf("invalid message type %T", message)
+	}
+	if err := k.prod.Flush(ctx); err != nil {
+		return fmt.Errorf("kafka producer failed to commit transaction: %w", err)
+	}
+	switch err := k.prod.EndTransaction(ctx, kgo.TryCommit); err {
+	case nil:
+	case kerr.OperationNotAttempted:
+		err = k.rollback(ctx)
+		if err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("error committing transaction: %w", err)
+	}
+	k.sendAtomicSuccess(finishChan)
+	return nil
+}
+
 func (k *Kafka) Sink(val any) error {
 	var message []byte
 	var err error
@@ -81,35 +198,72 @@ func (k *Kafka) Sink(val any) error {
 	case string:
 		message = []byte(v)
 	case chan node.AtomicData:
-		for msg := range v {
-			_ = k.Sink(msg) //nolint: errcheck
+		err = k.transactionalWrite(context.Background(), v)
+		if err != nil {
+			return err
 		}
 		return nil
 	case chan []byte:
-		for msg := range v {
-			_ = k.Sink(msg) //nolint: errcheck
+		err = k.transactionalWrite(context.Background(), v)
+		if err != nil {
+			return err
 		}
 		return nil
-
 	case chan string:
-		for msg := range v {
-			_ = k.Sink(msg) //nolint: errcheck
+		err = k.transactionalWrite(context.Background(), v)
+		if err != nil {
+			return err
 		}
 		return nil
-
 	case chan any:
-		for msg := range v {
-			_ = k.Sink(msg) //nolint: errcheck
+		err = k.transactionalWrite(context.Background(), v)
+		if err != nil {
+			return err
 		}
 		return nil
 	default:
 		data, errs := json.Marshal(val)
 		if errs != nil {
-			k.Log().Error().Err(errs).Msgf("marshal val")
+			k.Log().Error().Err(errs).Msg("marshal val")
 			return errs
 		}
 		message = data
 	}
 	k.write(context.Background(), message)
 	return nil
+}
+
+func (k *Kafka) rollback(ctx context.Context) error {
+	if err := k.prod.AbortBufferedRecords(ctx); err != nil {
+		return fmt.Errorf("error rolling back buffered records: %w", err)
+	}
+	if err := k.prod.EndTransaction(ctx, kgo.TryAbort); err != nil {
+		return fmt.Errorf("error rolling back transaction: %w", err)
+	}
+	return nil
+}
+
+func (k *Kafka) sendAtomicError(chData chan node.AtomicData) {
+	for chV := range chData {
+		switch vals := chV.(type) {
+		case node.AtomicData:
+			vals.Error() <- vals
+		default:
+			break
+		}
+	}
+}
+
+func (k *Kafka) sendAtomicSuccess(chData chan node.AtomicData) {
+	if chData == nil {
+		return
+	}
+	for chV := range chData {
+		switch vals := chV.(type) {
+		case node.AtomicData:
+			vals.Success() <- vals
+		default:
+			break
+		}
+	}
 }

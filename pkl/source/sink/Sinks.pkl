@@ -28,6 +28,7 @@ class Kafka extends Sink {
   maxRequestSize: DataSize = 10.mib
   lingerMs: Duration = 0.ms
   batchNumMessages: Int = 100_000
+  transactionId:String?
 }
 
 class Clickhouse extends Sink {
