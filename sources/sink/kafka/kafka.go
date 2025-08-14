@@ -7,6 +7,7 @@ package kafka
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/pipelane/pipelaner/gen/source/sink"
@@ -85,7 +86,7 @@ func (k *Kafka) writeSync(ctx context.Context, message any) error {
 		}
 	}
 	for _, topic := range k.cfg.GetCommon().Topics {
-		err := k.prod.ProduceSync(ctx, &kgo.Record{
+		err = k.prod.ProduceSync(ctx, &kgo.Record{
 			Value: messageBytes,
 			Topic: topic,
 		}).FirstErr()
@@ -166,14 +167,13 @@ func (k *Kafka) transactionalWrite(ctx context.Context, message any) error {
 	if err := k.prod.Flush(ctx); err != nil {
 		return fmt.Errorf("kafka producer failed to commit transaction: %w", err)
 	}
-	switch err := k.prod.EndTransaction(ctx, kgo.TryCommit); err {
-	case nil:
-	case kerr.OperationNotAttempted:
+	err := k.prod.EndTransaction(ctx, kgo.TryCommit)
+	if err != nil && errors.Is(err, kerr.OperationNotAttempted) {
 		err = k.rollback(ctx)
 		if err != nil {
 			return err
 		}
-	default:
+	} else if err != nil {
 		return fmt.Errorf("error committing transaction: %w", err)
 	}
 	k.sendAtomicSuccess(finishChan)
