@@ -107,10 +107,7 @@ func (a *Agent) initPipelaner(cfg *config.Pipelaner) error {
 	pipelanerCfg := cfg.Pipelines
 	logCfg := cfg.Settings.Logger
 	metricsCfg := cfg.Settings.Metrics
-	mEnable := false
-	if metricsCfg != nil {
-		mEnable = true
-	}
+	mEnable := metricsCfg != nil
 	p, err := NewPipelaner(
 		pipelanerCfg,
 		logCfg,

@@ -1,7 +1,7 @@
 @go.Package { name = "github.com/pipelane/pipelaner/gen/settings" }
 module com.pipelaner.settings.settings
 
-import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.11.0#/go.pkl"
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.11.1#/go.pkl"
 import "healthcheck/HealthcheckConfig.pkl"
 import "logger/LoggerConfig.pkl"
 import "metrics/MetricsConfig.pkl"

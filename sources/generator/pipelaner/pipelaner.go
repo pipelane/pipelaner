@@ -53,7 +53,7 @@ func (p *Pipelaner) Init(cfg input.Input) error {
 	}, &l)
 	p.srv = server.NewServer(&l, c.GetOutputBufferSize())
 	go func() {
-		err := serv.Serve(func(s *grpc.Server) {
+		err := serv.Serve(context.Background(), func(s *grpc.Server) {
 			service.RegisterPipelanerServer(s, p.srv)
 		})
 		if err != nil {

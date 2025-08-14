@@ -40,7 +40,7 @@ func (c *Cmd) Generate(ctx context.Context, input chan<- any) {
 	if len(c.exec) > 1 {
 		args = strings.Split(c.exec[1], " ")
 	}
-	cmd := exec.Command(c.exec[0], args...) //nolint:gosec
+	cmd := exec.CommandContext(ctx, c.exec[0], args...) //nolint:gosec
 	stdPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		return

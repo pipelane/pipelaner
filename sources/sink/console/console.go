@@ -11,6 +11,7 @@ import (
 	"github.com/pipelane/pipelaner/gen/settings/logger/loglevel"
 	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/internal/logger"
+	"github.com/pipelane/pipelaner/pipeline/node"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	"github.com/rs/zerolog"
 )
@@ -46,24 +47,52 @@ func (c *Console) Init(cfg sink.Sink) error {
 	return nil
 }
 
-func (c *Console) Sink(val any) {
+func (c *Console) Sink(val any) error {
 	switch v := val.(type) {
+	case node.AtomicData:
+		err := c.Sink(v.Data())
+		if err != nil {
+			v.Error() <- v
+			return err
+		}
+		v.Success() <- v
+		return nil
+	case chan node.AtomicData:
+		for vals := range v {
+			err := c.Sink(vals.Data())
+			if err != nil {
+				vals.Error() <- vals
+				continue
+			}
+			vals.Success() <- vals
+		}
+		return nil
 	case chan any:
 		for vals := range v {
-			c.Sink(vals)
+			err := c.Sink(vals)
+			if err != nil {
+				return err
+			}
 		}
-		return
+		return nil
 	case chan []byte:
 		for vals := range v {
-			c.Sink(vals)
+			err := c.Sink(vals)
+			if err != nil {
+				return err
+			}
 		}
-		return
+		return nil
 	case chan []string:
 		for vals := range v {
-			c.Sink(vals)
+			err := c.Sink(vals)
+			if err != nil {
+				return err
+			}
 		}
-		return
+		return nil
 	default:
 		c.l.Info().Msg(fmt.Sprintf("%v", val))
 	}
+	return nil
 }

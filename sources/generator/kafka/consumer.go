@@ -12,6 +12,7 @@ import (
 	"github.com/apple/pkl-go/pkl"
 	"github.com/pipelane/pipelaner/gen/source/common/saslmechanism"
 	"github.com/pipelane/pipelaner/gen/source/input"
+	"github.com/pipelane/pipelaner/gen/source/input/isolationlevel"
 	"github.com/pipelane/pipelaner/gen/source/input/strategy"
 	"github.com/rs/zerolog"
 	"github.com/twmb/franz-go/pkg/kgo"
@@ -31,6 +32,10 @@ func NewConsumer(
 	v := maxPartitionFetchBytes.ToUnit(pkl.Bytes).Value
 	fetchMaxBytes := cfg.GetFetchMaxBytes()
 	maxByteFetch := fetchMaxBytes.ToUnit(pkl.Bytes).Value
+	isolationLevel := kgo.ReadUncommitted()
+	if cfg.GetIsolationLevel() == isolationlevel.ReadCommitted {
+		isolationLevel = kgo.ReadCommitted()
+	}
 
 	opts := []kgo.Opt{
 		kgo.SeedBrokers(cfg.GetCommon().Brokers...),
@@ -40,6 +45,7 @@ func NewConsumer(
 		kgo.FetchMaxBytes(int32(maxByteFetch)),
 		kgo.FetchMaxPartitionBytes(int32(v)),
 		kgo.HeartbeatInterval(time.Second),
+		kgo.FetchIsolationLevel(isolationLevel),
 	}
 	var balancers []kgo.GroupBalancer
 	for _, s := range cfg.GetBalancerStrategy() {

@@ -1,7 +1,7 @@
 @go.Package { name = "github.com/pipelane/pipelaner/gen/settings/logger" }
 module com.pipelaner.settings.logger.config
 
-import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.11.0#/go.pkl"
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.11.1#/go.pkl"
 
 typealias LogLevel = "error"|"warn"|"info"|"debug"|"trace"
 typealias LogFormat = "plain"|"json"

@@ -1,7 +1,7 @@
 @go.Package { name = "github.com/pipelane/pipelaner/gen/source/input" }
 module com.pipelaner.source.inputs
 
-import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.11.0#/go.pkl"
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.11.1#/go.pkl"
 import ".../source/Common.pkl"
 
 abstract class Input {
@@ -18,6 +18,7 @@ class Cmd extends Input {
 
 typealias AutoOffsetReset = "earliest"|"latest"
 typealias Strategy = "range"|"round-robin"|"cooperative-sticky"|"sticky"
+typealias IsolationLevel = "read-committed" | "read-uncommitted"
 
 class Kafka extends Input {
   fixed sourceName = "kafka"
@@ -28,6 +29,7 @@ class Kafka extends Input {
   balancerStrategy: Listing<Strategy> = new Listing<Strategy> {
     "cooperative-sticky"
   }
+  isolationLevel:IsolationLevel = "read-uncommitted"
   // fetchMaxBytes > maxPartitionFetchBytes
   maxPartitionFetchBytes: DataSize(isBetween(0.mib, fetchMaxBytes)) = 10.mib
   fetchMaxBytes: DataSize(this.value > 0.mib.value) = 50.mib

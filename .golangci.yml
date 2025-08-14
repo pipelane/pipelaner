@@ -1,38 +1,33 @@
+version: "2"
 run:
-  timeout: 5m
   concurrency: 8
   issues-exit-code: 1
-
 output:
-  print-issued-lines: false
   formats:
-       - format: colored-line-number
-
-  # Must have. Easier to understand the output.
-  print-linter-name: true
-
-  # Slightly easier to follow the results + getting deterministic output.
-  sort-results: true
-
+    text:
+      path: stdout
+      print-linter-name: true
+      print-issued-lines: false
 linters:
-  disable-all: true
+  default: none
   enable:
     - asasalint
     - asciicheck
     - bidichk
     - bodyclose
     - contextcheck
+    - copyloopvar
+    - dupl
     - durationcheck
     - errcheck
     - errname
     - errorlint
-    - copyloopvar
+    - funlen
+    - goconst
     - gocritic
     - godot
-    - gofmt
     - gomoddirectives
     - gosec
-    - gosimple
     - govet
     - ineffassign
     - misspell
@@ -50,7 +45,6 @@ linters:
     - sqlclosecheck
     - staticcheck
     - tagliatelle
-    - usetesting
     - testableexamples
     - thelper
     - tparallel
@@ -58,79 +52,73 @@ linters:
     - unparam
     - unused
     - usestdlibvars
+    - usetesting
     - wastedassign
-    - funlen
-    - goconst
-    - dupl
-    - typecheck
-    - nilerr
-    - nilnil
-    - predeclared
     - whitespace
-
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-
-    check-blank: true
-
-    exclude-functions:
-      - io/ioutil.ReadFile
-      - io.Copy(*bytes.Buffer)
-      - io.Copy(os.Stdout)
-
-  funlen:
-    lines: 120
-    # Checks the number of statements in a function.
-    # If lower than 0, disable the check.
-    # Default: 40
-    statements: 60
-    # Ignore comments when counting lines.
-    # Default false
-    ignore-comments: true
-
-
-  gocritic:
-    settings:
-      captLocal:
-        paramsOnly: false
-      underef:
-        skipRecvDeref: false
-
-  govet:
-    enable-all: true
-    disable:
-      - fieldalignment # too strict
-    settings:
-      shadow:
-        strict: true
-
-  nakedret:
-    # No naked returns, ever.
-    max-func-lines: 1
-
-  tagliatelle:
-    case:
-      use-field-name: true
-      rules:
-        json: snake
-        yaml: snake
-        mapstructure: snake
-
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+      exclude-functions:
+        - io/ioutil.ReadFile
+        - io.Copy(*bytes.Buffer)
+        - io.Copy(os.Stdout)
+    funlen:
+      lines: 120
+      statements: 60
+      ignore-comments: true
+    gocritic:
+      settings:
+        captLocal:
+          paramsOnly: false
+        underef:
+          skipRecvDeref: false
+    govet:
+      disable:
+        - fieldalignment
+      enable-all: true
+      settings:
+        shadow:
+          strict: true
+    nakedret:
+      max-func-lines: 1
+    tagliatelle:
+      case:
+        rules:
+          json: snake
+          mapstructure: snake
+          yaml: snake
+        use-field-name: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - bodyclose
+          - dupl
+          - funlen
+          - goconst
+          - gosec
+          - noctx
+        path: _test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 issues:
-  # No, no skips, everything should be reported.
-  uniq-by-line: false
-
   max-issues-per-linter: 0
-
   max-same-issues: 0
-
-  exclude-rules:
-    - path: "_test\\.go"
-      linters:
-        - bodyclose
-        - dupl
-        - funlen
-        - goconst
-        - gosec
-        - noctx
+  uniq-by-line: false
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
