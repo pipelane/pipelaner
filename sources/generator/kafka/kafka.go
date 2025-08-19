@@ -60,7 +60,7 @@ func (c *Kafka) Generate(ctx context.Context, input chan<- any) {
 		successCh = make(chan node.AtomicData, c.cfg.GetOutputBufferSize())
 		errorsCh = make(chan node.AtomicData, c.cfg.GetOutputBufferSize())
 		c.consumeStore = &sync.Map{}
-		go c.markRecord(successCh, errorsCh)
+		go c.markRecord(successCh, errorsCh) //nolint: contextcheck
 		defer close(successCh)
 		defer close(errorsCh)
 	case commitstrategy.AutoCommit:
