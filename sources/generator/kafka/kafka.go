@@ -108,7 +108,7 @@ Loop:
 	for {
 		select {
 		case message, isClosed := <-successCh:
-			if isClosed && message != nil {
+			if isClosed && message == nil {
 				break Loop
 			}
 			val, ok := c.consumeStore.Load(message.ID())
@@ -122,7 +122,7 @@ Loop:
 			c.cons.MarkCommitRecords(v)
 			c.consumeStore.Delete(message.ID())
 		case message, isClosed := <-errCh:
-			if isClosed && message != nil {
+			if isClosed && message == nil {
 				break Loop
 			}
 			val, ok := c.consumeStore.Load(message.ID())
