@@ -104,11 +104,12 @@ func (c *Kafka) Generate(ctx context.Context, input chan<- any) {
 }
 
 func (c *Kafka) markRecord(successCh chan node.AtomicData, errCh chan node.AtomicData) {
+Loop:
 	for {
 		select {
 		case message, isClosed := <-successCh:
-			if isClosed {
-				break
+			if isClosed && message != nil {
+				break Loop
 			}
 			val, ok := c.consumeStore.Load(message.ID())
 			if !ok {
@@ -121,8 +122,8 @@ func (c *Kafka) markRecord(successCh chan node.AtomicData, errCh chan node.Atomi
 			c.cons.MarkCommitRecords(v)
 			c.consumeStore.Delete(message.ID())
 		case message, isClosed := <-errCh:
-			if isClosed {
-				break
+			if isClosed && message != nil {
+				break Loop
 			}
 			val, ok := c.consumeStore.Load(message.ID())
 			if !ok {
@@ -140,6 +141,7 @@ func (c *Kafka) markRecord(successCh chan node.AtomicData, errCh chan node.Atomi
 			c.consumeStore.Delete(message.ID())
 		}
 	}
+	c.commitMarked(context.Background())
 }
 
 func (c *Kafka) commitMarked(ctx context.Context) {
