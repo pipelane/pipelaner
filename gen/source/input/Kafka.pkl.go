@@ -14,7 +14,7 @@ type Kafka interface {
 
 	GetCommon() common.Kafka
 
-	GetAutoCommitEnabled() bool
+	GetCommitSrategy() CommitConfiguration
 
 	GetConsumerGroupID() string
 
@@ -36,7 +36,7 @@ type KafkaImpl struct {
 
 	Common common.Kafka `pkl:"common"`
 
-	AutoCommitEnabled bool `pkl:"autoCommitEnabled"`
+	CommitSrategy CommitConfiguration `pkl:"commitSrategy"`
 
 	ConsumerGroupID string `pkl:"consumerGroupID"`
 
@@ -65,8 +65,8 @@ func (rcv KafkaImpl) GetCommon() common.Kafka {
 	return rcv.Common
 }
 
-func (rcv KafkaImpl) GetAutoCommitEnabled() bool {
-	return rcv.AutoCommitEnabled
+func (rcv KafkaImpl) GetCommitSrategy() CommitConfiguration {
+	return rcv.CommitSrategy
 }
 
 func (rcv KafkaImpl) GetConsumerGroupID() string {
