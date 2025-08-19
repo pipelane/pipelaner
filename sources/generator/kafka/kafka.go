@@ -52,8 +52,8 @@ func (c *Kafka) Generate(ctx context.Context, input chan<- any) {
 	l := c.Log()
 	switch c.cfg.GetCommitSrategy().Strategy {
 	case commitstrategy.OneByOne:
-		successCh = make(chan node.AtomicData, c.cfg.GetOutputBufferSize())
-		errorsCh = make(chan node.AtomicData, c.cfg.GetOutputBufferSize())
+		successCh = make(chan node.AtomicData, 1)
+		errorsCh = make(chan node.AtomicData, 1)
 		defer close(successCh)
 		defer close(errorsCh)
 	case commitstrategy.MarkOnSuccess:
