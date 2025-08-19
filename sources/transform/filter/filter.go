@@ -54,9 +54,14 @@ func (t *Filter) Transform(val any) any {
 	case node.AtomicData:
 		newV := t.Transform(value.Data())
 		if err, ok := newV.(error); ok {
+			value.Error() <- value
 			return err
 		}
-		return value.MessageFrom(newV)
+		if newV == nil {
+			value.Success() <- value
+			return nil
+		}
+		return value.UpdateData(newV)
 	case string:
 		b := []byte(value)
 		err := json.Unmarshal(b, &v)

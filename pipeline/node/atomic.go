@@ -7,7 +7,7 @@ type AtomicData interface {
 	Error() chan<- AtomicData
 	Data() any
 	ID() string
-	MessageFrom(data any) AtomicData
+	UpdateData(data any) AtomicData
 }
 
 type AtomicMessage struct {
@@ -36,6 +36,6 @@ func (m AtomicMessage) ID() string {
 func NewAtomicMessage(data any, success chan<- AtomicData, errors chan<- AtomicData) AtomicMessage {
 	return AtomicMessage{id: uuid.New().String(), data: data, successCh: success, errorCh: errors}
 }
-func (m AtomicMessage) MessageFrom(data any) AtomicData {
+func (m AtomicMessage) UpdateData(data any) AtomicData {
 	return AtomicMessage{id: m.ID(), data: data, successCh: m.successCh, errorCh: m.errorCh}
 }

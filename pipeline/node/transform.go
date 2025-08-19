@@ -130,7 +130,7 @@ func (t *Transform) Run() error {
 					switch ms := msg.(type) {
 					case AtomicData:
 						mes, err = t.prepareMessage(ms.Data())
-						mes = ms.MessageFrom(mes)
+						mes = ms.UpdateData(mes)
 					default:
 						mes, err = t.prepareMessage(ms)
 					}

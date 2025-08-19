@@ -113,7 +113,7 @@ func (i *Input) Run(ctx context.Context) error {
 				switch ms := msg.(type) {
 				case AtomicData:
 					mes, err = i.prepareMessage(ms.Data())
-					mes = ms.MessageFrom(mes)
+					mes = ms.UpdateData(mes)
 				default:
 					mes, err = i.prepareMessage(ms)
 				}

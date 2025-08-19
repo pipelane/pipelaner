@@ -130,7 +130,7 @@ func (s *Sequencer) processingMessage(msg any) {
 		switch ms := msg.(type) {
 		case AtomicData:
 			mes, err = s.prepareMessage(ms.Data())
-			mes = ms.MessageFrom(mes)
+			mes = ms.UpdateData(mes)
 		default:
 			mes, err = s.prepareMessage(ms)
 		}

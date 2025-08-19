@@ -74,7 +74,7 @@ func (t *testTransformAtomic) Transform(val any) any {
 		if vs, ok := vals.(error); ok {
 			return vs
 		}
-		newV := v.MessageFrom(vals)
+		newV := v.UpdateData(vals)
 		return newV
 	case int:
 		v++
