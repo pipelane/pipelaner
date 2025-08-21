@@ -11,7 +11,7 @@ import (
 
 	configsink "github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/internal/metrics"
-	"github.com/pipelane/pipelaner/internal/utils"
+	"github.com/pipelane/pipelaner/internal/synchronization"
 	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	"github.com/rs/zerolog"
@@ -97,18 +97,29 @@ func (s *Sink) Run() error {
 		return errors.New("no input channels configured")
 	}
 
-	inChannel := utils.MergeInputs(s.inputChannels...)
-	sema := utils.NewSemaphore(s.cfg.threadsCount)
-
+	inChannel := synchronization.MergeInputs(s.inputChannels...)
+	sema := synchronization.NewSemaphore(s.cfg.threadsCount)
 	go func() {
 		s.logger.Debug().Msg("start sink")
 		for msg := range inChannel {
-			// process message in separated goroutine
 			sema.Acquire()
 			go func() {
 				defer sema.Release()
+				var err error
+				if tc, ok := s.impl.(components.TypeChecker); ok && !tc.IsValidType(msg) {
+					metrics.TotalSinkError.WithLabelValues(sinkNodeType, s.cfg.name).Inc()
+					s.logger.Error().
+						Err(errors.New("unsupported message type")).
+						Str("type", fmt.Sprintf("%T", msg)).
+						Msg("sink failed")
+					return
+				}
 				s.preSinkAction(len(inChannel), cap(inChannel))
-				s.impl.Sink(msg)
+				err = s.impl.Sink(msg)
+				if err != nil {
+					metrics.TotalSinkError.WithLabelValues(sinkNodeType, s.cfg.name).Inc()
+					s.logger.Error().Err(err).Msg("sink failed")
+				}
 				s.postSinkAction()
 			}()
 		}

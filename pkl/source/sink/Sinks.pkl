@@ -1,7 +1,7 @@
 @go.Package { name = "github.com/pipelane/pipelaner/gen/source/sink" }
 module com.pipelaner.source.sinks
 
-import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.11.0#/go.pkl"
+import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.11.1#/go.pkl"
 import ".../source/Common.pkl"
 import ".../settings/logger/LoggerConfig.pkl"
 
@@ -28,6 +28,7 @@ class Kafka extends Sink {
   maxRequestSize: DataSize = 10.mib
   lingerMs: Duration = 0.ms
   batchNumMessages: Int = 100_000
+  transactionId:String?
 }
 
 class Clickhouse extends Sink {

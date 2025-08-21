@@ -6,6 +6,7 @@ import "github.com/apple/pkl-go/pkl"
 func init() {
 	pkl.RegisterStrictMapping("com.pipelaner.source.inputs", Inputs{})
 	pkl.RegisterStrictMapping("com.pipelaner.source.inputs#Cmd", CmdImpl{})
+	pkl.RegisterStrictMapping("com.pipelaner.source.inputs#CommitConfiguration", CommitConfiguration{})
 	pkl.RegisterStrictMapping("com.pipelaner.source.inputs#Kafka", KafkaImpl{})
 	pkl.RegisterStrictMapping("com.pipelaner.source.inputs#Pipelaner", PipelanerImpl{})
 }

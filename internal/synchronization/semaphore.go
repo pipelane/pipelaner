@@ -2,7 +2,7 @@
  * Copyright (c) 2024 Alexey Khokhlov
  */
 
-package utils
+package synchronization
 
 type Semaphore struct {
 	c chan struct{}

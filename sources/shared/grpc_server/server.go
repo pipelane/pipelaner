@@ -6,6 +6,7 @@
 package grpc_server
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"os"
@@ -42,10 +43,10 @@ func NewServer(config *ServerConfig, logger *zerolog.Logger) *Server {
 	}
 }
 
-func (s *Server) Serve(use ...func(grpc *grpc.Server)) error {
+func (s *Server) Serve(ctx context.Context, use ...func(grpc *grpc.Server)) error {
 	s.grpcServer = grpc.NewServer(s.config.Opts...)
 
-	lis := s.createListener()
+	lis := s.createListener(ctx)
 
 	for _, u := range use {
 		u(s.grpcServer)
@@ -54,7 +55,7 @@ func (s *Server) Serve(use ...func(grpc *grpc.Server)) error {
 	return s.grpcServer.Serve(lis)
 }
 
-func (s *Server) createListener() net.Listener {
+func (s *Server) createListener(ctx context.Context) net.Listener {
 	if s.config.ConnectionType == unixConnectionType {
 		if err := syscall.Unlink(*s.config.UnixSocketPath); err != nil && !os.IsNotExist(err) {
 			s.logger.Fatal().Err(err).Msgf("Failed to unlink Unix socket %s", *s.config.UnixSocketPath)
@@ -66,8 +67,8 @@ func (s *Server) createListener() net.Listener {
 		}
 		return unixListener
 	}
-
-	tcpListener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.config.Host, s.config.Port))
+	var lc net.ListenConfig
+	tcpListener, err := lc.Listen(ctx, "tcp", fmt.Sprintf("%s:%d", s.config.Host, s.config.Port))
 	if err != nil {
 		s.logger.Fatal().Err(err).Msgf("Failed to listen on TCP %s:%d", s.config.Host, s.config.Port)
 	}

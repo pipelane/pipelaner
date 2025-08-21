@@ -2,7 +2,7 @@
  * Copyright (c) 2023 Alexey Khokhlov
  */
 
-package utils
+package synchronization
 
 import (
 	"reflect"
