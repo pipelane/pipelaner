@@ -436,7 +436,7 @@ func (c *Clickhouse) Sink(val any) error {
 	if err != nil {
 		c.Log().Error().Err(err).Msg("write")
 		c.sendAtomicError(chData)
-		c.sendAtomicSuccess(finished)
+		c.sendAtomicError(finished)
 		return err
 	}
 	c.sendAtomicSuccess(finished)
