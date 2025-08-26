@@ -165,7 +165,7 @@ func (s *Sequencer) processingAtomicMessage(atomic any) {
 			s.atomicProcessSequence(mV, val)
 		}
 	default:
-		s.atomicProcessSequence(val, val)
+		s.atomicProcessSequence(data, val)
 	}
 }
 
