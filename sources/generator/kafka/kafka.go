@@ -113,7 +113,8 @@ Loop:
 			}
 			val, ok := c.consumeStore.Load(message.ID())
 			if !ok {
-				panic("failed processing message")
+				c.Log().Debug().Msg("message already consumed processing message")
+				continue
 			}
 			v, ok := val.(*kgo.Record)
 			if !ok {
@@ -127,7 +128,8 @@ Loop:
 			}
 			val, ok := c.consumeStore.Load(message.ID())
 			if !ok {
-				panic("failed processing message")
+				c.Log().Debug().Msg("message already consumed processing message")
+				continue
 			}
 			v, ok := val.(*kgo.Record)
 			if !ok {
