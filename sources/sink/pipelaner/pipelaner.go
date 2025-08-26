@@ -11,6 +11,7 @@ import (
 
 	"github.com/pipelane/pipelaner/gen/source/sink"
 	"github.com/pipelane/pipelaner/pipeline/components"
+	"github.com/pipelane/pipelaner/pipeline/node"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	service2 "github.com/pipelane/pipelaner/sources/shared/proto/service"
 	"google.golang.org/grpc"
@@ -56,9 +57,17 @@ func (p *Pipelaner) Init(cfg sink.Sink) error {
 	return nil
 }
 
-func (p *Pipelaner) Sink(val any) {
+func (p *Pipelaner) Sink(val any) error {
 	var m *service2.Message
 	switch v := val.(type) {
+	case node.AtomicData:
+		err := p.Sink(v.Data())
+		if err != nil {
+			v.Error() <- v
+			return err
+		}
+		v.Success() <- v
+		return nil
 	case string:
 		m = &service2.Message{
 			Data: &service2.Message_StringValue{
@@ -75,7 +84,7 @@ func (p *Pipelaner) Sink(val any) {
 		b, err := json.Marshal(v)
 		if err != nil {
 			p.Log().Error().Err(err).Msg("Grpc sink failed")
-			return
+			return err
 		}
 		m = &service2.Message{
 			Data: &service2.Message_JsonValue{
@@ -86,5 +95,7 @@ func (p *Pipelaner) Sink(val any) {
 	_, err := p.client.Sink(context.Background(), m)
 	if err != nil {
 		p.Log().Error().Err(err).Msg("Grpc sing failed")
+		return err
 	}
+	return nil
 }

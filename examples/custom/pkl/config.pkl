@@ -1,6 +1,6 @@
-amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.5#/Pipelaner.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.5#/source/Components.pkl"
-import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.0.5#/source/sink/Sinks.pkl"
+amends "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.2.1#/Pipelaner.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.2.1#/source/Components.pkl"
+import "package://pkg.pkl-lang.org/github.com/pipelane/pipelaner/pipelaner@1.2.1#/source/sink/Sinks.pkl"
 import "custom.pkl"
 
 pipelines {

@@ -16,6 +16,8 @@ type Kafka interface {
 	GetLingerMs() pkl.Duration
 
 	GetBatchNumMessages() int
+
+	GetTransactionId() *string
 }
 
 var _ Kafka = KafkaImpl{}
@@ -30,6 +32,8 @@ type KafkaImpl struct {
 	LingerMs pkl.Duration `pkl:"lingerMs"`
 
 	BatchNumMessages int `pkl:"batchNumMessages"`
+
+	TransactionId *string `pkl:"transactionId"`
 
 	Name string `pkl:"name"`
 
@@ -56,6 +60,10 @@ func (rcv KafkaImpl) GetLingerMs() pkl.Duration {
 
 func (rcv KafkaImpl) GetBatchNumMessages() int {
 	return rcv.BatchNumMessages
+}
+
+func (rcv KafkaImpl) GetTransactionId() *string {
+	return rcv.TransactionId
 }
 
 func (rcv KafkaImpl) GetName() string {

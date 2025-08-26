@@ -1,7 +1,7 @@
 
 .PHONY: install-linter
 install-linter:
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.3.1
 
 .PHONY: lint
 lint:
@@ -20,7 +20,7 @@ proto:
 
 .PHONY: install-pkl-go
 install-pkl-go:
-	go install github.com/apple/pkl-go/cmd/pkl-gen-go@v0.11.0
+	go install github.com/apple/pkl-go/cmd/pkl-gen-go@v0.11.1
 
 .PHONY: pkl-generate-go
 pkl-generate-go:

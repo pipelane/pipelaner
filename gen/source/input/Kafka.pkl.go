@@ -5,6 +5,7 @@ import (
 	"github.com/apple/pkl-go/pkl"
 	"github.com/pipelane/pipelaner/gen/source/common"
 	"github.com/pipelane/pipelaner/gen/source/input/autooffsetreset"
+	"github.com/pipelane/pipelaner/gen/source/input/isolationlevel"
 	"github.com/pipelane/pipelaner/gen/source/input/strategy"
 )
 
@@ -13,13 +14,15 @@ type Kafka interface {
 
 	GetCommon() common.Kafka
 
-	GetAutoCommitEnabled() bool
+	GetCommitSrategy() CommitConfiguration
 
 	GetConsumerGroupID() string
 
 	GetAutoOffsetReset() autooffsetreset.AutoOffsetReset
 
 	GetBalancerStrategy() []strategy.Strategy
+
+	GetIsolationLevel() isolationlevel.IsolationLevel
 
 	GetMaxPartitionFetchBytes() pkl.DataSize
 
@@ -33,13 +36,15 @@ type KafkaImpl struct {
 
 	Common common.Kafka `pkl:"common"`
 
-	AutoCommitEnabled bool `pkl:"autoCommitEnabled"`
+	CommitSrategy CommitConfiguration `pkl:"commitSrategy"`
 
 	ConsumerGroupID string `pkl:"consumerGroupID"`
 
 	AutoOffsetReset autooffsetreset.AutoOffsetReset `pkl:"autoOffsetReset"`
 
 	BalancerStrategy []strategy.Strategy `pkl:"balancerStrategy"`
+
+	IsolationLevel isolationlevel.IsolationLevel `pkl:"isolationLevel"`
 
 	MaxPartitionFetchBytes pkl.DataSize `pkl:"maxPartitionFetchBytes"`
 
@@ -60,8 +65,8 @@ func (rcv KafkaImpl) GetCommon() common.Kafka {
 	return rcv.Common
 }
 
-func (rcv KafkaImpl) GetAutoCommitEnabled() bool {
-	return rcv.AutoCommitEnabled
+func (rcv KafkaImpl) GetCommitSrategy() CommitConfiguration {
+	return rcv.CommitSrategy
 }
 
 func (rcv KafkaImpl) GetConsumerGroupID() string {
@@ -74,6 +79,10 @@ func (rcv KafkaImpl) GetAutoOffsetReset() autooffsetreset.AutoOffsetReset {
 
 func (rcv KafkaImpl) GetBalancerStrategy() []strategy.Strategy {
 	return rcv.BalancerStrategy
+}
+
+func (rcv KafkaImpl) GetIsolationLevel() isolationlevel.IsolationLevel {
+	return rcv.IsolationLevel
 }
 
 func (rcv KafkaImpl) GetMaxPartitionFetchBytes() pkl.DataSize {

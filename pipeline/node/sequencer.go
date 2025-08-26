@@ -8,7 +8,7 @@ import (
 
 	configtransform "github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/internal/metrics"
-	"github.com/pipelane/pipelaner/internal/utils"
+	"github.com/pipelane/pipelaner/internal/synchronization"
 	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	"github.com/rs/zerolog"
@@ -81,8 +81,8 @@ func (s *Sequencer) Run() error {
 		return fmt.Errorf("no output channels configured for '%s'", s.cfg.name)
 	}
 
-	sema := utils.NewSemaphore(s.cfg.threadsCount)
-	inChannel := utils.MergeInputs(s.inputChannels...)
+	sema := synchronization.NewSemaphore(s.cfg.threadsCount)
+	inChannel := synchronization.MergeInputs(s.inputChannels...)
 
 	go func() {
 		s.logger.Debug().Msg("starting sequencing messages")
@@ -96,6 +96,10 @@ func (s *Sequencer) Run() error {
 				switch v := msg.(type) {
 				case []any:
 					for _, mV := range v {
+						s.processingMessage(mV)
+					}
+				case chan any:
+					for mV := range v {
 						s.processingMessage(mV)
 					}
 				default:
@@ -121,7 +125,15 @@ func (s *Sequencer) processingMessage(msg any) {
 		return
 	}
 	for _, ch := range s.outChannels {
-		mes, err := s.prepareMessage(msg)
+		var mes any
+		var err error
+		switch ms := msg.(type) {
+		case AtomicData:
+			mes, err = s.prepareMessage(ms.Data())
+			mes = ms.UpdateData(mes)
+		default:
+			mes, err = s.prepareMessage(ms)
+		}
 		if err != nil {
 			s.logger.Debug().Err(err).Msg("skip nil message sequencer")
 			continue

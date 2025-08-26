@@ -12,7 +12,7 @@ import (
 
 	configtransform "github.com/pipelane/pipelaner/gen/source/transform"
 	"github.com/pipelane/pipelaner/internal/metrics"
-	"github.com/pipelane/pipelaner/internal/utils"
+	"github.com/pipelane/pipelaner/internal/synchronization"
 	"github.com/pipelane/pipelaner/pipeline/components"
 	"github.com/pipelane/pipelaner/pipeline/source"
 	"github.com/rs/zerolog"
@@ -97,8 +97,8 @@ func (t *Transform) Run() error {
 		return fmt.Errorf("no output channels configured for '%s'", t.cfg.name)
 	}
 
-	sema := utils.NewSemaphore(t.cfg.threadsCount)
-	inChannel := utils.MergeInputs(t.inputChannels...)
+	sema := synchronization.NewSemaphore(t.cfg.threadsCount)
+	inChannel := synchronization.MergeInputs(t.inputChannels...)
 
 	go func() {
 		t.logger.Debug().Msg("starting transform")
@@ -108,6 +108,7 @@ func (t *Transform) Run() error {
 			wg.Add(1)
 			sema.Acquire()
 			go func() {
+				var tmpMsg AtomicMessage
 				defer wg.Done()
 				defer sema.Release()
 				msg = t.impl.Transform(msg)
@@ -115,11 +116,24 @@ func (t *Transform) Run() error {
 					if t.cfg.enableMetrics {
 						metrics.TotalTransformationError.WithLabelValues(transformNodeType, t.cfg.name).Inc()
 					}
+					if m, oks := msg.(AtomicData); oks {
+						if m.Error() != nil {
+							m.Error() <- tmpMsg
+						}
+					}
 					t.logger.Debug().Err(e).Msg("received error")
 					return
 				}
 				for _, ch := range t.outChannels {
-					mes, err := t.prepareMessage(msg)
+					var mes any
+					var err error
+					switch ms := msg.(type) {
+					case AtomicData:
+						mes, err = t.prepareMessage(ms.Data())
+						mes = ms.UpdateData(mes)
+					default:
+						mes, err = t.prepareMessage(ms)
+					}
 					if err != nil {
 						t.logger.Debug().Err(err).Msg("skip nil message transform")
 						continue

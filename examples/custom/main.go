@@ -19,7 +19,6 @@ func init() {
 }
 
 func main() {
-
 	ctx := context.Background()
 	agent, err := pipelaner.NewAgent(
 		"examples/custom/pkl/config.pkl",

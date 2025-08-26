@@ -44,3 +44,11 @@ var BufferLength = prometheus.NewGaugeVec(
 	},
 	[]string{"type", "name"},
 )
+
+var TotalSinkError = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "sink_error_total",
+		Help: "Total number of errors.",
+	},
+	[]string{"type", "name"},
+)

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/pprof"
-	_ "net/http/pprof" //nolint:gosec
 	"time"
 
 	pprofCfg "github.com/pipelane/pipelaner/gen/settings/pprof"

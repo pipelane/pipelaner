@@ -12,6 +12,8 @@ import (
 	"github.com/apple/pkl-go/pkl"
 	"github.com/pipelane/pipelaner/gen/source/common/saslmechanism"
 	"github.com/pipelane/pipelaner/gen/source/input"
+	"github.com/pipelane/pipelaner/gen/source/input/commitstrategy"
+	"github.com/pipelane/pipelaner/gen/source/input/isolationlevel"
 	"github.com/pipelane/pipelaner/gen/source/input/strategy"
 	"github.com/rs/zerolog"
 	"github.com/twmb/franz-go/pkg/kgo"
@@ -20,7 +22,8 @@ import (
 )
 
 type Consumer struct {
-	cli *kgo.Client
+	cli    *kgo.Client
+	logger *zerolog.Logger
 }
 
 func NewConsumer(
@@ -31,7 +34,13 @@ func NewConsumer(
 	v := maxPartitionFetchBytes.ToUnit(pkl.Bytes).Value
 	fetchMaxBytes := cfg.GetFetchMaxBytes()
 	maxByteFetch := fetchMaxBytes.ToUnit(pkl.Bytes).Value
-
+	isolationLevel := kgo.ReadUncommitted()
+	if cfg.GetIsolationLevel() == isolationlevel.ReadCommitted {
+		isolationLevel = kgo.ReadCommitted()
+	}
+	cons := &Consumer{
+		logger: logger,
+	}
 	opts := []kgo.Opt{
 		kgo.SeedBrokers(cfg.GetCommon().Brokers...),
 		kgo.WithLogger(kzerolog.New(logger)),
@@ -40,6 +49,7 @@ func NewConsumer(
 		kgo.FetchMaxBytes(int32(maxByteFetch)),
 		kgo.FetchMaxPartitionBytes(int32(v)),
 		kgo.HeartbeatInterval(time.Second),
+		kgo.FetchIsolationLevel(isolationLevel),
 	}
 	var balancers []kgo.GroupBalancer
 	for _, s := range cfg.GetBalancerStrategy() {
@@ -59,7 +69,17 @@ func NewConsumer(
 	}
 	opts = append(opts, kgo.Balancers(balancers...))
 
-	if !cfg.GetAutoCommitEnabled() {
+	switch cfg.GetCommitSrategy().Strategy {
+	case commitstrategy.MarkOnSuccess:
+		duration := cfg.GetCommitSrategy().Interval
+		interval := duration.GoDuration()
+		opts = append(opts, kgo.AutoCommitMarks())
+		opts = append(opts, kgo.AutoCommitInterval(interval))
+		opts = append(opts, kgo.OnPartitionsRevoked(cons.revoked))
+	case commitstrategy.AutoCommit:
+		interval := cfg.GetCommitSrategy().Interval
+		opts = append(opts, kgo.AutoCommitInterval(interval.GoDuration()))
+	case commitstrategy.OneByOne:
 		opts = append(opts, kgo.DisableAutoCommit())
 	}
 
@@ -85,13 +105,11 @@ func NewConsumer(
 	}
 
 	cl, err := kgo.NewClient(opts...)
-
 	if err != nil {
 		return nil, err
 	}
-	return &Consumer{
-		cli: cl,
-	}, nil
+	cons.cli = cl
+	return cons, nil
 }
 
 func (c *Consumer) Consume(
@@ -122,5 +140,23 @@ func (c *Consumer) Consume(
 				}
 			}
 		}
+	}
+}
+
+func (c *Consumer) CommitRecords(ctx context.Context, rec *kgo.Record) error {
+	return c.cli.CommitRecords(ctx, rec)
+}
+
+func (c *Consumer) MarkCommitRecords(rec *kgo.Record) {
+	c.cli.MarkCommitRecords(rec)
+}
+
+func (c *Consumer) CommitMarkedOffsets(ctx context.Context) error {
+	return c.cli.CommitMarkedOffsets(ctx)
+}
+
+func (c *Consumer) revoked(ctx context.Context, cl *kgo.Client, _ map[string][]int32) {
+	if err := cl.CommitMarkedOffsets(ctx); err != nil {
+		c.logger.Error().Err(err).Msg("failed to revoke marked offsets")
 	}
 }
