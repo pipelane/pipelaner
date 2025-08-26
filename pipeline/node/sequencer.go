@@ -164,6 +164,8 @@ func (s *Sequencer) processingAtomicMessage(atomic any) {
 		for mV := range data {
 			s.atomicProcessSequence(mV, val)
 		}
+	default:
+		s.atomicProcessSequence(val, val)
 	}
 }
 
