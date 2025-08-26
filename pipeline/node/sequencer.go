@@ -93,18 +93,7 @@ func (s *Sequencer) Run() error {
 			go func() {
 				defer wg.Done()
 				defer sema.Release()
-				switch v := msg.(type) {
-				case []any:
-					for _, mV := range v {
-						s.processingMessage(mV)
-					}
-				case chan any:
-					for mV := range v {
-						s.processingMessage(mV)
-					}
-				default:
-					s.processingMessage(v)
-				}
+				s.processingMessageByType(msg)
 			}()
 		}
 		wg.Wait()
@@ -116,6 +105,23 @@ func (s *Sequencer) Run() error {
 	return nil
 }
 
+func (s *Sequencer) processingMessageByType(msg any) {
+	switch v := msg.(type) {
+	case []any:
+		for _, mV := range v {
+			s.processingMessage(mV)
+		}
+	case chan any:
+		for mV := range v {
+			s.processingMessage(mV)
+		}
+	case AtomicMessage:
+		s.processingAtomicMessage(v)
+	default:
+		s.processingMessage(v)
+	}
+}
+
 func (s *Sequencer) processingMessage(msg any) {
 	if e, ok := msg.(error); ok {
 		if s.cfg.enableMetrics {
@@ -125,21 +131,57 @@ func (s *Sequencer) processingMessage(msg any) {
 		return
 	}
 	for _, ch := range s.outChannels {
-		var mes any
-		var err error
-		switch ms := msg.(type) {
-		case AtomicData:
-			mes, err = s.prepareMessage(ms.Data())
-			mes = ms.UpdateData(mes)
-		default:
-			mes, err = s.prepareMessage(ms)
-		}
+		mes, err := s.prepareMessage(msg)
 		if err != nil {
 			s.logger.Debug().Err(err).Msg("skip nil message sequencer")
 			continue
 		}
 		s.preSendMessageAction(len(ch), cap(ch))
 		ch <- mes
+		s.postSinkAction()
+	}
+}
+
+func (s *Sequencer) processingAtomicMessage(atomic any) {
+	if e, ok := atomic.(error); ok {
+		if s.cfg.enableMetrics {
+			metrics.TotalTransformationError.WithLabelValues(sequencerNodeType, s.cfg.name).Inc()
+		}
+		s.logger.Debug().Err(e).Msg("received error")
+		return
+	}
+	val, ok := atomic.(AtomicMessage)
+	if !ok {
+		s.logger.Debug().Err(errors.New("message is not atomic")).Msg("received error")
+		return
+	}
+	switch data := val.Data().(type) {
+	case []any:
+		for _, mV := range data {
+			s.atomicProcessSequence(mV, val)
+		}
+	case chan any:
+		for mV := range data {
+			s.atomicProcessSequence(mV, val)
+		}
+	}
+}
+
+func (s *Sequencer) atomicProcessSequence(mV any, val AtomicMessage) {
+	for _, ch := range s.outChannels {
+		mes, err := s.prepareMessage(mV)
+		if err != nil {
+			s.logger.Debug().Err(err).Msg("skip nil message sequencer")
+			continue
+		}
+		s.preSendMessageAction(len(ch), cap(ch))
+		newA := AtomicMessage{
+			id:        val.ID(),
+			data:      mes,
+			successCh: val.Success(),
+			errorCh:   val.Error(),
+		}
+		ch <- newA
 		s.postSinkAction()
 	}
 }
