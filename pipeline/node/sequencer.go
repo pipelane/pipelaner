@@ -115,7 +115,7 @@ func (s *Sequencer) processingMessageByType(msg any) {
 		for mV := range v {
 			s.processingMessage(mV)
 		}
-	case AtomicMessage:
+	case AtomicData:
 		s.processingAtomicMessage(v)
 	default:
 		s.processingMessage(v)
@@ -150,7 +150,7 @@ func (s *Sequencer) processingAtomicMessage(atomic any) {
 		s.logger.Debug().Err(e).Msg("received error")
 		return
 	}
-	val, ok := atomic.(AtomicMessage)
+	val, ok := atomic.(AtomicData)
 	if !ok {
 		s.logger.Debug().Err(errors.New("message is not atomic")).Msg("received error")
 		return
@@ -167,7 +167,7 @@ func (s *Sequencer) processingAtomicMessage(atomic any) {
 	}
 }
 
-func (s *Sequencer) atomicProcessSequence(mV any, val AtomicMessage) {
+func (s *Sequencer) atomicProcessSequence(mV any, val AtomicData) {
 	for _, ch := range s.outChannels {
 		mes, err := s.prepareMessage(mV)
 		if err != nil {
