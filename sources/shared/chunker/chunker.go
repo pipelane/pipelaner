@@ -11,10 +11,18 @@ import (
 	"time"
 )
 
+type Strategy string
+
+const (
+	FlushByOneMessage Strategy = "flush-by-one-message"
+	FlushByTime       Strategy = "flush-by-time"
+)
+
 type Config struct {
 	MaxChunkSize uint
 	BufferSize   uint
 	MaxIdleTime  time.Duration
+	Strategy     Strategy
 }
 type Chunks struct {
 	Cfg     Config
@@ -25,6 +33,9 @@ type Chunks struct {
 }
 
 func NewChunks(cfg Config) *Chunks {
+	if cfg.Strategy == "" {
+		cfg.Strategy = FlushByOneMessage
+	}
 	b := &Chunks{
 		Cfg:   cfg,
 		input: make(chan any, cfg.MaxChunkSize*cfg.BufferSize),
@@ -98,7 +109,9 @@ Loop:
 			if !ok && msg == nil {
 				continue
 			}
-			timer.Reset(c.Cfg.MaxIdleTime)
+			if c.Cfg.Strategy == FlushByOneMessage {
+				timer.Reset(c.Cfg.MaxIdleTime)
+			}
 			buffer <- msg
 			counter.Add(1)
 			if uint(counter.Load()) == c.Cfg.MaxChunkSize {

@@ -28,6 +28,7 @@ func TestChunks(t *testing.T) {
 					MaxChunkSize: 10,
 					BufferSize:   10,
 					MaxIdleTime:  time.Second * 10,
+					Strategy:     chunker.FlushByOneMessage,
 				},
 			},
 			want: []any{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
@@ -72,6 +73,7 @@ func TestChunksOfChunks(t *testing.T) {
 					MaxChunkSize: 3,
 					BufferSize:   3,
 					MaxIdleTime:  time.Second * 10,
+					Strategy:     chunker.FlushByOneMessage,
 				},
 			},
 			want: testStructs{
