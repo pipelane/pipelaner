@@ -7,7 +7,7 @@ package pipelaner
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 
 	"github.com/pipelane/pipelaner/gen/source/input"
 	"github.com/pipelane/pipelaner/pipeline/components"
@@ -31,22 +31,31 @@ func init() {
 }
 
 func (p *Pipelaner) Init(cfg input.Input) error {
-	var opts []grpc.ServerOption
 	c, ok := cfg.(input.Pipelaner)
 	if !ok {
-		return errors.New("invalid input config type")
+		return fmt.Errorf("invalid input config type: %T", cfg)
 	}
-	if tls := c.GetCommonConfig().Tls; tls != nil {
-		cred, errs := credentials.NewServerTLSFromFile(tls.CertFile, tls.KeyFile)
-		if errs != nil {
-			p.Log().Fatal().Err(errs).Msg("Failed to generate credentials")
+
+	var (
+		opts []grpc.ServerOption
+		host string
+		port uint
+	)
+
+	if commonCfg := c.GetCommonConfig(); commonCfg != nil {
+		host, port = commonCfg.Host, commonCfg.Port
+		if tls := commonCfg.Tls; tls != nil {
+			cred, err := credentials.NewServerTLSFromFile(tls.CertFile, tls.KeyFile)
+			if err != nil {
+				p.Log().Fatal().Err(err).Msg("generate tls credentials")
+			}
+			opts = append(opts, grpc.Creds(cred))
 		}
-		opts = []grpc.ServerOption{grpc.Creds(cred)}
 	}
 	l := p.Log().With().Logger()
 	serv := grpc_server.NewServer(&grpc_server.ServerConfig{
-		Host:           c.GetCommonConfig().Host,
-		Port:           c.GetCommonConfig().Port,
+		Host:           host,
+		Port:           port,
 		ConnectionType: c.GetConnectionType().String(),
 		UnixSocketPath: c.GetUnixSocketPath(),
 		Opts:           opts,
