@@ -1,7 +1,10 @@
 // Code generated from Pkl module `com.pipelaner.source.transforms`. DO NOT EDIT.
 package transform
 
-import "github.com/apple/pkl-go/pkl"
+import (
+	"github.com/apple/pkl-go/pkl"
+	"github.com/pipelane/pipelaner/gen/source/transform/flushtimerstrategy"
+)
 
 type Chunk interface {
 	Transform
@@ -9,6 +12,8 @@ type Chunk interface {
 	GetMaxChunkSize() uint
 
 	GetMaxIdleTime() pkl.Duration
+
+	GetFlushTimerStrategy() flushtimerstrategy.FlushTimerStrategy
 }
 
 var _ Chunk = ChunkImpl{}
@@ -19,6 +24,8 @@ type ChunkImpl struct {
 	MaxChunkSize uint `pkl:"maxChunkSize"`
 
 	MaxIdleTime pkl.Duration `pkl:"maxIdleTime"`
+
+	FlushTimerStrategy flushtimerstrategy.FlushTimerStrategy `pkl:"flushTimerStrategy"`
 
 	Name string `pkl:"name"`
 
@@ -39,6 +46,10 @@ func (rcv ChunkImpl) GetMaxChunkSize() uint {
 
 func (rcv ChunkImpl) GetMaxIdleTime() pkl.Duration {
 	return rcv.MaxIdleTime
+}
+
+func (rcv ChunkImpl) GetFlushTimerStrategy() flushtimerstrategy.FlushTimerStrategy {
+	return rcv.FlushTimerStrategy
 }
 
 func (rcv ChunkImpl) GetName() string {

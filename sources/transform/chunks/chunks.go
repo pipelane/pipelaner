@@ -33,6 +33,7 @@ func (c *Chunk) Init(cfg transform.Transform) error {
 		MaxChunkSize: chunkCfg.GetMaxChunkSize(),
 		BufferSize:   chunkCfg.GetOutputBufferSize(),
 		MaxIdleTime:  time.GoDuration(),
+		Strategy:     chunker.Strategy(chunkCfg.GetFlushTimerStrategy()),
 	})
 	c.buffer.Generator()
 	return nil

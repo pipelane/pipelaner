@@ -3,6 +3,7 @@ module com.pipelaner.source.transforms
 
 import "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.11.1#/go.pkl"
 
+typealias FlushTimerStrategy = "flush-by-one-message"|"flush-by-time"
 
 abstract class Transform {
   name: String(!isEmpty)
@@ -14,7 +15,7 @@ abstract class Transform {
 
 class Sequencer extends Transform {
   fixed sourceName = "sequencer"
-  isSequencer:Boolean = true
+  isSequencer: Boolean = true
 }
 
 class Batch extends Transform {
@@ -26,6 +27,7 @@ class Chunk extends Transform {
   fixed sourceName = "chunks"
   maxChunkSize: UInt(this > 0)
   maxIdleTime: Duration
+  flushTimerStrategy: FlushTimerStrategy = "flush-by-one-message"
 }
 
 class Debounce extends Transform {
